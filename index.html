@@ -3,29 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的工具集合</title>
-    <!-- 引入外部资源 -->
+    <title>校园工具集</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    
-    <!-- 配置Tailwind -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#4F46E5', // 主色调：靛蓝色
-                        secondary: '#10B981', // 辅助色：绿色
-                        search: '#EA4335', // 搜索工具颜色：红色
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        search: '#EA4335',
+                        danger: '#EF4444'
+                    }
                 }
             }
         }
     </script>
-    
     <style type="text/tailwindcss">
         @layer utilities {
             .tool-card-hover {
@@ -39,14 +33,17 @@
     <header class="bg-white shadow-sm sticky top-0 z-10">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold text-primary flex items-center">
-                <i class="fa fa-wrench mr-2"></i>我的工具集
+                <i class="fa fa-wrench mr-2"></i>校园工具集
             </h1>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li><a href="#" class="text-gray-700 hover:text-primary transition-colors">首页</a></li>
-                    <li><a href="#about" class="text-gray-700 hover:text-primary transition-colors">关于</a></li>
-                </ul>
-            </nav>
+            <div class="flex items-center space-x-4">
+                <span id="user-status" class="text-gray-600 hidden">
+                    <i class="fa fa-user mr-1"></i>
+                    <span id="current-username"></span>
+                </span>
+                <button id="logout-btn" class="text-gray-600 hover:text-danger hidden">
+                    <i class="fa fa-sign-out"></i> 退出
+                </button>
+            </div>
         </div>
     </header>
 
@@ -54,8 +51,8 @@
     <main class="container mx-auto px-4 py-8">
         <!-- 欢迎区域 -->
         <section class="text-center mb-12">
-            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">实用小工具集合</h2>
-            <p class="text-gray-600 max-w-2xl mx-auto">简单好用的在线工具，满足日常小需求，持续更新中...</p>
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">校园实用工具</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">公共工具开放使用，聊天功能需登录后使用</p>
         </section>
 
         <!-- 工具卡片区域 -->
@@ -74,8 +71,8 @@
                 <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                     <i class="fa fa-comments text-2xl text-primary"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">在线聊天</h3>
-                <p class="text-gray-600 text-sm">和其他访客实时聊天交流</p>
+                <h3 class="text-xl font-semibold mb-2">校园聊天</h3>
+                <p class="text-gray-600 text-sm">仅限授权用户使用</p>
             </div>
 
             <!-- 待办清单工具卡片 -->
@@ -106,6 +103,81 @@
             </div>
         </section>
 
+        <!-- 登录模态框 (默认隐藏) -->
+        <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-8 w-full max-w-md">
+                <h3 class="text-2xl font-bold text-center mb-6">用户登录</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">账号</label>
+                    <input type="text" id="login-username" placeholder="输入账号" 
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">密码</label>
+                    <input type="password" id="login-password" placeholder="输入密码" 
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                
+                <div id="login-error" class="text-red-500 text-center mb-4 hidden"></div>
+                
+                <button id="do-login" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                    登录
+                </button>
+            </div>
+        </div>
+
+        <!-- 管理员工具模态框 (默认隐藏) -->
+        <div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-8 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">管理员工具</h3>
+                    <button id="close-admin-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- 添加用户表单 -->
+                <div class="mb-8 p-4 border rounded-lg bg-gray-50">
+                    <h4 class="font-bold text-lg mb-4">添加用户</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 mb-1">账号</label>
+                            <input type="text" id="new-user-account" placeholder="设置登录账号" 
+                                class="w-full px-3 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-1">姓名</label>
+                            <input type="text" id="new-user-name" placeholder="用户姓名" 
+                                class="w-full px-3 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-1">班级</label>
+                            <input type="text" id="new-user-class" placeholder="所属班级" 
+                                class="w-full px-3 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-1">初始密码</label>
+                            <input type="text" id="new-user-password" placeholder="设置初始密码" 
+                                class="w-full px-3 py-2 border rounded" value="123456">
+                        </div>
+                    </div>
+                    <button id="add-user-btn" class="mt-4 bg-secondary text-white px-4 py-2 rounded hover:bg-secondary/90">
+                        <i class="fa fa-plus mr-1"></i> 添加用户
+                    </button>
+                </div>
+                
+                <!-- 用户列表 -->
+                <div>
+                    <h4 class="font-bold text-lg mb-4">已授权用户</h4>
+                    <div id="user-list" class="space-y-3 max-h-60 overflow-y-auto">
+                        <!-- 用户列表将动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 工具展示区域（默认隐藏，点击卡片时显示对应工具） -->
         <section id="tool-display-area" class="hidden bg-white rounded-xl shadow-lg p-6 mb-12">
             <!-- 工具标题和关闭按钮 -->
@@ -123,26 +195,60 @@
         </section>
     </main>
 
-    <!-- 关于区域 -->
-    <section id="about" class="bg-white py-12 border-t">
-        <div class="container mx-auto px-4">
-            <h2 class="text-2xl font-bold text-center mb-6">关于这个网站</h2>
-            <p class="text-gray-600 max-w-2xl mx-auto text-center">
-                这是一个简单的工具集合网站，包含各种实用小工具。
-                持续更新中，欢迎使用和提出建议！
-            </p>
-        </div>
-    </section>
-
     <!-- 页脚 -->
-    <footer class="bg-gray-800 text-white py-6">
+    <footer class="bg-gray-800 text-white py-6 mt-12">
         <div class="container mx-auto px-4 text-center">
-            <p>&copy; 2023 我的工具集 | 简单实用的在线工具</p>
+            <p>&copy; 2023 校园工具集 | 简单实用的校园在线工具</p>
         </div>
     </footer>
 
-    <!-- 工具功能JavaScript -->
     <script>
+        // 全局变量
+        let currentUser = null;
+        const ADMIN_ACCOUNT = "admin"; // 管理员账号，可自行修改
+        
+        // 初始化系统用户（首次使用时创建管理员账号）
+        function initSystemUsers() {
+            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+            // 如果管理员账号不存在，则创建
+            if (!users[ADMIN_ACCOUNT]) {
+                users[ADMIN_ACCOUNT] = {
+                    password: "admin123", // 管理员初始密码，建议首次登录后修改
+                    name: "管理员",
+                    class: "系统管理"
+                };
+                localStorage.setItem('systemUsers', JSON.stringify(users));
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initSystemUsers();
+            checkLoginStatus();
+            loadUserList();
+        });
+        
+        // 检查登录状态
+        function checkLoginStatus() {
+            const savedUser = localStorage.getItem('currentLogin');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateUserStatus();
+            }
+        }
+        
+        // 更新用户状态显示
+        function updateUserStatus() {
+            if (currentUser) {
+                document.getElementById('user-status').classList.remove('hidden');
+                document.getElementById('current-username').textContent = currentUser.name || currentUser.account;
+                document.getElementById('logout-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('user-status').classList.add('hidden');
+                document.getElementById('logout-btn').classList.add('hidden');
+            }
+        }
+        
         // 获取DOM元素
         const toolCards = {
             search: document.getElementById('search-tool'),
@@ -155,7 +261,9 @@
         const toolTitle = document.getElementById('tool-title');
         const toolContent = document.getElementById('tool-content');
         const closeToolBtn = document.getElementById('close-tool');
-
+        const loginModal = document.getElementById('login-modal');
+        const adminModal = document.getElementById('admin-modal');
+        
         // 工具内容模板
         const toolTemplates = {
             // 搜索引擎模板
@@ -215,8 +323,18 @@
             // 聊天工具模板
             chat: `
                 <div class="p-4">
+                    ${currentUser && currentUser.account === ADMIN_ACCOUNT ? `
+                    <div class="mb-4 flex justify-end">
+                        <button id="open-admin-tools" class="bg-primary/10 text-primary px-3 py-1 rounded text-sm hover:bg-primary/20">
+                            <i class="fa fa-cog mr-1"></i> 管理工具
+                        </button>
+                    </div>
+                    ` : ''}
+                    
                     <div id="chat-container" class="border rounded-lg p-3 h-80 flex flex-col">
-                        <div id="chat-messages" class="flex-1 overflow-y-auto mb-3 space-y-2"></div>
+                        <div id="chat-messages" class="flex-1 overflow-y-auto mb-3 space-y-2">
+                            <!-- 聊天消息会在这里显示 -->
+                        </div>
                         <div class="flex">
                             <input type="text" id="chat-input" placeholder="输入消息..." 
                                 class="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50">
@@ -224,6 +342,10 @@
                                 发送
                             </button>
                         </div>
+                    </div>
+                    
+                    <div class="mt-4 text-center text-sm text-gray-500">
+                        <p>提示：离开页面后聊天记录将清除，请及时保存重要信息</p>
                     </div>
                 </div>
             `,
@@ -302,6 +424,12 @@
 
         // 打开工具
         function openTool(toolName, toolTitleText) {
+            // 对于聊天工具，检查是否已登录
+            if (toolName === 'chat' && !currentUser) {
+                showLoginModal();
+                return;
+            }
+            
             toolTitle.textContent = toolTitleText;
             toolContent.innerHTML = toolTemplates[toolName];
             toolDisplayArea.classList.remove('hidden');
@@ -398,7 +526,18 @@
             const chatMessages = document.getElementById('chat-messages');
             const chatInput = document.getElementById('chat-input');
             const sendChatBtn = document.getElementById('send-chat');
-
+            
+            // 如果是管理员，添加管理工具按钮事件
+            if (currentUser && currentUser.account === ADMIN_ACCOUNT) {
+                document.getElementById('open-admin-tools').addEventListener('click', () => {
+                    adminModal.classList.remove('hidden');
+                    loadUserList();
+                });
+            }
+            
+            // 加载会话中的聊天记录
+            loadChatMessages();
+            
             // 发送消息
             function sendMessage() {
                 const message = chatInput.value.trim();
@@ -408,37 +547,20 @@
                     userMsgEl.className = 'flex justify-end';
                     userMsgEl.innerHTML = `
                         <div class="bg-primary text-white px-3 py-1 rounded-lg max-w-[80%]">
+                            <div class="text-xs opacity-75 mb-1">${currentUser.name} ${new Date().toLocaleTimeString()}</div>
                             ${message}
                         </div>
                     `;
                     chatMessages.appendChild(userMsgEl);
+
+                    // 保存消息到会话存储
+                    saveChatMessage(currentUser.account, currentUser.name, message);
 
                     // 清空输入框
                     chatInput.value = '';
 
                     // 滚动到底部
                     chatMessages.scrollTop = chatMessages.scrollHeight;
-
-                    // 模拟回复
-                    setTimeout(() => {
-                        const replies = [
-                            "好的，我收到了你的消息！",
-                            "这个想法不错哦~",
-                            "我明白了，谢谢你的分享！",
-                            "我们可以再深入讨论一下。"
-                        ];
-                        const randomReply = replies[Math.floor(Math.random() * replies.length)];
-                        
-                        const replyEl = document.createElement('div');
-                        replyEl.className = 'flex justify-start';
-                        replyEl.innerHTML = `
-                            <div class="bg-gray-200 text-gray-800 px-3 py-1 rounded-lg max-w-[80%]">
-                                ${randomReply}
-                            </div>
-                        `;
-                        chatMessages.appendChild(replyEl);
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }, 1000);
                 }
             }
 
@@ -447,6 +569,58 @@
             chatInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') sendMessage();
             });
+        }
+        
+        // 保存聊天消息到会话存储
+        function saveChatMessage(userId, userName, content) {
+            const message = {
+                userId: userId,
+                userName: userName,
+                content: content,
+                time: new Date().toISOString()
+            };
+            
+            // 从会话存储获取现有消息
+            const messages = JSON.parse(sessionStorage.getItem('chatMessages') || '[]');
+            messages.push(message);
+            
+            // 只保留最近100条消息
+            if (messages.length > 100) {
+                messages.splice(0, messages.length - 100);
+            }
+            
+            sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+        }
+        
+        // 加载聊天消息
+        function loadChatMessages() {
+            const chatMessages = document.getElementById('chat-messages');
+            const messages = JSON.parse(sessionStorage.getItem('chatMessages') || '[]');
+            
+            chatMessages.innerHTML = '';
+            
+            if (messages.length === 0) {
+                chatMessages.innerHTML = '<p class="text-gray-500 italic text-center">还没有消息，开始聊天吧！</p>';
+                return;
+            }
+            
+            messages.forEach(msg => {
+                const msgEl = document.createElement('div');
+                // 判断是不是当前用户发送的消息
+                const isCurrentUser = msg.userId === currentUser.account;
+                
+                msgEl.className = isCurrentUser ? 'flex justify-end' : 'flex justify-start';
+                msgEl.innerHTML = `
+                    <div class="${isCurrentUser ? 'bg-primary text-white' : 'bg-gray-200 text-gray-800'} px-3 py-1 rounded-lg max-w-[80%]">
+                        <div class="text-xs opacity-75 mb-1">${msg.userName} ${new Date(msg.time).toLocaleTimeString()}</div>
+                        ${msg.content}
+                    </div>
+                `;
+                chatMessages.appendChild(msgEl);
+            });
+            
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         // 初始化待办清单工具
@@ -701,15 +875,213 @@
             }
         }
 
-        // 绑定工具卡片点击事件
+        // 登录相关函数
+        function showLoginModal() {
+            loginModal.classList.remove('hidden');
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+            document.getElementById('login-username').focus();
+        }
+        
+        function hideLoginModal() {
+            loginModal.classList.add('hidden');
+        }
+        
+        function doLogin() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const errorEl = document.getElementById('login-error');
+            
+            if (!username || !password) {
+                errorEl.textContent = '请输入账号和密码';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            // 获取系统用户列表
+            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+            
+            // 验证账号密码
+            if (users[username] && users[username].password === password) {
+                // 登录成功
+                currentUser = {
+                    account: username,
+                    name: users[username].name,
+                    class: users[username].class
+                };
+                
+                // 保存登录状态
+                localStorage.setItem('currentLogin', JSON.stringify(currentUser));
+                
+                // 更新UI
+                updateUserStatus();
+                hideLoginModal();
+                
+                // 如果是点击聊天工具触发的登录，登录后打开聊天工具
+                openTool('chat', '校园聊天');
+            } else {
+                errorEl.textContent = '账号或密码错误';
+                errorEl.classList.remove('hidden');
+            }
+        }
+        
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                // 清除登录状态
+                localStorage.removeItem('currentLogin');
+                currentUser = null;
+                updateUserStatus();
+                
+                // 清除会话中的聊天记录
+                sessionStorage.removeItem('chatMessages');
+                
+                // 关闭可能打开的工具
+                closeTool();
+            }
+        }
+        
+        // 管理员功能
+        function loadUserList() {
+            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+            const listEl = document.getElementById('user-list');
+            listEl.innerHTML = '';
+            
+            // 遍历显示所有用户
+            for (const [account, info] of Object.entries(users)) {
+                // 跳过管理员账号不显示在列表中
+                if (account === ADMIN_ACCOUNT) continue;
+                
+                const userEl = document.createElement('div');
+                userEl.className = 'p-3 border rounded-lg flex justify-between items-center';
+                userEl.innerHTML = `
+                    <div>
+                        <p><strong>${info.name}</strong>（${account}）</p>
+                        <p class="text-sm text-gray-600">班级：${info.class}</p>
+                    </div>
+                    <div>
+                        <button onclick="resetUserPassword('${account}')" class="text-sm bg-gray-200 px-2 py-1 rounded mr-2">
+                            重置密码
+                        </button>
+                        <button onclick="deleteUser('${account}')" class="text-sm bg-danger/10 text-danger px-2 py-1 rounded">
+                            删除
+                        </button>
+                    </div>
+                `;
+                listEl.appendChild(userEl);
+            }
+            
+            // 如果没有用户
+            if (listEl.children.length === 0) {
+                listEl.innerHTML = '<p class="text-gray-500 italic text-center">还没有添加用户</p>';
+            }
+        }
+        
+        function addUser() {
+            const account = document.getElementById('new-user-account').value.trim();
+            const name = document.getElementById('new-user-name').value.trim();
+            const className = document.getElementById('new-user-class').value.trim();
+            const password = document.getElementById('new-user-password').value.trim();
+            
+            if (!account || !name || !className || !password) {
+                alert('请填写完整的用户信息');
+                return;
+            }
+            
+            // 获取现有用户列表
+            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+            
+            // 检查账号是否已存在
+            if (users[account]) {
+                alert('该账号已存在');
+                return;
+            }
+            
+            // 添加新用户
+            users[account] = {
+                password: password,
+                name: name,
+                class: className
+            };
+            
+            // 保存到本地存储
+            localStorage.setItem('systemUsers', JSON.stringify(users));
+            
+            // 刷新用户列表
+            loadUserList();
+            
+            // 清空表单
+            document.getElementById('new-user-account').value = '';
+            document.getElementById('new-user-name').value = '';
+            document.getElementById('new-user-class').value = '';
+            document.getElementById('new-user-password').value = '123456';
+            
+            alert('用户添加成功');
+        }
+        
+        function resetUserPassword(account) {
+            if (confirm('确定要将该用户密码重置为123456吗？')) {
+                const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+                if (users[account]) {
+                    users[account].password = '123456';
+                    localStorage.setItem('systemUsers', JSON.stringify(users));
+                    alert('密码已重置为123456');
+                }
+            }
+        }
+        
+        function deleteUser(account) {
+            if (confirm('确定要删除该用户吗？此操作不可恢复。')) {
+                const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+                if (users[account]) {
+                    delete users[account];
+                    localStorage.setItem('systemUsers', JSON.stringify(users));
+                    loadUserList();
+                    alert('用户已删除');
+                }
+            }
+        }
+
+        // 绑定事件
+        // 工具卡片点击事件
         toolCards.search.addEventListener('click', () => openTool('search', '搜索引擎'));
-        toolCards.chat.addEventListener('click', () => openTool('chat', '在线聊天'));
+        toolCards.chat.addEventListener('click', () => openTool('chat', '校园聊天'));
         toolCards.todo.addEventListener('click', () => openTool('todo', '待办清单'));
         toolCards.text.addEventListener('click', () => openTool('text', '文本工具'));
         toolCards.calc.addEventListener('click', () => openTool('calc', '计算器'));
 
-        // 绑定关闭工具事件
+        // 关闭工具事件
         closeToolBtn.addEventListener('click', closeTool);
+        
+        // 登录相关事件
+        document.getElementById('do-login').addEventListener('click', doLogin);
+        document.getElementById('logout-btn').addEventListener('click', logout);
+        
+        // 点击模态框外部关闭
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                hideLoginModal();
+            }
+        });
+        
+        // 管理员工具事件
+        document.getElementById('add-user-btn').addEventListener('click', addUser);
+        document.getElementById('close-admin-modal').addEventListener('click', () => {
+            adminModal.classList.add('hidden');
+        });
+        
+        adminModal.addEventListener('click', (e) => {
+            if (e.target === adminModal) {
+                adminModal.classList.add('hidden');
+            }
+        });
+        
+        // 键盘事件 - 登录时按Enter键登录
+        document.getElementById('login-password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                doLogin();
+            }
+        });
     </script>
 </body>
 </html>
