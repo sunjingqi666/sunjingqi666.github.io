@@ -205,7 +205,7 @@
     <script>
         // 全局变量
         let currentUser = null;
-        const ADMIN_ACCOUNT = "admin"; // 管理员账号，可自行修改
+        const ADMIN_ACCOUNT = "admin"; // 管理员账号
         
         // 初始化系统用户（首次使用时创建管理员账号）
         function initSystemUsers() {
@@ -213,7 +213,7 @@
             // 如果管理员账号不存在，则创建
             if (!users[ADMIN_ACCOUNT]) {
                 users[ADMIN_ACCOUNT] = {
-                    password: "admin123", // 管理员初始密码，建议首次登录后修改
+                    password: "admin123", // 管理员初始密码
                     name: "管理员",
                     class: "系统管理"
                 };
@@ -320,16 +320,15 @@
                     </div>
                 </div>
             `,
-            // 聊天工具模板
+            // 聊天工具模板 - 修复了管理员按钮显示问题
             chat: `
                 <div class="p-4">
-                    ${currentUser && currentUser.account === ADMIN_ACCOUNT ? `
-                    <div class="mb-4 flex justify-end">
+                    <!-- 管理员工具按钮，仅管理员可见 -->
+                    <div id="admin-tool-container" class="mb-4 flex justify-end">
                         <button id="open-admin-tools" class="bg-primary/10 text-primary px-3 py-1 rounded text-sm hover:bg-primary/20">
                             <i class="fa fa-cog mr-1"></i> 管理工具
                         </button>
                     </div>
-                    ` : ''}
                     
                     <div id="chat-container" class="border rounded-lg p-3 h-80 flex flex-col">
                         <div id="chat-messages" class="flex-1 overflow-y-auto mb-3 space-y-2">
@@ -509,40 +508,37 @@
             
             // 绑定事件
             searchBtn.addEventListener('click', performSearch);
-            
-            // 回车键触发搜索
             searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    performSearch();
-                }
+                if (e.key === 'Enter') performSearch();
             });
-            
-            // 自动聚焦到搜索框
             searchInput.focus();
         }
 
-        // 初始化聊天工具
+        // 初始化聊天工具 - 重点修复管理员按钮显示
         function initChatTool() {
             const chatMessages = document.getElementById('chat-messages');
             const chatInput = document.getElementById('chat-input');
             const sendChatBtn = document.getElementById('send-chat');
+            const adminToolContainer = document.getElementById('admin-tool-container');
             
-            // 如果是管理员，添加管理工具按钮事件
+            // 仅管理员显示管理工具按钮
             if (currentUser && currentUser.account === ADMIN_ACCOUNT) {
+                adminToolContainer.style.display = 'flex'; // 确保显示
                 document.getElementById('open-admin-tools').addEventListener('click', () => {
                     adminModal.classList.remove('hidden');
                     loadUserList();
                 });
+            } else {
+                adminToolContainer.style.display = 'none'; // 普通用户隐藏
             }
             
-            // 加载会话中的聊天记录
+            // 加载聊天记录
             loadChatMessages();
             
             // 发送消息
             function sendMessage() {
                 const message = chatInput.value.trim();
                 if (message) {
-                    // 添加用户消息
                     const userMsgEl = document.createElement('div');
                     userMsgEl.className = 'flex justify-end';
                     userMsgEl.innerHTML = `
@@ -552,19 +548,12 @@
                         </div>
                     `;
                     chatMessages.appendChild(userMsgEl);
-
-                    // 保存消息到会话存储
                     saveChatMessage(currentUser.account, currentUser.name, message);
-
-                    // 清空输入框
                     chatInput.value = '';
-
-                    // 滚动到底部
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
             }
 
-            // 绑定事件
             sendChatBtn.addEventListener('click', sendMessage);
             chatInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') sendMessage();
@@ -580,7 +569,6 @@
                 time: new Date().toISOString()
             };
             
-            // 从会话存储获取现有消息
             const messages = JSON.parse(sessionStorage.getItem('chatMessages') || '[]');
             messages.push(message);
             
@@ -606,7 +594,6 @@
             
             messages.forEach(msg => {
                 const msgEl = document.createElement('div');
-                // 判断是不是当前用户发送的消息
                 const isCurrentUser = msg.userId === currentUser.account;
                 
                 msgEl.className = isCurrentUser ? 'flex justify-end' : 'flex justify-start';
@@ -619,7 +606,6 @@
                 chatMessages.appendChild(msgEl);
             });
             
-            // 滚动到底部
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
@@ -636,7 +622,6 @@
             function addTodo() {
                 const task = todoInput.value.trim();
                 if (task) {
-                    // 创建待办项元素
                     const todoEl = document.createElement('div');
                     todoEl.className = 'flex items-center justify-between p-2 border rounded-lg';
                     todoEl.innerHTML = `
@@ -646,36 +631,34 @@
                         </button>
                     `;
                     
-                    // 添加点击事件（标记完成/未完成）
+                    // 标记完成/未完成
                     todoEl.querySelector('.todo-text').addEventListener('click', function() {
                         this.classList.toggle('line-through');
                         this.classList.toggle('text-gray-500');
-                        saveTodos(); // 保存更改
+                        saveTodos();
                     });
                     
-                    // 添加删除事件
+                    // 删除事件
                     todoEl.querySelector('.delete-todo').addEventListener('click', function() {
                         todoEl.remove();
-                        saveTodos(); // 保存更改
+                        saveTodos();
+                        
+                        if (todoList.children.length === 0) {
+                            todoList.innerHTML = '<p class="text-gray-500 italic">还没有任务，添加一个吧！</p>';
+                        }
                     });
                     
-                    // 添加到列表
                     todoList.appendChild(todoEl);
-                    
-                    // 清空输入框
                     todoInput.value = '';
-                    
-                    // 保存到本地存储
                     saveTodos();
                     
-                    // 移除提示文本
                     if (todoList.querySelector('p.italic')) {
                         todoList.querySelector('p.italic').remove();
                     }
                 }
             }
 
-            // 保存待办事项到本地存储
+            // 保存待办事项
             function saveTodos() {
                 const todos = [];
                 todoList.querySelectorAll('div').forEach(todo => {
@@ -686,18 +669,16 @@
                 localStorage.setItem('todos', JSON.stringify(todos));
             }
 
-            // 从本地存储加载待办事项
+            // 加载待办事项
             function loadTodos() {
                 const savedTodos = localStorage.getItem('todos');
                 if (savedTodos) {
                     const todos = JSON.parse(savedTodos);
                     
-                    // 清空提示文本
                     if (todoList.querySelector('p.italic')) {
                         todoList.querySelector('p.italic').remove();
                     }
                     
-                    // 添加每个待办项
                     todos.forEach(todo => {
                         const todoEl = document.createElement('div');
                         todoEl.className = 'flex items-center justify-between p-2 border rounded-lg';
@@ -708,19 +689,16 @@
                             </button>
                         `;
                         
-                        // 添加点击事件
                         todoEl.querySelector('.todo-text').addEventListener('click', function() {
                             this.classList.toggle('line-through');
                             this.classList.toggle('text-gray-500');
                             saveTodos();
                         });
                         
-                        // 添加删除事件
                         todoEl.querySelector('.delete-todo').addEventListener('click', function() {
                             todoEl.remove();
                             saveTodos();
                             
-                            // 如果列表为空，显示提示文本
                             if (todoList.children.length === 0) {
                                 todoList.innerHTML = '<p class="text-gray-500 italic">还没有任务，添加一个吧！</p>';
                             }
@@ -731,7 +709,6 @@
                 }
             }
 
-            // 绑定事件
             addTodoBtn.addEventListener('click', addTodo);
             todoInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') addTodo();
@@ -749,21 +726,13 @@
             // 转为大写
             upperCaseBtn.addEventListener('click', () => {
                 const text = textInput.value;
-                if (text) {
-                    textResult.textContent = text.toUpperCase();
-                } else {
-                    textResult.innerHTML = '<p class="text-red-500">请先输入文本</p>';
-                }
+                textResult.textContent = text ? text.toUpperCase() : '<p class="text-red-500">请先输入文本</p>';
             });
 
             // 转为小写
             lowerCaseBtn.addEventListener('click', () => {
                 const text = textInput.value;
-                if (text) {
-                    textResult.textContent = text.toLowerCase();
-                } else {
-                    textResult.innerHTML = '<p class="text-red-500">请先输入文本</p>';
-                }
+                textResult.textContent = text ? text.toLowerCase() : '<p class="text-red-500">请先输入文本</p>';
             });
 
             // 统计字数
@@ -772,10 +741,7 @@
                 if (text) {
                     const charCount = text.length;
                     const wordCount = text.trim().split(/\s+/).filter(word => word).length;
-                    textResult.innerHTML = `
-                        <p>字符数：${charCount}</p>
-                        <p>单词数：${wordCount}</p>
-                    `;
+                    textResult.innerHTML = `<p>字符数：${charCount}</p><p>单词数：${wordCount}</p>`;
                 } else {
                     textResult.innerHTML = '<p class="text-red-500">请先输入文本</p>';
                 }
@@ -797,7 +763,6 @@
 
                     // 数字和小数点
                     if (!isNaN(value) || value === '.') {
-                        // 防止多个小数点
                         if (value === '.' && currentValue.includes('.')) return;
                         currentValue += value;
                         display.value = currentValue;
@@ -807,7 +772,6 @@
                         if (currentValue === '') return;
                         
                         if (firstValue !== null) {
-                            // 计算之前的结果
                             calculate();
                         } else {
                             firstValue = currentValue;
@@ -855,11 +819,7 @@
                         result = num1 * num2;
                         break;
                     case '÷':
-                        if (num2 === 0) {
-                            result = '错误';
-                        } else {
-                            result = num1 / num2;
-                        }
+                        result = num2 === 0 ? '错误' : num1 / num2;
                         break;
                     case '%':
                         result = num1 % num2;
@@ -868,7 +828,6 @@
                         return;
                 }
 
-                // 处理结果
                 currentValue = result.toString();
                 display.value = currentValue;
                 firstValue = currentValue;
@@ -918,7 +877,7 @@
                 updateUserStatus();
                 hideLoginModal();
                 
-                // 如果是点击聊天工具触发的登录，登录后打开聊天工具
+                // 打开聊天工具
                 openTool('chat', '校园聊天');
             } else {
                 errorEl.textContent = '账号或密码错误';
@@ -928,15 +887,10 @@
         
         function logout() {
             if (confirm('确定要退出登录吗？')) {
-                // 清除登录状态
                 localStorage.removeItem('currentLogin');
                 currentUser = null;
                 updateUserStatus();
-                
-                // 清除会话中的聊天记录
                 sessionStorage.removeItem('chatMessages');
-                
-                // 关闭可能打开的工具
                 closeTool();
             }
         }
@@ -947,9 +901,8 @@
             const listEl = document.getElementById('user-list');
             listEl.innerHTML = '';
             
-            // 遍历显示所有用户
+            // 遍历显示所有用户（排除管理员）
             for (const [account, info] of Object.entries(users)) {
-                // 跳过管理员账号不显示在列表中
                 if (account === ADMIN_ACCOUNT) continue;
                 
                 const userEl = document.createElement('div');
@@ -988,26 +941,20 @@
                 return;
             }
             
-            // 获取现有用户列表
             const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
             
-            // 检查账号是否已存在
             if (users[account]) {
                 alert('该账号已存在');
                 return;
             }
             
-            // 添加新用户
             users[account] = {
                 password: password,
                 name: name,
                 class: className
             };
             
-            // 保存到本地存储
             localStorage.setItem('systemUsers', JSON.stringify(users));
-            
-            // 刷新用户列表
             loadUserList();
             
             // 清空表单
@@ -1059,9 +1006,7 @@
         
         // 点击模态框外部关闭
         loginModal.addEventListener('click', (e) => {
-            if (e.target === loginModal) {
-                hideLoginModal();
-            }
+            if (e.target === loginModal) hideLoginModal();
         });
         
         // 管理员工具事件
@@ -1071,16 +1016,12 @@
         });
         
         adminModal.addEventListener('click', (e) => {
-            if (e.target === adminModal) {
-                adminModal.classList.add('hidden');
-            }
+            if (e.target === adminModal) adminModal.classList.add('hidden');
         });
         
-        // 键盘事件 - 登录时按Enter键登录
+        // 登录时按Enter键登录
         document.getElementById('login-password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                doLogin();
-            }
+            if (e.key === 'Enter') doLogin();
         });
     </script>
 </body>
