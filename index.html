@@ -1,678 +1,592 @@
-<!DOCTYPE HTML>
-<!--
-	模板名称：lemon
-	
--->
-<html>
-	<head>
-		<!-- 修改网站标题（浏览器标签显示的文字） -->
-		<title>我的个人网站</title>
-		<meta charset="utf-8" />
-		<!-- 移动端适配设置（一般不需要修改） -->
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<!-- 样式表引用（不要修改路径） -->
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-		
-		<!-- 聊天功能需要的外部资源 -->
-		<script src="https://cdn.tailwindcss.com"></script>
-		<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-		
-		<!-- 配置Tailwind颜色以匹配网站风格 -->
-		<script>
-			tailwind.config = {
-				theme: {
-					extend: {
-						colors: {
-							primary: '#3498db', // 匹配网站蓝色主题
-						},
-					}
-				}
-			}
-		</script>
-	</head>
-	<body class="is-preload">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的工具集合</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5', // 主色调：靛蓝色
+                        secondary: '#10B981', // 辅助色：绿色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .tool-card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 顶部导航 -->
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-primary flex items-center">
+                <i class="fa fa-wrench mr-2"></i>我的工具集
+            </h1>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#" class="text-gray-700 hover:text-primary transition-colors">首页</a></li>
+                    <li><a href="#about" class="text-gray-700 hover:text-primary transition-colors">关于</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-		<!-- 整个页面的包裹容器 -->
-		<div id="wrapper" class="fade-in">
+    <!-- 主要内容区 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 欢迎区域 -->
+        <section class="text-center mb-12">
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">实用小工具集合</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">简单好用的在线工具，满足日常小需求，持续更新中...</p>
+        </section>
 
-			<!-- 首屏大标题区域 -->
-			<div id="intro">
-				<h1>这里是<br />主标题</h1>
-				<p>这是我的个人网站，基于HTML5+CSS3构建<br />
-				模板设计：<a href="https://twitter.com/ajlkn">@ajlkn</a>，来自 <a href="https://html5up.net">HTML5 UP</a></p>
-				<ul class="actions">
-					<li><a href="#header" class="button icon solid solo fa-arrow-down scrolly">向下滑动</a></li>
-				</ul>
-			</div>
+        <!-- 工具卡片区域 -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <!-- 聊天工具卡片 -->
+            <div class="bg-white rounded-xl shadow p-6 tool-card-hover cursor-pointer" id="chat-tool">
+                <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa fa-comments text-2xl text-primary"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">在线聊天</h3>
+                <p class="text-gray-600 text-sm">和其他访客实时聊天交流</p>
+            </div>
 
-			<!-- 顶部标题栏 -->
-			<header id="header">
-				<a href="index.html" class="logo">网站LOGO</a>
-			</header>
+            <!-- 待办清单工具卡片 -->
+            <div class="bg-white rounded-xl shadow p-6 tool-card-hover cursor-pointer" id="todo-tool">
+                <div class="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa fa-list-check text-2xl text-secondary"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">待办清单</h3>
+                <p class="text-gray-600 text-sm">记录和管理你的任务列表</p>
+            </div>
 
-			<!-- 导航菜单 -->
-			<nav id="nav">
-				<ul class="links">
-					<!-- 修改导航菜单项 -->
-					<li class="active"><a href="index.html">首页</a></li>
-					<li><a href="generic.html">关于我</a></li>
-					<li><a href="elements.html">作品集</a></li>
-				</ul>
-				<ul class="icons">
-					<!-- 修改社交媒体链接 -->
-					<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-					<li><a href="#" class="icon brands fa-weibo"><span class="label">微博</span></a></li>
-					<li><a href="#" class="icon brands fa-weixin"><span class="label">微信</span></a></li>
-					<li><a href="https://github.com/你的用户名" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
-				</ul>
-			</nav>
+            <!-- 文本工具卡片 -->
+            <div class="bg-white rounded-xl shadow p-6 tool-card-hover cursor-pointer" id="text-tool">
+                <div class="w-14 h-14 bg-amber-500/10 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa fa-file-text text-2xl text-amber-500"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">文本工具</h3>
+                <p class="text-gray-600 text-sm">大小写转换、字数统计等</p>
+            </div>
 
-			<!-- 主要内容区 -->
-			<div id="main">
+            <!-- 计算器工具卡片 -->
+            <div class="bg-white rounded-xl shadow p-6 tool-card-hover cursor-pointer" id="calc-tool">
+                <div class="w-14 h-14 bg-rose-500/10 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa fa-calculator text-2xl text-rose-500"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">计算器</h3>
+                <p class="text-gray-600 text-sm">简单的数学计算功能</p>
+            </div>
+        </section>
 
-				<!-- 置顶文章 -->
-				<article class="post featured">
-					<header class="major">
-						<!-- 修改日期 -->
-						<span class="date">2023年10月20日</span>
-						<h2><a href="#">这里是文章标题</a></h2>
-						<p>这里是文章摘要内容<br />
-						可以写一些简单的自我介绍<br />
-						或者近期动态</p>
-					</header>
-					<!-- 修改主图（图片需放在images文件夹） -->
-					<a href="#" class="image main"><img src="images/pic01.jpg" alt="主图描述" /></a>
-					<ul class="actions special">
-						<li><a href="#" class="button large">查看详情</a></li>
-					</ul>
-				</article>
+        <!-- 工具展示区域（默认隐藏，点击卡片时显示对应工具） -->
+        <section id="tool-display-area" class="hidden bg-white rounded-xl shadow-lg p-6 mb-12">
+            <!-- 工具标题和关闭按钮 -->
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800" id="tool-title">工具名称</h3>
+                <button id="close-tool" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
 
-				<!-- 文章列表区 -->
-				<section class="posts">
-					<article>
-						<header>
-							<span class="date">2023年10月15日</span>
-							<h2><a href="#">文章标题1</a></h2>
-						</header>
-						<a href="#" class="image fit"><img src="images/pic02.jpg" alt="配图1" /></a>
-						<p>这里是文章1的简短摘要内容，建议控制在2-3行。</p>
-						<ul class="actions special">
-							<li><a href="#" class="button">阅读更多</a></li>
-						</ul>
-					</article>
-					<article>
-						<header>
-							<span class="date">2023年10月10日</span>
-							<h2><a href="#">文章标题2</a></h2>
-						</header>
-						<a href="#" class="image fit"><img src="images/pic03.jpg" alt="配图2" /></a>
-						<p>这里是文章2的简短摘要内容，建议控制在2-3行。</p>
-						<ul class="actions special">
-							<li><a href="#" class="button">阅读更多</a></li>
-						</ul>
-					</article>
-				</section>
+            <!-- 工具内容区域（根据选择的工具动态变化） -->
+            <div id="tool-content">
+                <!-- 工具内容将通过JS动态加载 -->
+            </div>
+        </section>
+    </main>
 
-				<!-- 分页器（如果不需要可以删除） -->
-				<footer>
-					<div class="pagination">
-						<a href="#" class="page active">1</a>
-						<a href="#" class="page">2</a>
-						<a href="#" class="page">3</a>
-					</div>
-				</footer>
+    <!-- 关于区域 -->
+    <section id="about" class="bg-white py-12 border-t">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold text-center mb-6">关于这个网站</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto text-center">
+                这是一个简单的工具集合网站，包含各种实用小工具。
+                持续更新中，欢迎使用和提出建议！
+            </p>
+        </div>
+    </section>
 
-			</div>
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2023 我的工具集 | 简单实用的在线工具</p>
+        </div>
+    </footer>
 
-			<!-- 页脚区域 -->
-			<footer id="footer">
-				<section>
-					<!-- 联系表单 -->
-					<form method="post" action="#">
-						<div class="fields">
-							<div class="field">
-								<label for="name">姓名</label>
-								<input type="text" name="name" id="name" />
-							</div>
-							<div class="field">
-								<label for="email">邮箱</label>
-								<input type="text" name="email" id="email" />
-							</div>
-							<div class="field">
-								<label for="message">留言内容</label>
-								<textarea name="message" id="message" rows="3"></textarea>
-							</div>
-						</div>
-						<ul class="actions">
-							<li><input type="submit" value="发送消息" /></li>
-						</ul>
-					</form>
-				</section>
-				<section class="split contact">
-					<!-- 联系方式 -->
-					<section class="alt">
-						<h3>地址</h3>
-						<p>中国XX省XX市<br />
-						XX区XX路123号</p>
-					</section>
-					<section>
-						<h3>电话</h3>
-						<p><a href="#">(123) 456-7890</a></p>
-					</section>
-					<section>
-						<h3>邮箱</h3>
-						<p><a href="#">yourname@example.com</a></p>
-					</section>
-					<section>
-						<h3>社交平台</h3>
-						<ul class="icons alt">
-							<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
-							<li><a href="#" class="icon brands alt fa-weibo"><span class="label">微博</span></a></li>
-							<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-						</ul>
-					</section>
-				</section>
-			</footer>
+    <!-- 工具功能JavaScript -->
+    <script>
+        // 获取DOM元素
+        const toolCards = {
+            chat: document.getElementById('chat-tool'),
+            todo: document.getElementById('todo-tool'),
+            text: document.getElementById('text-tool'),
+            calc: document.getElementById('calc-tool')
+        };
+        const toolDisplayArea = document.getElementById('tool-display-area');
+        const toolTitle = document.getElementById('tool-title');
+        const toolContent = document.getElementById('tool-content');
+        const closeToolBtn = document.getElementById('close-tool');
 
-			<!-- 版权信息 -->
-			<div id="copyright">
-				<ul><li>&copy; 2023 你的名字</li><li>设计: <a href="https://html5up.net">HTML5 UP</a></li></ul>
-			</div>
+        // 工具内容模板
+        const toolTemplates = {
+            chat: `
+                <div class="p-4">
+                    <p class="text-gray-600 mb-4">聊天功能加载中...</p>
+                    <!-- 聊天功能将在这里显示 -->
+                    <div id="chat-container" class="border rounded-lg p-3 h-80 flex flex-col">
+                        <div id="chat-messages" class="flex-1 overflow-y-auto mb-3 space-y-2"></div>
+                        <div class="flex">
+                            <input type="text" id="chat-input" placeholder="输入消息..." 
+                                class="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                            <button id="send-chat" class="bg-primary text-white px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                                发送
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `,
+            todo: `
+                <div class="p-4">
+                    <div class="flex mb-4">
+                        <input type="text" id="todo-input" placeholder="添加新任务..." 
+                            class="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                        <button id="add-todo" class="bg-secondary text-white px-4 py-2 rounded-r-lg hover:bg-secondary/90 transition-colors">
+                            添加
+                        </button>
+                    </div>
+                    <div id="todo-list" class="border rounded-lg p-3 h-80 overflow-y-auto space-y-2">
+                        <!-- 待办事项将在这里显示 -->
+                        <p class="text-gray-500 italic">还没有任务，添加一个吧！</p>
+                    </div>
+                </div>
+            `,
+            text: `
+                <div class="p-4">
+                    <div class="mb-4">
+                        <textarea id="text-input" rows="6" placeholder="输入需要处理的文本..." 
+                            class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500/50"></textarea>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button id="upper-case" class="bg-amber-500 text-white px-3 py-1 rounded hover:bg-amber-600 transition-colors">
+                            转为大写
+                        </button>
+                        <button id="lower-case" class="bg-amber-500 text-white px-3 py-1 rounded hover:bg-amber-600 transition-colors">
+                            转为小写
+                        </button>
+                        <button id="count-words" class="bg-amber-500 text-white px-3 py-1 rounded hover:bg-amber-600 transition-colors">
+                            统计字数
+                        </button>
+                    </div>
+                    <div id="text-result" class="border rounded-lg p-3 min-h-[100px]">
+                        <p class="text-gray-500 italic">处理结果将在这里显示</p>
+                    </div>
+                </div>
+            `,
+            calc: `
+                <div class="p-4 max-w-xs mx-auto">
+                    <input type="text" id="calc-display" readonly 
+                        class="w-full bg-gray-100 border rounded-lg px-3 py-4 text-right text-xl mb-3">
+                    <div class="grid grid-cols-4 gap-2">
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">C</button>
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">←</button>
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">%</button>
+                        <button class="calc-btn bg-rose-500 text-white hover:bg-rose-600 py-3 rounded">÷</button>
+                        
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">7</button>
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">8</button>
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">9</button>
+                        <button class="calc-btn bg-rose-500 text-white hover:bg-rose-600 py-3 rounded">×</button>
+                        
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">4</button>
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">5</button>
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">6</button>
+                        <button class="calc-btn bg-rose-500 text-white hover:bg-rose-600 py-3 rounded">-</button>
+                        
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">1</button>
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">2</button>
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">3</button>
+                        <button class="calc-btn bg-rose-500 text-white hover:bg-rose-600 py-3 rounded">+</button>
+                        
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded col-span-2">0</button>
+                        <button class="calc-btn bg-gray-200 hover:bg-gray-300 py-3 rounded">.</button>
+                        <button class="calc-btn bg-rose-500 text-white hover:bg-rose-600 py-3 rounded">=</button>
+                    </div>
+                </div>
+            `
+        };
 
-		</div>
+        // 打开工具
+        function openTool(toolName, toolTitleText) {
+            toolTitle.textContent = toolTitleText;
+            toolContent.innerHTML = toolTemplates[toolName];
+            toolDisplayArea.classList.remove('hidden');
+            
+            // 滚动到工具区域
+            toolDisplayArea.scrollIntoView({ behavior: 'smooth' });
+            
+            // 初始化对应工具的功能
+            initTool(toolName);
+        }
 
-		<!-- 脚本引用（不要修改） -->
-		<script src="assets/js/jquery.min.js"></script>
-		<script src="assets/js/jquery.scrollex.min.js"></script>
-		<script src="assets/js/jquery.scrolly.min.js"></script>
-		<script src="assets/js/browser.min.js"></script>
-		<script src="assets/js/breakpoints.min.js"></script>
-		<script src="assets/js/util.js"></script>
-		<script src="assets/js/main.js"></script>
+        // 关闭工具
+        function closeTool() {
+            toolDisplayArea.classList.add('hidden');
+            toolContent.innerHTML = '';
+        }
 
-		<!-- 聊天功能开始 -->
-		<!-- 聊天窗口容器 -->
-		<div id="app-container" class="fixed bottom-6 right-6 z-50 w-80 md:w-96 h-[500px] hidden"></div>
+        // 初始化工具功能
+        function initTool(toolName) {
+            switch(toolName) {
+                case 'chat':
+                    initChatTool();
+                    break;
+                case 'todo':
+                    initTodoTool();
+                    break;
+                case 'text':
+                    initTextTool();
+                    break;
+                case 'calc':
+                    initCalcTool();
+                    break;
+            }
+        }
 
-		<!-- 聊天按钮（点击打开聊天窗口） -->
-		<button id="chat-toggle" class="fixed bottom-6 right-6 w-14 h-14 bg-blue-500 hover:bg-blue-600 rounded-full shadow-lg flex items-center justify-center text-white z-51 transition-all">
-			<i class="fa fa-comments text-xl"></i>
-		</button>
+        // 初始化聊天工具
+        function initChatTool() {
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const sendChatBtn = document.getElementById('send-chat');
 
-		<!-- 聊天功能样式 -->
-		<style type="text/tailwindcss">
-			@layer utilities {
-				.content-auto { content-visibility: auto; }
-				.scrollbar-hide {
-					-ms-overflow-style: none;
-					scrollbar-width: none;
-				}
-				.scrollbar-hide::-webkit-scrollbar { display: none; }
-				.message-appear { animation: fadeIn 0.3s ease forwards; }
-				@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-			}
-		</style>
+            // 发送消息
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    // 添加用户消息
+                    const userMsgEl = document.createElement('div');
+                    userMsgEl.className = 'flex justify-end';
+                    userMsgEl.innerHTML = `
+                        <div class="bg-primary text-white px-3 py-1 rounded-lg max-w-[80%]">
+                            ${message}
+                        </div>
+                    `;
+                    chatMessages.appendChild(userMsgEl);
 
-		<!-- 聊天功能HTML结构 -->
-		<script id="chat-template" type="text/template">
-			<div class="w-full h-full bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
-				<!-- 初始界面 - 名字设置 -->
-				<div id="setup-screen" class="w-full h-full flex flex-col items-center justify-center p-6">
-					<div class="w-full">
-						<div class="text-center mb-6">
-							<div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-								<i class="fa fa-comments text-2xl text-primary"></i>
-							</div>
-							<h1 class="text-xl font-bold text-gray-800">开始聊天</h1>
-							<p class="text-gray-500 mt-2">请设置你的名字以开始聊天</p>
-						</div>
-						
-						<form id="name-form" class="space-y-4">
-							<div>
-								<label for="username" class="block text-sm font-medium text-gray-700 mb-1">你的名字</label>
-								<div class="relative">
-									<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-										<i class="fa fa-user"></i>
-									</span>
-									<input type="text" id="username" 
-										class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-										placeholder="输入你的名字" required>
-								</div>
-								<p id="name-error" class="mt-1 text-sm text-red-500 hidden">这个名字已被使用，请换一个</p>
-							</div>
-							
-							<button type="submit" 
-								class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all shadow hover:shadow-md flex items-center justify-center">
-								<span>进入聊天</span>
-								<i class="fa fa-arrow-right ml-2"></i>
-							</button>
-						</form>
-					</div>
-				</div>
-				
-				<!-- 聊天主界面 (默认隐藏) -->
-				<div id="chat-interface" class="w-full h-full flex flex-col h-full hidden">
-					<!-- 侧边栏 - 联系人列表和搜索 -->
-					<div class="w-full bg-gray-50 border-b border-gray-200 flex flex-col h-full">
-						<!-- 当前用户信息 -->
-						<div class="p-3 border-b border-gray-200 flex items-center justify-between">
-							<div class="flex items-center">
-								<div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
-									<span class="text-primary font-medium" id="current-user-initial">U</span>
-								</div>
-								<div>
-									<h3 class="font-medium text-gray-800 text-sm" id="current-username">用户名</h3>
-									<p class="text-xs text-green-500 flex items-center">
-										<span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>在线
-									</p>
-								</div>
-							</div>
-							<button id="logout-btn" class="text-gray-500 hover:text-primary transition-colors">
-								<i class="fa fa-sign-out"></i>
-							</button>
-						</div>
-						
-						<!-- 搜索框 -->
-						<div class="p-3 border-b border-gray-200">
-							<div class="relative">
-								<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-									<i class="fa fa-search"></i>
-								</span>
-								<input type="text" id="user-search" 
-									class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm"
-									placeholder="搜索用户...">
-							</div>
-						</div>
-						
-						<!-- 联系人列表 -->
-						<div class="flex-1 overflow-y-auto scrollbar-hide">
-							<div class="p-2">
-								<h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">在线用户</h4>
-								<div id="user-list" class="space-y-1">
-									<!-- 用户列表将通过JS动态生成 -->
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<!-- 聊天区域 -->
-					<div class="flex-1 flex flex-col h-full bg-gray-50">
-						<!-- 聊天头部 - 当前聊天对象 -->
-						<div id="chat-header" class="p-3 border-b border-gray-200 bg-white flex items-center">
-							<div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
-								<span class="text-primary font-medium" id="active-user-initial">U</span>
-							</div>
-							<div>
-								<h3 class="font-medium text-gray-800 text-sm" id="active-username">选择一个用户开始聊天</h3>
-								<p class="text-xs text-green-500 flex items-center" id="active-user-status">
-									<span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>在线
-								</p>
-							</div>
-						</div>
-						
-						<!-- 聊天消息区域 -->
-						<div id="messages-container" class="flex-1 p-3 overflow-y-auto scrollbar-hide space-y-3">
-							<!-- 提示信息 -->
-							<div id="no-conversation" class="h-full flex items-center justify-center text-gray-400">
-								<p>选择一个联系人开始聊天</p>
-							</div>
-							
-							<!-- 消息将通过JS动态生成 -->
-							<div id="messages" class="hidden space-y-3"></div>
-						</div>
-						
-						<!-- 消息输入区域 -->
-						<div id="message-input-area" class="p-3 border-t border-gray-200 bg-white hidden">
-							<form id="message-form" class="flex space-x-2">
-								textarea id="message-input" rows="2" 
-									class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none text-sm"
-									placeholder="输入消息..."></textarea>
-								<button type="submit" 
-									class="bg-primary hover:bg-primary/90 text-white p-2 rounded-lg transition-all">
-									<i class="fa fa-paper-plane"></i>
-								</button>
-							</form>
-						</div>
-					</div>
-				</div>
-			</div>
-		</script>
+                    // 清空输入框
+                    chatInput.value = '';
 
-		<!-- 聊天功能JavaScript -->
-		<script>
-			// 加载聊天界面HTML
-			document.getElementById('app-container').innerHTML = document.getElementById('chat-template').innerHTML;
-			
-			// 聊天窗口切换功能
-			const chatToggle = document.getElementById('chat-toggle');
-			const appContainer = document.getElementById('app-container');
-			
-			chatToggle.addEventListener('click', () => {
-				appContainer.classList.toggle('hidden');
-			});
+                    // 滚动到底部
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
 
-			// 聊天应用核心逻辑
-			const state = {
-				currentUser: null,
-				users: [],
-				activeConversation: null,
-				conversations: {}
-			};
+                    // 模拟回复
+                    setTimeout(() => {
+                        const replies = [
+                            "好的，我收到了你的消息！",
+                            "这个想法不错哦~",
+                            "我明白了，谢谢你的分享！",
+                            "我们可以再深入讨论一下。"
+                        ];
+                        const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                        
+                        const replyEl = document.createElement('div');
+                        replyEl.className = 'flex justify-start';
+                        replyEl.innerHTML = `
+                            <div class="bg-gray-200 text-gray-800 px-3 py-1 rounded-lg max-w-[80%]">
+                                ${randomReply}
+                            </div>
+                        `;
+                        chatMessages.appendChild(replyEl);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }, 1000);
+                }
+            }
 
-			// DOM 元素
-			const setupScreen = document.getElementById('setup-screen');
-			const chatInterface = document.getElementById('chat-interface');
-			const nameForm = document.getElementById('name-form');
-			const usernameInput = document.getElementById('username');
-			const nameError = document.getElementById('name-error');
-			const userList = document.getElementById('user-list');
-			const userSearch = document.getElementById('user-search');
-			const currentUsername = document.getElementById('current-username');
-			const currentUserInitial = document.getElementById('current-user-initial');
-			const activeUsername = document.getElementById('active-username');
-			const activeUserInitial = document.getElementById('active-user-initial');
-			const messagesContainer = document.getElementById('messages-container');
-			const messages = document.getElementById('messages');
-			const noConversation = document.getElementById('no-conversation');
-			const messageForm = document.getElementById('message-form');
-			const messageInput = document.getElementById('message-input');
-			const messageInputArea = document.getElementById('message-input-area');
-			const logoutBtn = document.getElementById('logout-btn');
+            // 绑定事件
+            sendChatBtn.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        }
 
-			// 初始化应用
-			function init() {
-				// 从本地存储加载数据
-				loadFromLocalStorage();
-				
-				// 如果已有当前用户，直接进入聊天界面
-				if (state.currentUser) {
-					switchToChatInterface();
-				}
-				
-				// 事件监听
-				nameForm.addEventListener('submit', handleNameSubmit);
-				userSearch.addEventListener('input', filterUsers);
-				messageForm.addEventListener('submit', handleMessageSubmit);
-				logoutBtn.addEventListener('click', handleLogout);
-			}
+        // 初始化待办清单工具
+        function initTodoTool() {
+            const todoInput = document.getElementById('todo-input');
+            const addTodoBtn = document.getElementById('add-todo');
+            const todoList = document.getElementById('todo-list');
 
-			// 处理名字提交
-			function handleNameSubmit(e) {
-				e.preventDefault();
-				const name = usernameInput.value.trim();
-				
-				// 验证名字
-				if (!name) return;
-				
-				// 检查名字是否已存在
-				if (state.users.some(user => user.name.toLowerCase() === name.toLowerCase())) {
-					nameError.classList.remove('hidden');
-					return;
-				}
-				
-				// 隐藏错误提示
-				nameError.classList.add('hidden');
-				
-				// 创建新用户
-				const newUser = {
-					id: Date.now().toString(),
-					name: name,
-					initial: name.charAt(0).toUpperCase(),
-					online: true
-				};
-				
-				// 更新状态
-				state.currentUser = newUser;
-				state.users.push(newUser);
-				
-				// 保存到本地存储
-				saveToLocalStorage();
-				
-				// 切换到聊天界面
-				switchToChatInterface();
-			}
+            // 加载本地存储的待办事项
+            loadTodos();
 
-			// 切换到聊天界面
-			function switchToChatInterface() {
-				setupScreen.classList.add('hidden');
-				chatInterface.classList.remove('hidden');
-				
-				// 更新当前用户信息
-				currentUsername.textContent = state.currentUser.name;
-				currentUserInitial.textContent = state.currentUser.initial;
-				
-				// 渲染用户列表
-				renderUserList();
-			}
+            // 添加待办事项
+            function addTodo() {
+                const task = todoInput.value.trim();
+                if (task) {
+                    // 创建待办项元素
+                    const todoEl = document.createElement('div');
+                    todoEl.className = 'flex items-center justify-between p-2 border rounded-lg';
+                    todoEl.innerHTML = `
+                        <span class="todo-text">${task}</span>
+                        <button class="delete-todo text-gray-500 hover:text-red-500">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    // 添加点击事件（标记完成/未完成）
+                    todoEl.querySelector('.todo-text').addEventListener('click', function() {
+                        this.classList.toggle('line-through');
+                        this.classList.toggle('text-gray-500');
+                        saveTodos(); // 保存更改
+                    });
+                    
+                    // 添加删除事件
+                    todoEl.querySelector('.delete-todo').addEventListener('click', function() {
+                        todoEl.remove();
+                        saveTodos(); // 保存更改
+                    });
+                    
+                    // 添加到列表
+                    todoList.appendChild(todoEl);
+                    
+                    // 清空输入框
+                    todoInput.value = '';
+                    
+                    // 保存到本地存储
+                    saveTodos();
+                    
+                    // 移除提示文本
+                    if (todoList.querySelector('p.italic')) {
+                        todoList.querySelector('p.italic').remove();
+                    }
+                }
+            }
 
-			// 渲染用户列表
-			function renderUserList(filteredUsers = null) {
-				userList.innerHTML = '';
-				const usersToRender = filteredUsers || state.users.filter(user => user.id !== state.currentUser.id);
-				
-				if (usersToRender.length === 0) {
-					userList.innerHTML = '<p class="text-center text-gray-500 text-sm py-2">没有找到其他用户</p>';
-					return;
-				}
-				
-				usersToRender.forEach(user => {
-					const userEl = document.createElement('div');
-					userEl.className = `flex items-center p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors ${state.activeConversation === user.id ? 'bg-primary/5' : ''}`;
-					userEl.innerHTML = `
-						<div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
-							<span class="text-primary font-medium">${user.initial}</span>
-						</div>
-						<div class="flex-1 min-w-0">
-							<p class="font-medium text-gray-800 text-sm truncate">${user.name}</p>
-						</div>
-						${user.online ? '<span class="w-2 h-2 bg-green-500 rounded-full"></span>' : ''}
-					`;
-					
-					userEl.addEventListener('click', () => startConversation(user));
-					userList.appendChild(userEl);
-				});
-			}
+            // 保存待办事项到本地存储
+            function saveTodos() {
+                const todos = [];
+                todoList.querySelectorAll('div').forEach(todo => {
+                    const text = todo.querySelector('.todo-text').textContent;
+                    const completed = todo.querySelector('.todo-text').classList.contains('line-through');
+                    todos.push({ text, completed });
+                });
+                localStorage.setItem('todos', JSON.stringify(todos));
+            }
 
-			// 过滤用户
-			function filterUsers() {
-				const searchTerm = userSearch.value.toLowerCase().trim();
-				if (!searchTerm) {
-					renderUserList();
-					return;
-				}
-				
-				const filteredUsers = state.users
-					.filter(user => user.id !== state.currentUser.id)
-					.filter(user => user.name.toLowerCase().includes(searchTerm));
-				
-				renderUserList(filteredUsers);
-			}
+            // 从本地存储加载待办事项
+            function loadTodos() {
+                const savedTodos = localStorage.getItem('todos');
+                if (savedTodos) {
+                    const todos = JSON.parse(savedTodos);
+                    
+                    // 清空提示文本
+                    if (todoList.querySelector('p.italic')) {
+                        todoList.querySelector('p.italic').remove();
+                    }
+                    
+                    // 添加每个待办项
+                    todos.forEach(todo => {
+                        const todoEl = document.createElement('div');
+                        todoEl.className = 'flex items-center justify-between p-2 border rounded-lg';
+                        todoEl.innerHTML = `
+                            <span class="todo-text ${todo.completed ? 'line-through text-gray-500' : ''}">${todo.text}</span>
+                            <button class="delete-todo text-gray-500 hover:text-red-500">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        `;
+                        
+                        // 添加点击事件
+                        todoEl.querySelector('.todo-text').addEventListener('click', function() {
+                            this.classList.toggle('line-through');
+                            this.classList.toggle('text-gray-500');
+                            saveTodos();
+                        });
+                        
+                        // 添加删除事件
+                        todoEl.querySelector('.delete-todo').addEventListener('click', function() {
+                            todoEl.remove();
+                            saveTodos();
+                            
+                            // 如果列表为空，显示提示文本
+                            if (todoList.children.length === 0) {
+                                todoList.innerHTML = '<p class="text-gray-500 italic">还没有任务，添加一个吧！</p>';
+                            }
+                        });
+                        
+                        todoList.appendChild(todoEl);
+                    });
+                }
+            }
 
-			// 开始与选定用户的对话
-			function startConversation(user) {
-				state.activeConversation = user.id;
-				
-				// 更新聊天头部
-				activeUsername.textContent = user.name;
-				activeUserInitial.textContent = user.initial;
-				
-				// 显示消息区域和输入框
-				noConversation.classList.add('hidden');
-				messages.classList.remove('hidden');
-				messageInputArea.classList.remove('hidden');
-				
-				// 渲染消息
-				renderMessages();
-				
-				// 更新用户列表选中状态
-				renderUserList();
-				
-				// 滚动到底部
-				scrollToBottom();
-			}
+            // 绑定事件
+            addTodoBtn.addEventListener('click', addTodo);
+            todoInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTodo();
+            });
+        }
 
-			// 渲染消息
-			function renderMessages() {
-				messages.innerHTML = '';
-				
-				// 获取当前对话的消息
-				const conversationMessages = state.conversations[state.activeConversation] || [];
-				
-				conversationMessages.forEach(msg => {
-					const isCurrentUser = msg.senderId === state.currentUser.id;
-					const messageEl = document.createElement('div');
-					messageEl.className = `message-appear flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`;
-					messageEl.innerHTML = `
-						<div class="${isCurrentUser ? 'order-2' : 'order-1'} max-w-[80%]">
-							<div class="${isCurrentUser ? 'bg-primary text-white' : 'bg-white text-gray-800'} p-2 rounded-lg shadow-sm text-sm">
-								<p>${formatMessage(msg.content)}</p>
-							</div>
-							<p class="${isCurrentUser ? 'text-right' : ''} text-xs text-gray-500 mt-1">
-								${formatTime(msg.timestamp)}
-							</p>
-						</div>
-					`;
-					messages.appendChild(messageEl);
-				});
-			}
+        // 初始化文本工具
+        function initTextTool() {
+            const textInput = document.getElementById('text-input');
+            const textResult = document.getElementById('text-result');
+            const upperCaseBtn = document.getElementById('upper-case');
+            const lowerCaseBtn = document.getElementById('lower-case');
+            const countWordsBtn = document.getElementById('count-words');
 
-			// 处理消息提交
-			function handleMessageSubmit(e) {
-				e.preventDefault();
-				const content = messageInput.value.trim();
-				
-				if (!content || !state.activeConversation) return;
-				
-				// 创建消息对象
-				const message = {
-					id: Date.now().toString(),
-					senderId: state.currentUser.id,
-					content: content,
-					timestamp: new Date().toISOString()
-				};
-				
-				// 保存消息到对话
-				if (!state.conversations[state.activeConversation]) {
-					state.conversations[state.activeConversation] = [];
-				}
-				state.conversations[state.activeConversation].push(message);
-				
-				// 保存到本地存储
-				saveToLocalStorage();
-				
-				// 重新渲染消息
-				renderMessages();
-				
-				// 清空输入框
-				messageInput.value = '';
-				
-				// 滚动到底部
-				scrollToBottom();
-				
-				// 模拟对方回复
-				simulateReply();
-			}
+            // 转为大写
+            upperCaseBtn.addEventListener('click', () => {
+                const text = textInput.value;
+                if (text) {
+                    textResult.textContent = text.toUpperCase();
+                } else {
+                    textResult.innerHTML = '<p class="text-red-500">请先输入文本</p>';
+                }
+            });
 
-			// 模拟对方回复
-			function simulateReply() {
-				const replies = [
-					"好的，我知道了",
-					"这个想法不错！",
-					"我稍后回复你更多信息",
-					"我们可以再详细讨论一下",
-					"没问题，就这么定了"
-				];
-				
-				// 随机选择一个回复
-				const randomReply = replies[Math.floor(Math.random() * replies.length)];
-				
-				// 1-2秒后发送回复
-				setTimeout(() => {
-					const reply = {
-						id: (Date.now() + 1).toString(),
-						senderId: state.activeConversation,
-						content: randomReply,
-						timestamp: new Date().toISOString()
-					};
-					
-					// 保存回复
-					state.conversations[state.activeConversation].push(reply);
-					saveToLocalStorage();
-					renderMessages();
-					scrollToBottom();
-				}, 1000 + Math.random() * 1000);
-			}
+            // 转为小写
+            lowerCaseBtn.addEventListener('click', () => {
+                const text = textInput.value;
+                if (text) {
+                    textResult.textContent = text.toLowerCase();
+                } else {
+                    textResult.innerHTML = '<p class="text-red-500">请先输入文本</p>';
+                }
+            });
 
-			// 滚动到消息底部
-			function scrollToBottom() {
-				messagesContainer.scrollTop = messagesContainer.scrollHeight;
-			}
+            // 统计字数
+            countWordsBtn.addEventListener('click', () => {
+                const text = textInput.value;
+                if (text) {
+                    const charCount = text.length;
+                    const wordCount = text.trim().split(/\s+/).filter(word => word).length;
+                    textResult.innerHTML = `
+                        <p>字符数：${charCount}</p>
+                        <p>单词数：${wordCount}</p>
+                    `;
+                } else {
+                    textResult.innerHTML = '<p class="text-red-500">请先输入文本</p>';
+                }
+            });
+        }
 
-			// 处理登出
-			function handleLogout() {
-				// 更新当前用户状态为离线
-				const userIndex = state.users.findIndex(u => u.id === state.currentUser.id);
-				if (userIndex !== -1) {
-					state.users[userIndex].online = false;
-				}
-				
-				// 重置状态
-				state.currentUser = null;
-				state.activeConversation = null;
-				
-				// 保存到本地存储
-				saveToLocalStorage();
-				
-				// 切换到设置界面
-				chatInterface.classList.add('hidden');
-				setupScreen.classList.remove('hidden');
-				usernameInput.value = '';
-			}
+        // 初始化计算器工具
+        function initCalcTool() {
+            const display = document.getElementById('calc-display');
+            const buttons = document.querySelectorAll('.calc-btn');
+            let currentValue = '';
+            let operator = null;
+            let firstValue = null;
 
-			// 格式化消息（处理换行）
-			function formatMessage(content) {
-				return content.replace(/\n/g, '<br>');
-			}
+            // 处理按钮点击
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const value = button.textContent;
 
-			// 格式化时间
-			function formatTime(timestamp) {
-				const date = new Date(timestamp);
-				return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-			}
+                    // 数字和小数点
+                    if (!isNaN(value) || value === '.') {
+                        // 防止多个小数点
+                        if (value === '.' && currentValue.includes('.')) return;
+                        currentValue += value;
+                        display.value = currentValue;
+                    }
+                    // 运算符
+                    else if (value === '+' || value === '-' || value === '×' || value === '÷' || value === '%') {
+                        if (currentValue === '') return;
+                        
+                        if (firstValue !== null) {
+                            // 计算之前的结果
+                            calculate();
+                        } else {
+                            firstValue = currentValue;
+                        }
+                        
+                        operator = value;
+                        currentValue = '';
+                    }
+                    // 等于
+                    else if (value === '=') {
+                        if (currentValue === '' || firstValue === null || operator === null) return;
+                        calculate();
+                        operator = null;
+                        firstValue = null;
+                    }
+                    // 清除
+                    else if (value === 'C') {
+                        currentValue = '';
+                        firstValue = null;
+                        operator = null;
+                        display.value = '';
+                    }
+                    // 退格
+                    else if (value === '←') {
+                        currentValue = currentValue.slice(0, -1);
+                        display.value = currentValue;
+                    }
+                });
+            });
 
-			// 保存到本地存储
-			function saveToLocalStorage() {
-				localStorage.setItem('chatAppUsers', JSON.stringify(state.users));
-				localStorage.setItem('chatAppCurrentUser', JSON.stringify(state.currentUser));
-				localStorage.setItem('chatAppConversations', JSON.stringify(state.conversations));
-			}
+            // 计算函数
+            function calculate() {
+                const num1 = parseFloat(firstValue);
+                const num2 = parseFloat(currentValue);
+                let result;
 
-			// 从本地存储加载
-			function loadFromLocalStorage() {
-				const savedUsers = localStorage.getItem('chatAppUsers');
-				const savedCurrentUser = localStorage.getItem('chatAppCurrentUser');
-				const savedConversations = localStorage.getItem('chatAppConversations');
-				
-				if (savedUsers) state.users = JSON.parse(savedUsers);
-				if (savedCurrentUser) state.currentUser = JSON.parse(savedCurrentUser);
-				if (savedConversations) state.conversations = JSON.parse(savedConversations);
-				
-				// 清理离线用户
-				state.users = state.users.filter(user => {
-					// 如果是当前用户，标记为在线
-					if (state.currentUser && user.id === state.currentUser.id) {
-						user.online = true;
-						return true;
-					}
-					return true;
-				});
-			}
+                switch(operator) {
+                    case '+':
+                        result = num1 + num2;
+                        break;
+                    case '-':
+                        result = num1 - num2;
+                        break;
+                    case '×':
+                        result = num1 * num2;
+                        break;
+                    case '÷':
+                        if (num2 === 0) {
+                            result = '错误';
+                        } else {
+                            result = num1 / num2;
+                        }
+                        break;
+                    case '%':
+                        result = num1 % num2;
+                        break;
+                    default:
+                        return;
+                }
 
-			// 启动聊天应用
-			document.addEventListener('DOMContentLoaded', init);
-		</script>
-		<!-- 聊天功能结束 -->
+                // 处理结果
+                currentValue = result.toString();
+                display.value = currentValue;
+                firstValue = currentValue;
+            }
+        }
 
-	</body>
+        // 绑定工具卡片点击事件
+        toolCards.chat.addEventListener('click', () => openTool('chat', '在线聊天'));
+        toolCards.todo.addEventListener('click', () => openTool('todo', '待办清单'));
+        toolCards.text.addEventListener('click', () => openTool('text', '文本工具'));
+        toolCards.calc.addEventListener('click', () => openTool('calc', '计算器'));
+
+        // 绑定关闭工具事件
+        closeToolBtn.addEventListener('click', closeTool);
+    </script>
+</body>
 </html>
+    
