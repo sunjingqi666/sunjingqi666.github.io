@@ -16,6 +16,7 @@
                     colors: {
                         primary: '#4F46E5', // 主色调：靛蓝色
                         secondary: '#10B981', // 辅助色：绿色
+                        search: '#EA4335', // 搜索工具颜色：红色
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -58,7 +59,16 @@
         </section>
 
         <!-- 工具卡片区域 -->
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-16">
+            <!-- 搜索引擎工具卡片 -->
+            <div class="bg-white rounded-xl shadow p-6 tool-card-hover cursor-pointer" id="search-tool">
+                <div class="w-14 h-14 bg-search/10 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa fa-search text-2xl text-search"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">搜索引擎</h3>
+                <p class="text-gray-600 text-sm">多引擎搜索，快速查找信息</p>
+            </div>
+            
             <!-- 聊天工具卡片 -->
             <div class="bg-white rounded-xl shadow p-6 tool-card-hover cursor-pointer" id="chat-tool">
                 <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -135,6 +145,7 @@
     <script>
         // 获取DOM元素
         const toolCards = {
+            search: document.getElementById('search-tool'),
             chat: document.getElementById('chat-tool'),
             todo: document.getElementById('todo-tool'),
             text: document.getElementById('text-tool'),
@@ -147,10 +158,63 @@
 
         // 工具内容模板
         const toolTemplates = {
+            // 搜索引擎模板
+            search: `
+                <div class="p-4">
+                    <div class="mb-6">
+                        <input type="text" id="search-input" placeholder="输入搜索内容..." 
+                            class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-search/50 text-lg">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">选择搜索引擎：</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <label class="search-engine-label cursor-pointer">
+                                <input type="radio" name="search-engine" value="baidu" checked 
+                                    class="hidden peer">
+                                <div class="border rounded-lg p-3 text-center hover:bg-gray-50 peer-checked:border-search peer-checked:bg-search/5 transition-all">
+                                    <i class="fa fa-search text-search mb-1"></i>
+                                    <p class="text-sm">百度</p>
+                                </div>
+                            </label>
+                            <label class="search-engine-label cursor-pointer">
+                                <input type="radio" name="search-engine" value="google" 
+                                    class="hidden peer">
+                                <div class="border rounded-lg p-3 text-center hover:bg-gray-50 peer-checked:border-search peer-checked:bg-search/5 transition-all">
+                                    <i class="fa fa-google text-search mb-1"></i>
+                                    <p class="text-sm">谷歌</p>
+                                </div>
+                            </label>
+                            <label class="search-engine-label cursor-pointer">
+                                <input type="radio" name="search-engine" value="bing" 
+                                    class="hidden peer">
+                                <div class="border rounded-lg p-3 text-center hover:bg-gray-50 peer-checked:border-search peer-checked:bg-search/5 transition-all">
+                                    <i class="fa fa-globe text-search mb-1"></i>
+                                    <p class="text-sm">必应</p>
+                                </div>
+                            </label>
+                            <label class="search-engine-label cursor-pointer">
+                                <input type="radio" name="search-engine" value="github" 
+                                    class="hidden peer">
+                                <div class="border rounded-lg p-3 text-center hover:bg-gray-50 peer-checked:border-search peer-checked:bg-search/5 transition-all">
+                                    <i class="fa fa-github text-search mb-1"></i>
+                                    <p class="text-sm">GitHub</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-center">
+                        <button id="search-btn" class="bg-search hover:bg-search/90 text-white px-6 py-3 rounded-lg transition-colors text-lg font-medium flex items-center">
+                            <i class="fa fa-search mr-2"></i>
+                            搜索
+                        </button>
+                    </div>
+                </div>
+            `,
+            // 聊天工具模板
             chat: `
                 <div class="p-4">
-                    <p class="text-gray-600 mb-4">聊天功能加载中...</p>
-                    <!-- 聊天功能将在这里显示 -->
                     <div id="chat-container" class="border rounded-lg p-3 h-80 flex flex-col">
                         <div id="chat-messages" class="flex-1 overflow-y-auto mb-3 space-y-2"></div>
                         <div class="flex">
@@ -163,6 +227,7 @@
                     </div>
                 </div>
             `,
+            // 待办清单模板
             todo: `
                 <div class="p-4">
                     <div class="flex mb-4">
@@ -178,6 +243,7 @@
                     </div>
                 </div>
             `,
+            // 文本工具模板
             text: `
                 <div class="p-4">
                     <div class="mb-4">
@@ -200,6 +266,7 @@
                     </div>
                 </div>
             `,
+            // 计算器模板
             calc: `
                 <div class="p-4 max-w-xs mx-auto">
                     <input type="text" id="calc-display" readonly 
@@ -255,6 +322,9 @@
         // 初始化工具功能
         function initTool(toolName) {
             switch(toolName) {
+                case 'search':
+                    initSearchTool();
+                    break;
                 case 'chat':
                     initChatTool();
                     break;
@@ -268,6 +338,59 @@
                     initCalcTool();
                     break;
             }
+        }
+
+        // 初始化搜索引擎工具
+        function initSearchTool() {
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            const searchEngines = document.querySelectorAll('input[name="search-engine"]');
+            
+            // 搜索函数
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (!query) {
+                    alert('请输入搜索内容');
+                    return;
+                }
+                
+                // 获取选中的搜索引擎
+                let engineUrl = 'https://www.baidu.com/s?wd='; // 默认百度
+                
+                searchEngines.forEach(engine => {
+                    if (engine.checked) {
+                        switch(engine.value) {
+                            case 'google':
+                                engineUrl = 'https://www.google.com/search?q=';
+                                break;
+                            case 'bing':
+                                engineUrl = 'https://www.bing.com/search?q=';
+                                break;
+                            case 'github':
+                                engineUrl = 'https://github.com/search?q=';
+                                break;
+                            default: // 百度
+                                engineUrl = 'https://www.baidu.com/s?wd=';
+                        }
+                    }
+                });
+                
+                // 在新窗口打开搜索结果
+                window.open(engineUrl + encodeURIComponent(query), '_blank');
+            }
+            
+            // 绑定事件
+            searchBtn.addEventListener('click', performSearch);
+            
+            // 回车键触发搜索
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // 自动聚焦到搜索框
+            searchInput.focus();
         }
 
         // 初始化聊天工具
@@ -579,6 +702,7 @@
         }
 
         // 绑定工具卡片点击事件
+        toolCards.search.addEventListener('click', () => openTool('search', '搜索引擎'));
         toolCards.chat.addEventListener('click', () => openTool('chat', '在线聊天'));
         toolCards.todo.addEventListener('click', () => openTool('todo', '待办清单'));
         toolCards.text.addEventListener('click', () => openTool('text', '文本工具'));
