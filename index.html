@@ -26,7 +26,8 @@
                         search: '#EA4335',
                         danger: '#EF4444',
                         online: '#22C55E',
-                        super: '#8B5CF6' // 超级管理员颜色
+                        super: '#8B5CF6', // 超级管理员颜色
+                        pending: '#F59E0B' // 好友请求待处理颜色
                     }
                 }
             }
@@ -43,6 +44,12 @@
             .badge {
                 @apply text-xs px-1.5 py-0.5 rounded-full text-white ml-1.5;
             }
+            .avatar {
+                @apply w-8 h-8 rounded-full object-cover border-2;
+            }
+            .avatar-lg {
+                @apply w-12 h-12 rounded-full object-cover border-2;
+            }
         }
     </style>
 </head>
@@ -57,8 +64,8 @@
                 <!-- 用户状态和下拉菜单 -->
                 <div class="relative" id="user-menu-container">
                     <span id="user-status" class="text-gray-600 hidden flex items-center cursor-pointer">
+                        <img id="header-avatar" src="https://picsum.photos/200/200?random=1" alt="用户头像" class="avatar mr-2">
                         <span id="online-indicator" class="w-2 h-2 rounded-full bg-gray-400 mr-1"></span>
-                        <i class="fa fa-user mr-1"></i>
                         <span id="current-username"></span>
                         <i class="fa fa-caret-down ml-1 text-xs"></i>
                     </span>
@@ -195,6 +202,21 @@
                     </button>
                 </div>
                 
+                <!-- 头像设置 -->
+                <div class="mb-8 text-center">
+                    <h4 class="font-bold text-lg mb-4">头像设置</h4>
+                    <div class="flex justify-center mb-4">
+                        <img id="profile-avatar" src="https://picsum.photos/200/200?random=1" alt="当前头像" class="avatar-lg">
+                    </div>
+                    <div class="mb-4">
+                        <label class="inline-block bg-gray-200 text-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-300 transition-colors">
+                            <i class="fa fa-upload mr-1"></i> 选择新头像
+                            <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500">支持JPG、PNG格式，建议尺寸200x200px</p>
+                </div>
+                
                 <!-- 修改昵称 -->
                 <div class="mb-8">
                     <h4 class="font-bold text-lg mb-4">修改昵称</h4>
@@ -227,6 +249,21 @@
                 </div>
                 
                 <div id="profile-message" class="mt-4 text-center hidden"></div>
+            </div>
+        </div>
+
+        <!-- 好友请求通知模态框 (默认隐藏) -->
+        <div id="friend-request-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-6 w-full max-w-md">
+                <h3 class="text-xl font-bold mb-4">好友请求</h3>
+                <div id="friend-requests-container" class="space-y-4 max-h-80 overflow-y-auto">
+                    <!-- 好友请求会在这里显示 -->
+                </div>
+                <div class="mt-4 text-center">
+                    <button id="close-friend-requests" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300">
+                        关闭
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -345,7 +382,7 @@
         </div>
 
         <!-- 工具展示区域（默认隐藏，点击卡片时显示对应工具） -->
-        <section id="tool-display-area" class="hidden bg-white rounded-xl shadow-lg p-6 mb-12 max-w-4xl mx-auto">
+        <section id="tool-display-area" class="hidden bg-white rounded-xl shadow-lg p-6 mb-12 max-w-5xl mx-auto">
             <!-- 工具标题和关闭按钮 -->
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-gray-800" id="tool-title">工具名称</h3>
@@ -374,11 +411,14 @@
         const ADMIN_ACCOUNT = "admin"; // 最高管理员账号
         const LEMON_ACCOUNT = "lemon"; // 新增lemon账号
         let messageCheckInterval; // 消息检查定时器
+        let currentChatTarget = null; // 当前聊天对象
 
-        // 数据结构定义
-        // 用户数据: { account: { password, name, class, isAdmin, isBanned } }
-        // 申请数据: { account: { name, class, reason, status, time } }
-        // 管理员日志: [{ action, operator, target, time }]
+        // 页面加载完成后初始化
+        function initApp() {
+            initSystemUsers();
+            checkLoginStatus();
+            setupEventListeners();
+        }
 
         // 初始化系统用户（首次使用时创建最高管理员账号和lemon账号）
         function initSystemUsers() {
@@ -391,7 +431,8 @@
                     class: "系统管理",
                     isAdmin: true,
                     isSuper: true,
-                    isBanned: false
+                    isBanned: false,
+                    avatar: "https://picsum.photos/200/200?random=admin" // 默认头像
                 };
             }
             
@@ -403,8 +444,21 @@
                     class: "默认班级", // 可在个人设置中修改
                     isAdmin: false, // 默认为普通用户
                     isSuper: false,
-                    isBanned: false
+                    isBanned: false,
+                    avatar: "https://picsum.photos/200/200?random=lemon" // 默认头像
                 };
+            }
+            
+            // 确保所有用户都有头像字段
+            for (const account in users) {
+                if (!users[account].hasOwnProperty('avatar')) {
+                    users[account].avatar = `https://picsum.photos/200/200?random=${account}`;
+                }
+            }
+            
+            // 初始化好友关系数据（如果不存在）
+            if (!localStorage.getItem('friendships')) {
+                localStorage.setItem('friendships', JSON.stringify({}));
             }
             
             // 保存用户数据
@@ -425,13 +479,6 @@
             if (!localStorage.getItem('accountApplications')) {
                 localStorage.setItem('accountApplications', JSON.stringify({}));
             }
-        }
-
-        // 页面加载完成后初始化
-        function initApp() {
-            initSystemUsers();
-            checkLoginStatus();
-            setupEventListeners();
         }
 
         // 检查登录状态
@@ -455,6 +502,10 @@
                 document.getElementById('not-login-status').classList.add('hidden');
                 document.getElementById('user-status').classList.remove('hidden');
                 
+                // 设置头像
+                document.getElementById('header-avatar').src = currentUser.avatar || `https://picsum.photos/200/200?random=${currentUser.account}`;
+                document.getElementById('header-avatar').alt = `${currentUser.name}的头像`;
+                
                 // 显示用户角色标识
                 let usernameHtml = currentUser.name;
                 if (currentUser.isSuper) {
@@ -462,6 +513,13 @@
                 } else if (currentUser.isAdmin) {
                     usernameHtml += '<span class="badge bg-secondary">管理员</span>';
                 }
+                
+                // 检查是否有未处理的好友请求
+                const friendRequests = getFriendRequests();
+                if (friendRequests.length > 0) {
+                    usernameHtml += `<span class="badge bg-pending ml-1">${friendRequests.length}条请求</span>`;
+                }
+                
                 document.getElementById('current-username').innerHTML = usernameHtml;
                 
                 // 仅超级管理员显示管理员管理标签
@@ -533,6 +591,10 @@
             document.getElementById('close-profile').addEventListener('click', hideProfileModal);
             document.getElementById('save-nickname').addEventListener('click', saveNickname);
             document.getElementById('save-password').addEventListener('click', savePassword);
+            document.getElementById('avatar-upload').addEventListener('change', handleAvatarUpload);
+
+            // 好友请求相关事件
+            document.getElementById('close-friend-requests').addEventListener('click', hideFriendRequestModal);
 
             // 管理员面板事件
             document.getElementById('close-admin-modal').addEventListener('click', hideAdminModal);
@@ -587,6 +649,9 @@
             document.getElementById('admin-modal').addEventListener('click', (e) => {
                 if (e.target === document.getElementById('admin-modal')) hideAdminModal();
             });
+            document.getElementById('friend-request-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('friend-request-modal')) hideFriendRequestModal();
+            });
         }
 
         // 打开工具
@@ -618,6 +683,8 @@
                 clearInterval(messageCheckInterval);
                 messageCheckInterval = null;
             }
+            
+            currentChatTarget = null;
         }
 
         // 获取工具模板
@@ -677,7 +744,7 @@
                         </div>
                     </div>
                 `,
-                // 聊天工具模板
+                // 聊天工具模板 - 添加了好友列表和搜索功能
                 chat: `
                     <div class="p-4">
                         <!-- 管理员工具按钮，仅管理员可见 -->
@@ -687,16 +754,57 @@
                             </button>
                         </div>
                         
-                        <div id="chat-container" class="border rounded-lg p-3 h-96 flex flex-col">
-                            <div id="chat-messages" class="flex-1 overflow-y-auto mb-3 space-y-3">
-                                <!-- 聊天消息会在这里显示 -->
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <!-- 好友列表区域 -->
+                            <div class="w-full md:w-80 border rounded-lg p-3 h-96 flex flex-col">
+                                <div class="mb-4">
+                                    <div class="relative">
+                                        <input type="text" id="friend-search" placeholder="搜索好友或用户..." 
+                                            class="w-full border rounded-lg px-3 py-2 pl-8 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm">
+                                        <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+                                </div>
+                                
+                                <!-- 好友请求提示 -->
+                                <div class="mb-3">
+                                    <button id="show-friend-requests" class="w-full text-left text-sm text-pending hover:text-pending/80 transition-colors">
+                                        <i class="fa fa-user-plus mr-1"></i> 好友请求 
+                                        <span id="friend-request-count" class="badge bg-pending">0</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- 好友列表 -->
+                                <div class="flex-1 overflow-y-auto">
+                                    <h4 class="text-sm font-medium text-gray-500 mb-2">好友列表</h4>
+                                    <div id="friend-list" class="space-y-1">
+                                        <!-- 好友列表将动态生成 -->
+                                    </div>
+                                    
+                                    <h4 class="text-sm font-medium text-gray-500 mb-2 mt-4">其他用户</h4>
+                                    <div id="other-users-list" class="space-y-1">
+                                        <!-- 其他用户列表将动态生成 -->
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex">
-                                <input type="text" id="chat-input" placeholder="输入消息..." 
-                                    class="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                <button id="send-chat" class="bg-primary text-white px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
-                                    发送
-                                </button>
+                            
+                            <!-- 聊天区域 -->
+                            <div id="chat-container" class="flex-1 border rounded-lg p-3 h-96 flex flex-col">
+                                <div id="chat-header" class="mb-3 pb-2 border-b">
+                                    <h4 id="current-chat-name" class="font-medium text-gray-700">请选择聊天对象</h4>
+                                </div>
+                                
+                                <div id="chat-messages" class="flex-1 overflow-y-auto mb-3 space-y-3">
+                                    <!-- 聊天消息会在这里显示 -->
+                                    <p class="text-gray-500 italic text-center">选择一个好友开始聊天</p>
+                                </div>
+                                
+                                <div id="chat-input-area" class="flex hidden">
+                                    <input type="text" id="chat-input" placeholder="输入消息..." 
+                                        class="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                    <button id="send-chat" class="bg-primary text-white px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+                                        发送
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
@@ -775,18 +883,20 @@
             const chatInput = document.getElementById('chat-input');
             const sendChatBtn = document.getElementById('send-chat');
             const adminToolContainer = document.getElementById('admin-tool-container');
+            const friendSearch = document.getElementById('friend-search');
+            const showFriendRequestsBtn = document.getElementById('show-friend-requests');
+            
+            // 加载好友列表
+            loadFriendList();
+            
+            // 更新好友请求计数
+            updateFriendRequestCount();
             
             // 检查用户是否被禁言
             if (currentUser.isBanned) {
                 chatInput.disabled = true;
                 sendChatBtn.disabled = true;
                 sendChatBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                
-                // 显示禁言提示
-                const banNotice = document.createElement('div');
-                banNotice.className = 'bg-danger/10 text-danger p-3 rounded-lg text-center mb-4';
-                banNotice.innerHTML = '<i class="fa fa-exclamation-circle mr-1"></i> 你已被禁言，无法发送消息';
-                document.getElementById('chat-container').before(banNotice);
             }
             
             // 仅管理员显示管理工具按钮
@@ -801,14 +911,22 @@
                 adminToolContainer.style.display = 'none';
             }
             
-            // 加载聊天记录
-            loadChatMessages();
+            // 好友搜索功能
+            friendSearch.addEventListener('input', filterUsers);
+            
+            // 显示好友请求
+            showFriendRequestsBtn.addEventListener('click', showFriendRequestModal);
             
             // 设置消息检查定时器（1秒一次）
-            messageCheckInterval = setInterval(checkNewMessages, 1000);
+            messageCheckInterval = setInterval(() => {
+                checkNewMessages();
+                updateFriendRequestCount();
+            }, 1000);
             
             // 发送消息
             function sendMessage() {
+                if (!currentChatTarget) return;
+                
                 if (currentUser.isBanned) {
                     alert('你已被禁言，无法发送消息');
                     return;
@@ -828,17 +946,34 @@
                     }
                     
                     userMsgEl.innerHTML = `
-                        <div class="bg-primary text-white px-3 py-2 rounded-lg max-w-[80%]">
-                            <div class="text-xs opacity-75 mb-1 flex justify-between items-center">
-                                <span>${currentUser.name}${userRole}</span>
-                                <span>${new Date().toLocaleTimeString()}</span>
+                        <div class="flex items-start">
+                            <div class="mr-2">
+                                <img src="${currentUser.avatar}" alt="${currentUser.name}的头像" class="avatar">
                             </div>
-                            ${message}
+                            <div class="bg-primary text-white px-3 py-2 rounded-lg max-w-[80%]">
+                                <div class="text-xs opacity-75 mb-1 flex justify-between items-center">
+                                    <span>${currentUser.name}${userRole}</span>
+                                    <span>${new Date().toLocaleTimeString()}</span>
+                                </div>
+                                ${message}
+                            </div>
                         </div>
                     `;
                     chatMessages.appendChild(userMsgEl);
-                    saveChatMessage(currentUser.account, currentUser.name, message, 
-                                    currentUser.isAdmin, currentUser.isSuper);
+                    
+                    // 保存聊天消息
+                    saveChatMessage(
+                        currentUser.account, 
+                        currentUser.name, 
+                        currentUser.avatar,
+                        currentChatTarget.account,
+                        currentChatTarget.name,
+                        currentChatTarget.avatar,
+                        message, 
+                        currentUser.isAdmin, 
+                        currentUser.isSuper
+                    );
+                    
                     chatInput.value = '';
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
@@ -850,11 +985,134 @@
             });
         }
 
+        // 加载好友列表
+        function loadFriendList() {
+            const friendListEl = document.getElementById('friend-list');
+            const otherUsersListEl = document.getElementById('other-users-list');
+            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+            const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
+            
+            // 清空列表
+            friendListEl.innerHTML = '';
+            otherUsersListEl.innerHTML = '';
+            
+            // 获取当前用户的好友
+            const myFriends = getFriends();
+            
+            // 遍历所有用户
+            for (const [account, info] of Object.entries(users)) {
+                // 跳过自己
+                if (account === currentUser.account) continue;
+                
+                // 构建用户元素
+                const userEl = document.createElement('div');
+                userEl.className = 'p-2 rounded hover:bg-gray-100 cursor-pointer flex items-center justify-between transition-colors';
+                
+                // 角色标识
+                let roleBadge = '';
+                if (info.isSuper) {
+                    roleBadge = '<span class="badge bg-super ml-1">超级管理员</span>';
+                } else if (info.isAdmin) {
+                    roleBadge = '<span class="badge bg-secondary ml-1">管理员</span>';
+                }
+                
+                // 基础内容
+                const userContent = `
+                    <div class="flex items-center">
+                        <img src="${info.avatar}" alt="${info.name}的头像" class="avatar mr-2">
+                        <div>
+                            <p class="text-sm font-medium">${info.name}${roleBadge}</p>
+                            <p class="text-xs text-gray-500">${info.class}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // 检查是否是好友
+                const isFriend = myFriends.some(friend => friend.account === account);
+                
+                if (isFriend) {
+                    // 好友 - 添加到好友列表
+                    userEl.innerHTML = userContent;
+                    userEl.addEventListener('click', () => startChat(account, info.name, info.avatar));
+                    friendListEl.appendChild(userEl);
+                } else {
+                    // 非好友 - 检查是否有未处理的请求
+                    const hasPendingRequest = checkPendingFriendRequest(account);
+                    
+                    // 非好友 - 添加到其他用户列表
+                    if (hasPendingRequest) {
+                        userEl.innerHTML = `
+                            ${userContent}
+                            <span class="text-xs text-pending px-2 py-0.5 rounded-full bg-pending/10">请求已发送</span>
+                        `;
+                    } else {
+                        userEl.innerHTML = `
+                            ${userContent}
+                            <button onclick="sendFriendRequest('${account}', '${info.name}')" class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full hover:bg-primary/20 transition-colors">
+                                添加
+                            </button>
+                        `;
+                    }
+                    
+                    otherUsersListEl.appendChild(userEl);
+                }
+            }
+            
+            // 如果没有好友
+            if (friendListEl.children.length === 0) {
+                friendListEl.innerHTML = '<p class="text-gray-500 italic text-center text-sm p-2">还没有好友，添加好友开始聊天吧</p>';
+            }
+        }
+
+        // 过滤用户列表
+        function filterUsers() {
+            const searchTerm = document.getElementById('friend-search').value.toLowerCase().trim();
+            const allUserElements = document.querySelectorAll('#friend-list > div, #other-users-list > div');
+            
+            allUserElements.forEach(el => {
+                const userName = el.textContent.toLowerCase();
+                if (userName.includes(searchTerm)) {
+                    el.style.display = 'flex';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+        }
+
+        // 开始与指定用户聊天
+        function startChat(account, name, avatar) {
+            currentChatTarget = {
+                account: account,
+                name: name,
+                avatar: avatar
+            };
+            
+            // 更新聊天标题
+            document.getElementById('current-chat-name').textContent = name;
+            
+            // 显示聊天输入区域
+            document.getElementById('chat-input-area').classList.remove('hidden');
+            
+            // 加载与该用户的聊天记录
+            loadChatMessagesWithUser(account);
+            
+            // 聚焦到输入框
+            document.getElementById('chat-input').focus();
+        }
+
         // 保存聊天消息到会话存储
-        function saveChatMessage(userId, userName, content, isAdmin, isSuper) {
+        function saveChatMessage(
+            fromUserId, fromUserName, fromUserAvatar,
+            toUserId, toUserName, toUserAvatar,
+            content, isAdmin, isSuper
+        ) {
             const message = {
-                userId: userId,
-                userName: userName,
+                fromUserId: fromUserId,
+                fromUserName: fromUserName,
+                fromUserAvatar: fromUserAvatar,
+                toUserId: toUserId,
+                toUserName: toUserName,
+                toUserAvatar: toUserAvatar,
                 content: content,
                 isAdmin: isAdmin,
                 isSuper: isSuper,
@@ -873,10 +1131,16 @@
             sessionStorage.setItem('chatMessages', JSON.stringify(messages));
         }
 
-        // 加载聊天消息
-        function loadChatMessages() {
+        // 加载与特定用户的聊天记录
+        function loadChatMessagesWithUser(targetAccount) {
             const chatMessages = document.getElementById('chat-messages');
-            const messages = JSON.parse(sessionStorage.getItem('chatMessages') || '[]');
+            const allMessages = JSON.parse(sessionStorage.getItem('chatMessages') || '[]');
+            
+            // 筛选与当前聊天对象的消息
+            const messages = allMessages.filter(msg => 
+                (msg.fromUserId === currentUser.account && msg.toUserId === targetAccount) || 
+                (msg.fromUserId === targetAccount && msg.toUserId === currentUser.account)
+            );
             
             chatMessages.innerHTML = '';
             
@@ -886,11 +1150,13 @@
             }
             
             messages.forEach(msg => {
-                // 标记所有消息为已读
-                msg.isRead = true;
+                // 标记收到的消息为已读
+                if (msg.toUserId === currentUser.account && !msg.isRead) {
+                    msg.isRead = true;
+                }
                 
                 const msgEl = document.createElement('div');
-                const isCurrentUser = msg.userId === currentUser.account;
+                const isCurrentUser = msg.fromUserId === currentUser.account;
                 
                 msgEl.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} message-hover p-1 rounded`;
                 
@@ -903,21 +1169,28 @@
                 }
                 
                 const messageClass = isCurrentUser ? 'bg-primary text-white' : 'bg-gray-200 text-gray-800';
+                const avatar = isCurrentUser ? msg.fromUserAvatar : msg.fromUserAvatar;
+                const userName = isCurrentUser ? msg.fromUserName : msg.fromUserName;
                 
                 msgEl.innerHTML = `
-                    <div class="${messageClass} px-3 py-2 rounded-lg max-w-[80%]">
-                        <div class="text-xs opacity-75 mb-1 flex justify-between items-center">
-                            <span>${msg.userName}${userRole}</span>
-                            <span>${new Date(msg.time).toLocaleTimeString()}</span>
+                    <div class="flex items-start ${isCurrentUser ? 'flex-row-reverse' : ''}">
+                        <div class="${isCurrentUser ? 'mr-0 ml-2' : 'mr-2 ml-0'}">
+                            <img src="${avatar}" alt="${userName}的头像" class="avatar">
                         </div>
-                        ${msg.content}
+                        <div class="${messageClass} px-3 py-2 rounded-lg max-w-[80%]">
+                            <div class="text-xs opacity-75 mb-1 flex justify-between items-center">
+                                <span>${userName}${userRole}</span>
+                                <span>${new Date(msg.time).toLocaleTimeString()}</span>
+                            </div>
+                            ${msg.content}
+                        </div>
                     </div>
                 `;
                 chatMessages.appendChild(msgEl);
             });
             
             // 保存已读状态
-            sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+            sessionStorage.setItem('chatMessages', JSON.stringify(allMessages));
             
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -925,35 +1198,298 @@
         // 检查新消息
         function checkNewMessages() {
             const chatMessages = document.getElementById('chat-messages');
-            if (!chatMessages) return; // 聊天面板未打开
+            if (!chatMessages || !currentChatTarget) return; // 聊天面板未打开或未选择聊天对象
             
             const oldMessages = JSON.parse(sessionStorage.getItem('chatMessages') || '[]');
-            const newMessagesCount = oldMessages.filter(msg => !msg.isRead && msg.userId !== currentUser.account).length;
+            const newMessagesCount = oldMessages.filter(
+                msg => !msg.isRead && 
+                       msg.toUserId === currentUser.account && 
+                       msg.fromUserId === currentChatTarget.account
+            ).length;
             
             if (newMessagesCount > 0) {
-                loadChatMessages();
-                
-                // 如果不在可视区域，显示新消息提示
-                const isScrolledToBottom = chatMessages.scrollTop + chatMessages.clientHeight >= chatMessages.scrollHeight - 10;
-                if (!isScrolledToBottom) {
-                    const notice = document.createElement('div');
-                    notice.className = 'bg-blue-50 text-blue-700 text-center py-1 text-sm rounded mb-2';
-                    notice.textContent = `有 ${newMessagesCount} 条新消息`;
-                    notice.id = 'new-message-notice';
-                    
-                    // 移除已存在的提示
-                    const oldNotice = document.getElementById('new-message-notice');
-                    if (oldNotice) oldNotice.remove();
-                    
-                    chatMessages.prepend(notice);
-                    
-                    // 点击提示滚动到底部
-                    notice.addEventListener('click', () => {
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                        notice.remove();
-                    });
+                loadChatMessagesWithUser(currentChatTarget.account);
+            }
+        }
+
+        // 好友相关功能
+        function getFriends() {
+            const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
+            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+            const myFriends = [];
+            
+            // 查找当前用户的所有已通过的好友关系
+            for (const [id, friendship] of Object.entries(friendships)) {
+                if (friendship.status === 'accepted') {
+                    if (friendship.user === currentUser.account) {
+                        // 当前用户是发起方
+                        const friendInfo = users[friendship.friend];
+                        if (friendInfo) {
+                            myFriends.push({
+                                account: friendship.friend,
+                                name: friendInfo.name,
+                                avatar: friendInfo.avatar,
+                                className: friendInfo.class
+                            });
+                        }
+                    } else if (friendship.friend === currentUser.account) {
+                        // 当前用户是接收方
+                        const friendInfo = users[friendship.user];
+                        if (friendInfo) {
+                            myFriends.push({
+                                account: friendship.user,
+                                name: friendInfo.name,
+                                avatar: friendInfo.avatar,
+                                className: friendInfo.class
+                            });
+                        }
+                    }
                 }
             }
+            
+            return myFriends;
+        }
+
+        // 获取好友请求
+        function getFriendRequests() {
+            const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
+            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+            const requests = [];
+            
+            // 查找当前用户收到的未处理好友请求
+            for (const [id, friendship] of Object.entries(friendships)) {
+                if (friendship.status === 'pending' && friendship.friend === currentUser.account) {
+                    const requesterInfo = users[friendship.user];
+                    if (requesterInfo) {
+                        requests.push({
+                            id: id,
+                            account: friendship.user,
+                            name: requesterInfo.name,
+                            avatar: requesterInfo.avatar,
+                            className: requesterInfo.class,
+                            time: friendship.createdAt
+                        });
+                    }
+                }
+            }
+            
+            // 按时间排序，最新的在前面
+            return requests.sort((a, b) => new Date(b.time) - new Date(a.time));
+        }
+
+        // 检查是否有未处理的好友请求
+        function checkPendingFriendRequest(targetAccount) {
+            const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
+            
+            // 检查是否已经向该用户发送了未处理的请求
+            for (const [id, friendship] of Object.entries(friendships)) {
+                if (friendship.status === 'pending' && 
+                    friendship.user === currentUser.account && 
+                    friendship.friend === targetAccount) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // 更新好友请求计数
+        function updateFriendRequestCount() {
+            const friendRequests = getFriendRequests();
+            const countEl = document.getElementById('friend-request-count');
+            const headerUsernameEl = document.getElementById('current-username');
+            
+            // 更新聊天面板中的计数
+            if (countEl) {
+                countEl.textContent = friendRequests.length;
+                countEl.style.display = friendRequests.length > 0 ? 'inline-block' : 'none';
+            }
+            
+            // 更新顶部导航中的计数
+            if (headerUsernameEl && currentUser) {
+                let hasRequestBadge = headerUsernameEl.innerHTML.includes('bg-pending');
+                if (friendRequests.length > 0 && !hasRequestBadge) {
+                    headerUsernameEl.innerHTML += `<span class="badge bg-pending ml-1">${friendRequests.length}条请求</span>`;
+                } else if (friendRequests.length === 0 && hasRequestBadge) {
+                    // 移除徽章
+                    headerUsernameEl.innerHTML = headerUsernameEl.innerHTML.replace(/<span class="badge bg-pending ml-1">.*?<\/span>/, '');
+                } else if (friendRequests.length > 0 && hasRequestBadge) {
+                    // 更新数字
+                    headerUsernameEl.innerHTML = headerUsernameEl.innerHTML.replace(
+                        /<span class="badge bg-pending ml-1">(\d+)条请求<\/span>/,
+                        `<span class="badge bg-pending ml-1">${friendRequests.length}条请求</span>`
+                    );
+                }
+            }
+        }
+
+        // 显示好友请求模态框
+        function showFriendRequestModal() {
+            const modal = document.getElementById('friend-request-modal');
+            const container = document.getElementById('friend-requests-container');
+            const friendRequests = getFriendRequests();
+            
+            // 清空容器
+            container.innerHTML = '';
+            
+            if (friendRequests.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 italic text-center">没有未处理的好友请求</p>';
+            } else {
+                // 添加每个请求
+                friendRequests.forEach(request => {
+                    const requestEl = document.createElement('div');
+                    requestEl.className = 'p-3 border rounded-lg flex items-center justify-between';
+                    
+                    requestEl.innerHTML = `
+                        <div class="flex items-center">
+                            <img src="${request.avatar}" alt="${request.name}的头像" class="avatar mr-3">
+                            <div>
+                                <p class="font-medium">${request.name}</p>
+                                <p class="text-sm text-gray-500">${request.className}</p>
+                                <p class="text-xs text-gray-400 mt-1">${new Date(request.time).toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="acceptFriendRequest('${request.id}', '${request.account}')" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200">
+                                接受
+                            </button>
+                            <button onclick="rejectFriendRequest('${request.id}')" class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200">
+                                拒绝
+                            </button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(requestEl);
+                });
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // 隐藏好友请求模态框
+        function hideFriendRequestModal() {
+            document.getElementById('friend-request-modal').classList.add('hidden');
+        }
+
+        // 发送好友请求
+        function sendFriendRequest(targetAccount, targetName) {
+            if (targetAccount === currentUser.account) {
+                alert('不能添加自己为好友');
+                return;
+            }
+            
+            // 检查是否已经是好友
+            const friends = getFriends();
+            if (friends.some(friend => friend.account === targetAccount)) {
+                alert('你们已经是好友了');
+                return;
+            }
+            
+            // 检查是否已经发送过请求
+            if (checkPendingFriendRequest(targetAccount)) {
+                alert('已经发送过好友请求，请等待对方回复');
+                return;
+            }
+            
+            const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
+            
+            // 创建新的好友请求
+            const requestId = 'req_' + Date.now();
+            friendships[requestId] = {
+                id: requestId,
+                user: currentUser.account, // 发起方
+                friend: targetAccount,    // 接收方
+                status: 'pending',        // pending, accepted, rejected
+                createdAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('friendships', JSON.stringify(friendships));
+            
+            // 更新列表
+            loadFriendList();
+            
+            alert(`已向${targetName}发送好友请求`);
+        }
+
+        // 接受好友请求
+        function acceptFriendRequest(requestId, requesterAccount) {
+            const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
+            
+            if (friendships[requestId]) {
+                friendships[requestId].status = 'accepted';
+                friendships[requestId].acceptedAt = new Date().toISOString();
+                
+                localStorage.setItem('friendships', JSON.stringify(friendships));
+                
+                // 更新列表
+                loadFriendList();
+                updateFriendRequestCount();
+                
+                // 刷新好友请求列表
+                showFriendRequestModal();
+                
+                // 获取请求者信息
+                const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+                const requester = users[requesterAccount];
+                
+                alert(`已接受${requester ? requester.name : requesterAccount}的好友请求`);
+            }
+        }
+
+        // 拒绝好友请求
+        function rejectFriendRequest(requestId) {
+            const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
+            
+            if (friendships[requestId]) {
+                friendships[requestId].status = 'rejected';
+                friendships[requestId].rejectedAt = new Date().toISOString();
+                
+                localStorage.setItem('friendships', JSON.stringify(friendships));
+                
+                // 更新列表
+                loadFriendList();
+                updateFriendRequestCount();
+                
+                // 刷新好友请求列表
+                showFriendRequestModal();
+                
+                alert('已拒绝该好友请求');
+            }
+        }
+
+        // 处理头像上传
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // 简单验证文件类型
+            if (!file.type.match('image.*')) {
+                alert('请选择图片文件');
+                return;
+            }
+            
+            // 显示预览
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profile-avatar').src = e.target.result;
+                
+                // 临时保存到本地存储（实际项目中应上传到服务器）
+                const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+                if (users[currentUser.account]) {
+                    users[currentUser.account].avatar = e.target.result;
+                    localStorage.setItem('systemUsers', JSON.stringify(users));
+                    
+                    // 更新当前用户信息
+                    currentUser.avatar = e.target.result;
+                    localStorage.setItem('currentLogin', JSON.stringify(currentUser));
+                    
+                    // 更新顶部头像
+                    document.getElementById('header-avatar').src = e.target.result;
+                    
+                    showProfileMessage('头像更新成功');
+                }
+            }
+            reader.readAsDataURL(file);
         }
 
         // 登录相关函数
@@ -1012,7 +1548,8 @@
                     class: users[username].class,
                     isAdmin: users[username].isAdmin || false,
                     isSuper: users[username].isSuper || false,
-                    isBanned: users[username].isBanned || false
+                    isBanned: users[username].isBanned || false,
+                    avatar: users[username].avatar || `https://picsum.photos/200/200?random=${username}`
                 };
                 
                 // 保存登录状态
@@ -1069,7 +1606,6 @@
         }
 
         function hideRegisterModal() {
-            document.getElementById('register-modal').classList.remove('hidden');
             document.getElementById('register-modal').classList.add('hidden');
         }
 
@@ -1123,6 +1659,8 @@
         function showProfileModal() {
             document.getElementById('profile-modal').classList.remove('hidden');
             document.getElementById('new-nickname').value = currentUser.name;
+            document.getElementById('profile-avatar').src = currentUser.avatar || `https://picsum.photos/200/200?random=${currentUser.account}`;
+            document.getElementById('profile-avatar').alt = `${currentUser.name}的头像`;
             document.getElementById('old-password').value = '';
             document.getElementById('new-password').value = '';
             document.getElementById('profile-message').classList.add('hidden');
@@ -1263,9 +1801,12 @@
                     '<span class="badge bg-danger ml-1">已禁言</span>' : '';
                 
                 userEl.innerHTML = `
-                    <div>
-                        <p><strong>${info.name}</strong>（${account}）${roleBadge}${banStatus}</p>
-                        <p class="text-sm text-gray-600">班级：${info.class}</p>
+                    <div class="flex items-center">
+                        <img src="${info.avatar}" alt="${info.name}的头像" class="avatar mr-3">
+                        <div>
+                            <p><strong>${info.name}</strong>（${account}）${roleBadge}${banStatus}</p>
+                            <p class="text-sm text-gray-600">班级：${info.class}</p>
+                        </div>
                     </div>
                     <div>
                         <button onclick="toggleBanUser('${account}')" class="text-sm ${info.isBanned ? 'bg-green-100 text-green-700' : 'bg-danger/10 text-danger'} px-2 py-1 rounded mr-2">
@@ -1276,6 +1817,7 @@
                         </button>
                     </div>
                 `;
+                listEl.appendChild(userEl);
                 listEl.appendChild(userEl);
             }
             
@@ -1297,9 +1839,12 @@
                     const adminEl = document.createElement('div');
                     adminEl.className = 'p-3 border rounded-lg flex justify-between items-center';
                     adminEl.innerHTML = `
-                        <div>
-                            <p><strong>${info.name}</strong>（${account}）<span class="badge bg-secondary ml-1">管理员</span></p>
-                            <p class="text-sm text-gray-600">班级：${info.class}</p>
+                        <div class="flex items-center">
+                            <img src="${info.avatar}" alt="${info.name}的头像" class="avatar mr-3">
+                            <div>
+                                <p><strong>${info.name}</strong>（${account}）<span class="badge bg-secondary ml-1">管理员</span></p>
+                                <p class="text-sm text-gray-600">班级：${info.class}</p>
+                            </div>
                         </div>
                         <div>
                             <button onclick="removeAdmin('${account}')" class="text-sm bg-gray-200 px-2 py-1 rounded">
@@ -1409,7 +1954,8 @@
                 class: className,
                 isAdmin: false,
                 isSuper: false,
-                isBanned: false
+                isBanned: false,
+                avatar: `https://picsum.photos/200/200?random=${account}` // 默认头像
             };
             
             localStorage.setItem('systemUsers', JSON.stringify(users));
@@ -1449,6 +1995,15 @@
                 delete users[account];
                 localStorage.setItem('systemUsers', JSON.stringify(users));
                 loadUserList();
+                
+                // 同时删除相关的好友关系
+                const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
+                for (const [id, friendship] of Object.entries(friendships)) {
+                    if (friendship.user === account || friendship.friend === account) {
+                        delete friendships[id];
+                    }
+                }
+                localStorage.setItem('friendships', JSON.stringify(friendships));
                 
                 // 记录日志
                 addAdminLog('删除用户', currentUser.account, `删除了用户 ${userName}（${account}）`);
@@ -1573,7 +2128,8 @@
                     class: app.class,
                     isAdmin: false,
                     isSuper: false,
-                    isBanned: false
+                    isBanned: false,
+                    avatar: `https://picsum.photos/200/200?random=${account}` // 默认头像
                 };
                 
                 // 更新申请状态
@@ -1644,11 +2200,12 @@
         window.removeAdmin = removeAdmin;
         window.approveApplication = approveApplication;
         window.rejectApplication = rejectApplication;
+        window.sendFriendRequest = sendFriendRequest;
+        window.acceptFriendRequest = acceptFriendRequest;
+        window.rejectFriendRequest = rejectFriendRequest;
 
         // 页面加载完成后初始化应用
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
-    
-
