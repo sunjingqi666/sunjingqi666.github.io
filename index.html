@@ -362,6 +362,7 @@
         // 全局变量
         let currentUser = null;
         const ADMIN_ACCOUNT = "admin"; // 最高管理员账号
+        const LEMON_ACCOUNT = "lemon"; // 新增lemon账号
         let messageCheckInterval; // 消息检查定时器
 
         // 数据结构定义
@@ -369,7 +370,7 @@
         // 申请数据: { account: { name, class, reason, status, time } }
         // 管理员日志: [{ action, operator, target, time }]
 
-        // 初始化系统用户（首次使用时创建最高管理员账号）
+        // 初始化系统用户（首次使用时创建最高管理员账号和lemon账号）
         function initSystemUsers() {
             const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
             // 如果最高管理员账号不存在，则创建
@@ -382,19 +383,35 @@
                     isSuper: true,
                     isBanned: false
                 };
-                localStorage.setItem('systemUsers', JSON.stringify(users));
-                
-                // 初始化管理员日志
+            }
+            
+            // 添加lemon账号（如果不存在）
+            if (!users[LEMON_ACCOUNT]) {
+                users[LEMON_ACCOUNT] = {
+                    password: "ning6666", // lemon账号密码
+                    name: "lemon", // 昵称
+                    class: "默认班级", // 可在个人设置中修改
+                    isAdmin: false, // 默认为普通用户
+                    isSuper: false,
+                    isBanned: false
+                };
+            }
+            
+            // 保存用户数据
+            localStorage.setItem('systemUsers', JSON.stringify(users));
+            
+            // 初始化管理员日志（如果不存在）
+            if (!localStorage.getItem('adminLogs')) {
                 const adminLogs = [{
                     action: "系统初始化",
                     operator: "system",
-                    target: "创建超级管理员账号",
+                    target: "创建超级管理员账号和lemon账号",
                     time: new Date().toISOString()
                 }];
                 localStorage.setItem('adminLogs', JSON.stringify(adminLogs));
             }
             
-            // 初始化账号申请存储
+            // 初始化账号申请存储（如果不存在）
             if (!localStorage.getItem('accountApplications')) {
                 localStorage.setItem('accountApplications', JSON.stringify({}));
             }
