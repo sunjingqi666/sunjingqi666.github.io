@@ -1,54 +1,339 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>校园工具网 - 信息存储测试</title>
-  <!-- 必须！引入 LeanCloud SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园工具网 - 用户系统</title>
+    <!-- 引入LeanCloud SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+    <!-- 引入Tailwind CSS用于美化界面 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome图标 -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        // 初始化LeanCloud
+        AV.init({
+            appId: "0q5QrQ2pGsms6GN3cUn3Xx7f-gzGzoHsz",
+            appKey: "m7saMie87OiJizfHwzhcQaEc",
+            serverURL: "https://0q5qrq2p.lc-cn-n1-shared.com"
+        });
+    </script>
 </head>
-<body>
-  <h1>测试用户信息存储</h1>
+<body class="bg-gray-100 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">校园工具网</h1>
+            <div id="userInfoArea" class="flex items-center space-x-4">
+                <span id="loginPrompt">请登录后使用全部功能</span>
+                <button id="loginBtn" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-gray-100 transition">
+                    <i class="fa fa-sign-in mr-1"></i> 登录
+                </button>
+                <button id="registerBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+                    <i class="fa fa-user-plus mr-1"></i> 注册
+                </button>
+                <button id="logoutBtn" class="hidden bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+                    <i class="fa fa-sign-out mr-1"></i> 退出
+                </button>
+            </div>
+        </div>
+    </header>
 
-  <!-- 最简表单：填昵称、头像、班级 -->
-  <input type="text" id="nickname" placeholder="昵称"><br><br>
-  <input type="text" id="avatar" placeholder="头像链接（如 https://xxx.png）"><br><br>
-  <input type="text" id="userClass" placeholder="班级（如 高一(1)班）"><br><br>
-  <button onclick="saveToLeanCloud()">保存到 LeanCloud</button>
+    <!-- 主内容区 -->
+    <main class="container mx-auto p-6">
+        <!-- 登录弹窗 -->
+        <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 transform transition-all">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">用户登录</h2>
+                    <button id="closeLoginBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label for="loginAccount" class="block text-gray-700 mb-1">学号/账号</label>
+                        <input type="text" id="loginAccount" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="block text-gray-700 mb-1">密码</label>
+                        <input type="password" id="loginPassword" required minlength="8"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+                        <i class="fa fa-sign-in mr-1"></i> 登录
+                    </button>
+                </form>
+            </div>
+        </div>
 
-  <!-- 核心 JS：初始化 SDK + 存储逻辑 -->
-  <script>
-    // 1. 初始化 LeanCloud（替换为你的密钥）
-    AV.init({
-      appId: "0q5QrQ2pGsms6GN3cUn3Xx7f-gzGzoHsz", 
-      appKey: "m7saMie87OiJizfHwzhcQaEc", 
-      serverURL: "https://0q5qrq2p.lc-cn-n1-shared.com" 
-    });
+        <!-- 注册弹窗 -->
+        <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 transform transition-all">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">用户注册</h2>
+                    <button id="closeRegisterBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="registerForm" class="space-y-4">
+                    <div>
+                        <label for="regAccount" class="block text-gray-700 mb-1">学号/账号</label>
+                        <input type="text" id="regAccount" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="regPassword" class="block text-gray-700 mb-1">密码（至少8位）</label>
+                        <input type="password" id="regPassword" required minlength="8"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="regNickname" class="block text-gray-700 mb-1">昵称</label>
+                        <input type="text" id="regNickname" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="regClass" class="block text-gray-700 mb-1">班级</label>
+                        <input type="text" id="regClass" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition">
+                        <i class="fa fa-user-plus mr-1"></i> 注册
+                    </button>
+                </form>
+            </div>
+        </div>
 
-    // 2. 点击按钮时，把输入的信息存到 UserProfile 类
-    async function saveToLeanCloud() {
-      // 获取输入框的值
-      const nickname = document.getElementById('nickname').value;
-      const avatar = document.getElementById('avatar').value;
-      const userClass = document.getElementById('userClass').value;
+        <!-- 用户信息展示区 -->
+        <div id="userProfile" class="hidden bg-white rounded-lg shadow-md p-6 mt-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">用户信息</h2>
+            <div class="flex items-center space-x-6">
+                <div>
+                    <img id="avatarImg" src="https://picsum.photos/200" alt="用户头像" class="w-24 h-24 rounded-full object-cover border-4 border-blue-200">
+                </div>
+                <div class="space-y-2">
+                    <p><span class="font-semibold">账号：</span><span id="profileAccount"></span></p>
+                    <p><span class="font-semibold">昵称：</span><span id="profileNickname"></span></p>
+                    <p><span class="font-semibold">班级：</span><span id="profileClass"></span></p>
+                    <p><span class="font-semibold">用户ID：</span><span id="profileUserId"></span></p>
+                    <p><span class="font-semibold">权限：</span><span id="profileRole"></span></p>
+                </div>
+            </div>
+        </div>
+    </main>
 
-      try {
-        // 创建 UserProfile 实例（关联你在 LeanCloud 建的类）
-        const UserProfile = AV.Object.extend('UserProfile');
-        const profile = new UserProfile();
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white p-6 mt-12">
+        <div class="container mx-auto text-center">
+            <p>© 2023 校园工具网 - 基于LeanCloud构建</p>
+        </div>
+    </footer>
 
-        // 设置字段（对应你在控制台加的字段）
-        profile.set('nickname', nickname);
-        profile.set('avatarUrl', avatar);
-        profile.set('class', userClass);
-        // 其他字段（isAdmin 等）可以后续注册时再处理，这里先存基础信息
+    <script>
+        // DOM元素
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        const closeLoginBtn = document.getElementById('closeLoginBtn');
+        const closeRegisterBtn = document.getElementById('closeRegisterBtn');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginPrompt = document.getElementById('loginPrompt');
+        const userProfile = document.getElementById('userProfile');
+        
+        // 用户信息展示元素
+        const avatarImg = document.getElementById('avatarImg');
+        const profileAccount = document.getElementById('profileAccount');
+        const profileNickname = document.getElementById('profileNickname');
+        const profileClass = document.getElementById('profileClass');
+        const profileUserId = document.getElementById('profileUserId');
+        const profileRole = document.getElementById('profileRole');
 
-        // 保存到 LeanCloud
-        await profile.save();
-        alert('保存成功！去 LeanCloud 控制台看看吧～');
-      } catch (error) {
-        alert('保存失败：' + error.message);
-      }
-    }
-  </script>
+        // 页面加载时检查登录状态
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+
+        // 事件监听
+        loginBtn.addEventListener('click', () => loginModal.classList.remove('hidden'));
+        registerBtn.addEventListener('click', () => registerModal.classList.remove('hidden'));
+        closeLoginBtn.addEventListener('click', () => loginModal.classList.add('hidden'));
+        closeRegisterBtn.addEventListener('click', () => registerModal.classList.add('hidden'));
+        logoutBtn.addEventListener('click', logout);
+        
+        // 点击模态框外部关闭
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) loginModal.classList.add('hidden');
+        });
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) registerModal.classList.add('hidden');
+        });
+
+        // 登录表单提交
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const account = document.getElementById('loginAccount').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                // 调用LeanCloud登录接口
+                const user = await AV.User.logIn(account, password);
+                // 获取用户详细信息
+                await loadUserProfile(user);
+                // 关闭登录弹窗
+                loginModal.classList.add('hidden');
+                // 重置表单
+                loginForm.reset();
+                alert('登录成功！');
+            } catch (error) {
+                alert('登录失败：' + error.message);
+            }
+        });
+
+        // 注册表单提交
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const account = document.getElementById('regAccount').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const nickname = document.getElementById('regNickname').value.trim();
+            const userClass = document.getElementById('regClass').value.trim();
+            
+            // 简单验证
+            if (!account || !password || !nickname || !userClass) {
+                alert('请填写完整信息！');
+                return;
+            }
+            if (password.length < 8) {
+                alert('密码长度不能少于8位！');
+                return;
+            }
+            
+            try {
+                // 检查账号是否已存在
+                const userQuery = new AV.Query('_User');
+                userQuery.equalTo('username', account);
+                const existingUser = await userQuery.first();
+                if (existingUser) {
+                    alert('该账号已存在，请更换账号！');
+                    return;
+                }
+                
+                // 创建用户（_User类）
+                const user = new AV.User();
+                user.setUsername(account);
+                user.setPassword(password);
+                await user.signUp(); // 注册并自动登录
+                
+                // 创建用户扩展信息（UserProfile类）
+                const UserProfile = AV.Object.extend('UserProfile');
+                const profile = new UserProfile();
+                profile.set('userId', user.id);
+                profile.set('nickname', nickname);
+                profile.set('class', userClass);
+                profile.set('avatarUrl', `https://picsum.photos/200?random=${account}`);
+                profile.set('isAdmin', false);
+                profile.set('isSuper', false);
+                profile.set('isBanned', false);
+                
+                // 设置权限：只有用户本人和管理员可以访问
+                const acl = new AV.ACL();
+                acl.setReadAccess(user, true);
+                acl.setWriteAccess(user, true);
+                profile.setACL(acl);
+                
+                await profile.save();
+                
+                // 关闭注册弹窗并重置表单
+                registerModal.classList.add('hidden');
+                registerForm.reset();
+                
+                // 加载用户信息
+                await loadUserProfile(user);
+                
+                alert('注册成功！欢迎加入校园工具网！');
+            } catch (error) {
+                alert('注册失败：' + error.message);
+            }
+        });
+
+        // 检查登录状态
+        async function checkLoginStatus() {
+            const currentUser = AV.User.current();
+            if (currentUser) {
+                // 如果有登录状态，加载用户详细信息
+                await loadUserProfile(currentUser);
+            } else {
+                // 未登录状态
+                showLoginState(false);
+            }
+        }
+
+        // 加载用户详细信息
+        async function loadUserProfile(user) {
+            try {
+                // 查询用户扩展信息
+                const profileQuery = new AV.Query('UserProfile');
+                profileQuery.equalTo('userId', user.id);
+                const profile = await profileQuery.first();
+                
+                if (profile) {
+                    // 更新用户信息展示
+                    profileAccount.textContent = user.getUsername();
+                    profileNickname.textContent = profile.get('nickname');
+                    profileClass.textContent = profile.get('class');
+                    profileUserId.textContent = user.id;
+                    avatarImg.src = profile.get('avatarUrl') || 'https://picsum.photos/200';
+                    
+                    // 显示用户角色
+                    if (profile.get('isSuper')) {
+                        profileRole.textContent = '超级管理员';
+                    } else if (profile.get('isAdmin')) {
+                        profileRole.textContent = '管理员';
+                    } else {
+                        profileRole.textContent = '普通用户';
+                    }
+                    
+                    // 显示登录状态
+                    showLoginState(true, profile.get('nickname'));
+                }
+            } catch (error) {
+                console.error('加载用户信息失败：', error);
+                alert('加载用户信息失败，请重新登录');
+                logout();
+            }
+        }
+
+        // 显示登录/未登录状态
+        function showLoginState(isLoggedIn, nickname = '') {
+            if (isLoggedIn) {
+                // 已登录状态
+                loginPrompt.textContent = `欢迎回来，${nickname}！`;
+                loginBtn.classList.add('hidden');
+                registerBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                userProfile.classList.remove('hidden');
+            } else {
+                // 未登录状态
+                loginPrompt.textContent = '请登录后使用全部功能';
+                loginBtn.classList.remove('hidden');
+                registerBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                userProfile.classList.add('hidden');
+            }
+        }
+
+        // 退出登录
+        async function logout() {
+            try {
+                await AV.User.logOut();
+                showLoginState(false);
+                alert('已成功退出登录');
+            } catch (error) {
+                alert('退出登录失败：' + error.message);
+            }
+        }
+    </script>
 </body>
 </html>
