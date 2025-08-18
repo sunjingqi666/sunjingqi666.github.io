@@ -192,7 +192,7 @@
             }
         });
 
-        // 注册表单提交
+        // 注册表单提交（已修复权限问题）
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const account = document.getElementById('regAccount').value.trim();
@@ -211,16 +211,7 @@
             }
             
             try {
-                // 检查账号是否已存在
-                const userQuery = new AV.Query('_User');
-                userQuery.equalTo('username', account);
-                const existingUser = await userQuery.first();
-                if (existingUser) {
-                    alert('该账号已存在，请更换账号！');
-                    return;
-                }
-                
-                // 创建用户（_User类）
+                // 直接创建用户（利用LeanCloud内置的账号唯一性校验）
                 const user = new AV.User();
                 user.setUsername(account);
                 user.setPassword(password);
@@ -237,7 +228,7 @@
                 profile.set('isSuper', false);
                 profile.set('isBanned', false);
                 
-                // 设置权限：只有用户本人和管理员可以访问
+                // 设置权限：只有用户本人可以访问和修改
                 const acl = new AV.ACL();
                 acl.setReadAccess(user, true);
                 acl.setWriteAccess(user, true);
@@ -254,7 +245,14 @@
                 
                 alert('注册成功！欢迎加入校园工具网！');
             } catch (error) {
-                alert('注册失败：' + error.message);
+                // 处理错误：针对不同错误码给出明确提示
+                if (error.code === 202) {
+                    alert('该账号已存在，请更换账号！');
+                } else if (error.code === 125) {
+                    alert('输入信息格式不正确，请检查！');
+                } else {
+                    alert(`注册失败：${error.message}（错误码：${error.code}）`);
+                }
             }
         });
 
