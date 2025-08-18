@@ -27,7 +27,8 @@
                         danger: '#EF4444',
                         online: '#22C55E',
                         super: '#8B5CF6', // 超级管理员颜色
-                        pending: '#F59E0B' // 好友请求待处理颜色
+                        pending: '#F59E0B', // 好友请求待处理颜色
+                        announcement: '#EC4899' // 公告颜色
                     }
                 }
             }
@@ -61,6 +62,22 @@
                 <i class="fa fa-wrench mr-2"></i>校园工具集
             </h1>
             <div class="flex items-center space-x-4">
+                <!-- 公告通知图标 -->
+                <div class="relative" id="announcement-icon-container">
+                    <button id="show-announcements" class="text-gray-600 hover:text-announcement transition-colors">
+                        <i class="fa fa-bullhorn text-xl"></i>
+                        <span id="unread-announcement-count" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-announcement text-white text-xs flex items-center justify-center hidden">0</span>
+                    </button>
+                </div>
+                
+                <!-- 建议栏图标 -->
+                <div class="relative" id="suggestion-icon-container">
+                    <button id="show-suggestions" class="text-gray-600 hover:text-primary transition-colors">
+                        <i class="fa fa-commenting text-xl"></i>
+                        <span id="unread-suggestion-count" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-white text-xs flex items-center justify-center hidden">0</span>
+                    </button>
+                </div>
+                
                 <!-- 用户状态和下拉菜单 -->
                 <div class="relative" id="user-menu-container">
                     <span id="user-status" class="text-gray-600 hidden flex items-center cursor-pointer">
@@ -87,6 +104,25 @@
             </div>
         </div>
     </header>
+
+    <!-- 公告栏 (所有用户可见) -->
+    <div id="announcement-bar" class="bg-announcement/10 border-l-4 border-announcement py-3 px-4 hidden">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-start">
+                <i class="fa fa-bullhorn text-announcement mr-3 mt-0.5"></i>
+                <div>
+                    <h3 id="announcement-title" class="font-bold text-announcement"></h3>
+                    <p id="announcement-content" class="text-sm text-gray-700 mt-1 line-clamp-2"></p>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <span id="announcement-date" class="text-xs text-gray-500 mr-3"></span>
+                <button id="close-announcement" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- 主要内容区 -->
     <main class="container mx-auto px-4 py-8">
@@ -267,6 +303,80 @@
             </div>
         </div>
 
+        <!-- 公告模态框 -->
+        <div id="announcements-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold flex items-center">
+                        <i class="fa fa-bullhorn text-announcement mr-2"></i> 校园公告
+                    </h3>
+                    <button id="close-announcements" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- 发布公告区域（仅超级管理员可见） -->
+                <div id="create-announcement-container" class="mb-8 p-4 border rounded-lg bg-gray-50 hidden">
+                    <h4 class="font-bold text-lg mb-4">发布新公告</h4>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">公告标题</label>
+                        <input type="text" id="announcement-new-title" placeholder="输入公告标题" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-announcement">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">公告内容</label>
+                        <textarea id="announcement-new-content" rows="4" placeholder="输入公告内容" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-announcement"></textarea>
+                    </div>
+                    <button id="publish-announcement" class="bg-announcement text-white px-4 py-2 rounded hover:bg-announcement/90">
+                        <i class="fa fa-paper-plane mr-1"></i> 发布公告
+                    </button>
+                </div>
+                
+                <!-- 公告列表 -->
+                <div id="announcements-list" class="space-y-6">
+                    <!-- 公告会在这里显示 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 建议模态框 -->
+        <div id="suggestions-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold flex items-center">
+                        <i class="fa fa-commenting text-primary mr-2"></i> 建议与反馈
+                    </h3>
+                    <button id="close-suggestions" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- 提交建议区域（所有用户可见） -->
+                <div class="mb-8 p-4 border rounded-lg bg-gray-50">
+                    <h4 class="font-bold text-lg mb-4">提交建议</h4>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">建议标题</label>
+                        <input type="text" id="suggestion-new-title" placeholder="输入建议标题" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">建议内容</label>
+                        <textarea id="suggestion-new-content" rows="4" placeholder="请详细描述你的建议或反馈..." 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+                    </div>
+                    <button id="submit-suggestion" class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90">
+                        <i class="fa fa-paper-plane mr-1"></i> 提交建议
+                    </button>
+                </div>
+                
+                <!-- 建议列表（超级管理员可看到所有建议，普通用户只能看到自己的） -->
+                <div id="suggestions-list" class="space-y-6">
+                    <!-- 建议会在这里显示 -->
+                </div>
+            </div>
+        </div>
+
         <!-- 管理员工具模态框 (默认隐藏) -->
         <div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
             <div class="bg-white rounded-xl p-8 w-full max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -416,8 +526,11 @@
         // 页面加载完成后初始化
         function initApp() {
             initSystemUsers();
+            initAnnouncements();
+            initSuggestions();
             checkLoginStatus();
             setupEventListeners();
+            checkNewAnnouncements();
         }
 
         // 初始化系统用户（首次使用时创建最高管理员账号和lemon账号）
@@ -481,6 +594,34 @@
             }
         }
 
+        // 初始化公告数据
+        function initAnnouncements() {
+            if (!localStorage.getItem('announcements')) {
+                // 创建一条欢迎公告
+                const announcements = [{
+                    id: 'ann_' + Date.now(),
+                    title: '欢迎使用校园工具集',
+                    content: '这是一个面向校园的综合工具平台，提供聊天、搜索等功能。请遵守平台规定，文明使用各项功能。',
+                    createdAt: new Date().toISOString(),
+                    createdBy: ADMIN_ACCOUNT,
+                    createdByName: '超级管理员'
+                }];
+                localStorage.setItem('announcements', JSON.stringify(announcements));
+            }
+            
+            // 初始化公告阅读记录
+            if (!localStorage.getItem('announcementReads')) {
+                localStorage.setItem('announcementReads', JSON.stringify({}));
+            }
+        }
+
+        // 初始化建议数据
+        function initSuggestions() {
+            if (!localStorage.getItem('suggestions')) {
+                localStorage.setItem('suggestions', JSON.stringify([]));
+            }
+        }
+
         // 检查登录状态
         function checkLoginStatus() {
             const savedUser = localStorage.getItem('currentLogin');
@@ -490,9 +631,14 @@
                 
                 // 更新在线状态
                 updateOnlineStatus(true);
+                
+                // 检查新建议回复（仅针对自己的建议）
+                checkNewSuggestionReplies();
             } else {
                 document.getElementById('not-login-status').classList.remove('hidden');
                 document.getElementById('user-status').classList.add('hidden');
+                document.getElementById('announcement-icon-container').classList.remove('hidden');
+                document.getElementById('suggestion-icon-container').classList.add('hidden');
             }
         }
 
@@ -501,6 +647,8 @@
             if (currentUser) {
                 document.getElementById('not-login-status').classList.add('hidden');
                 document.getElementById('user-status').classList.remove('hidden');
+                document.getElementById('announcement-icon-container').classList.remove('hidden');
+                document.getElementById('suggestion-icon-container').classList.remove('hidden');
                 
                 // 设置头像
                 document.getElementById('header-avatar').src = currentUser.avatar || `https://picsum.photos/200/200?random=${currentUser.account}`;
@@ -596,6 +744,17 @@
             // 好友请求相关事件
             document.getElementById('close-friend-requests').addEventListener('click', hideFriendRequestModal);
 
+            // 公告相关事件
+            document.getElementById('show-announcements').addEventListener('click', showAnnouncementsModal);
+            document.getElementById('close-announcements').addEventListener('click', hideAnnouncementsModal);
+            document.getElementById('publish-announcement').addEventListener('click', publishAnnouncement);
+            document.getElementById('close-announcement').addEventListener('click', closeAnnouncementBar);
+
+            // 建议相关事件
+            document.getElementById('show-suggestions').addEventListener('click', showSuggestionsModal);
+            document.getElementById('close-suggestions').addEventListener('click', hideSuggestionsModal);
+            document.getElementById('submit-suggestion').addEventListener('click', submitSuggestion);
+
             // 管理员面板事件
             document.getElementById('close-admin-modal').addEventListener('click', hideAdminModal);
             document.getElementById('add-user-btn').addEventListener('click', addUser);
@@ -651,6 +810,12 @@
             });
             document.getElementById('friend-request-modal').addEventListener('click', (e) => {
                 if (e.target === document.getElementById('friend-request-modal')) hideFriendRequestModal();
+            });
+            document.getElementById('announcements-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('announcements-modal')) hideAnnouncementsModal();
+            });
+            document.getElementById('suggestions-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('suggestions-modal')) hideSuggestionsModal();
             });
         }
 
@@ -744,7 +909,7 @@
                         </div>
                     </div>
                 `,
-                // 聊天工具模板 - 添加了好友列表和搜索功能
+                // 聊天工具模板 - 仅通过搜索添加好友
                 chat: `
                     <div class="p-4">
                         <!-- 管理员工具按钮，仅管理员可见 -->
@@ -755,13 +920,16 @@
                         </div>
                         
                         <div class="flex flex-col md:flex-row gap-4">
-                            <!-- 好友列表区域 -->
+                            <!-- 好友列表和搜索区域 -->
                             <div class="w-full md:w-80 border rounded-lg p-3 h-96 flex flex-col">
                                 <div class="mb-4">
                                     <div class="relative">
-                                        <input type="text" id="friend-search" placeholder="搜索好友或用户..." 
+                                        <input type="text" id="friend-search" placeholder="搜索用户姓名添加好友..." 
                                             class="w-full border rounded-lg px-3 py-2 pl-8 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm">
                                         <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+                                    <div id="friend-search-results" class="mt-2 hidden">
+                                        <!-- 搜索结果将动态生成 -->
                                     </div>
                                 </div>
                                 
@@ -778,11 +946,6 @@
                                     <h4 class="text-sm font-medium text-gray-500 mb-2">好友列表</h4>
                                     <div id="friend-list" class="space-y-1">
                                         <!-- 好友列表将动态生成 -->
-                                    </div>
-                                    
-                                    <h4 class="text-sm font-medium text-gray-500 mb-2 mt-4">其他用户</h4>
-                                    <div id="other-users-list" class="space-y-1">
-                                        <!-- 其他用户列表将动态生成 -->
                                     </div>
                                 </div>
                             </div>
@@ -884,6 +1047,7 @@
             const sendChatBtn = document.getElementById('send-chat');
             const adminToolContainer = document.getElementById('admin-tool-container');
             const friendSearch = document.getElementById('friend-search');
+            const friendSearchResults = document.getElementById('friend-search-results');
             const showFriendRequestsBtn = document.getElementById('show-friend-requests');
             
             // 加载好友列表
@@ -911,8 +1075,99 @@
                 adminToolContainer.style.display = 'none';
             }
             
-            // 好友搜索功能
-            friendSearch.addEventListener('input', filterUsers);
+            // 好友搜索功能 - 仅通过搜索名字添加好友
+            friendSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                
+                if (searchTerm.length < 1) {
+                    friendSearchResults.innerHTML = '';
+                    friendSearchResults.classList.add('hidden');
+                    return;
+                }
+                
+                const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
+                const myFriends = getFriends();
+                const results = [];
+                
+                // 搜索用户（排除自己和已添加的好友）
+                for (const [account, info] of Object.entries(users)) {
+                    if (account === currentUser.account) continue;
+                    
+                    // 检查是否已经是好友
+                    const isFriend = myFriends.some(friend => friend.account === account);
+                    if (isFriend) continue;
+                    
+                    // 按姓名搜索
+                    if (info.name.toLowerCase().includes(searchTerm)) {
+                        results.push({ account, info });
+                    }
+                }
+                
+                // 显示搜索结果
+                if (results.length > 0) {
+                    friendSearchResults.innerHTML = '';
+                    
+                    results.forEach(({ account, info }) => {
+                        const resultEl = document.createElement('div');
+                        resultEl.className = 'p-2 rounded hover:bg-gray-100 cursor-pointer flex items-center justify-between transition-colors border';
+                        
+                        // 角色标识
+                        let roleBadge = '';
+                        if (info.isSuper) {
+                            roleBadge = '<span class="badge bg-super ml-1">超级管理员</span>';
+                        } else if (info.isAdmin) {
+                            roleBadge = '<span class="badge bg-secondary ml-1">管理员</span>';
+                        }
+                        
+                        // 检查是否有未处理的请求
+                        const hasPendingRequest = checkPendingFriendRequest(account);
+                        
+                        let actionButton = '';
+                        if (hasPendingRequest) {
+                            actionButton = '<span class="text-xs text-pending px-2 py-0.5 rounded-full bg-pending/10">请求已发送</span>';
+                        } else {
+                            actionButton = `
+                                <button onclick="sendFriendRequest('${account}', '${info.name}')" class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full hover:bg-primary/20 transition-colors">
+                                    添加
+                                </button>
+                            `;
+                        }
+                        
+                        resultEl.innerHTML = `
+                            <div class="flex items-center">
+                                <img src="${info.avatar}" alt="${info.name}的头像" class="avatar mr-2">
+                                <div>
+                                    <p class="text-sm font-medium">${info.name}${roleBadge}</p>
+                                    <p class="text-xs text-gray-500">${info.class}</p>
+                                </div>
+                            </div>
+                            ${actionButton}
+                        `;
+                        
+                        // 点击用户项可以开始聊天（如果已经是好友）
+                        resultEl.addEventListener('click', (e) => {
+                            // 避免点击按钮时触发
+                            if (!e.target.closest('button') && !e.target.closest('span.text-pending')) {
+                                startChat(account, info.name, info.avatar);
+                            }
+                        });
+                        
+                        friendSearchResults.appendChild(resultEl);
+                    });
+                    
+                    friendSearchResults.classList.remove('hidden');
+                } else {
+                    friendSearchResults.innerHTML = '<p class="text-gray-500 italic text-center text-sm p-2">未找到匹配的用户</p>';
+                    friendSearchResults.classList.remove('hidden');
+                }
+            });
+            
+            // 点击页面其他地方关闭搜索结果
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#friend-search') && !e.target.closest('#friend-search-results')) {
+                    friendSearchResults.classList.add('hidden');
+                }
+            });
             
             // 显示好友请求
             showFriendRequestsBtn.addEventListener('click', showFriendRequestModal);
@@ -921,6 +1176,8 @@
             messageCheckInterval = setInterval(() => {
                 checkNewMessages();
                 updateFriendRequestCount();
+                checkNewAnnouncements();
+                if (currentUser) checkNewSuggestionReplies();
             }, 1000);
             
             // 发送消息
@@ -988,95 +1245,49 @@
         // 加载好友列表
         function loadFriendList() {
             const friendListEl = document.getElementById('friend-list');
-            const otherUsersListEl = document.getElementById('other-users-list');
             const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
-            const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
             
             // 清空列表
             friendListEl.innerHTML = '';
-            otherUsersListEl.innerHTML = '';
             
             // 获取当前用户的好友
             const myFriends = getFriends();
             
-            // 遍历所有用户
-            for (const [account, info] of Object.entries(users)) {
-                // 跳过自己
-                if (account === currentUser.account) continue;
+            // 遍历所有好友
+            myFriends.forEach(friend => {
+                const friendInfo = users[friend.account];
+                if (!friendInfo) return;
                 
-                // 构建用户元素
-                const userEl = document.createElement('div');
-                userEl.className = 'p-2 rounded hover:bg-gray-100 cursor-pointer flex items-center justify-between transition-colors';
+                // 构建好友元素
+                const friendEl = document.createElement('div');
+                friendEl.className = 'p-2 rounded hover:bg-gray-100 cursor-pointer flex items-center transition-colors';
                 
                 // 角色标识
                 let roleBadge = '';
-                if (info.isSuper) {
+                if (friendInfo.isSuper) {
                     roleBadge = '<span class="badge bg-super ml-1">超级管理员</span>';
-                } else if (info.isAdmin) {
+                } else if (friendInfo.isAdmin) {
                     roleBadge = '<span class="badge bg-secondary ml-1">管理员</span>';
                 }
                 
-                // 基础内容
-                const userContent = `
+                friendEl.innerHTML = `
                     <div class="flex items-center">
-                        <img src="${info.avatar}" alt="${info.name}的头像" class="avatar mr-2">
+                        <img src="${friendInfo.avatar}" alt="${friendInfo.name}的头像" class="avatar mr-2">
                         <div>
-                            <p class="text-sm font-medium">${info.name}${roleBadge}</p>
-                            <p class="text-xs text-gray-500">${info.class}</p>
+                            <p class="text-sm font-medium">${friendInfo.name}${roleBadge}</p>
+                            <p class="text-xs text-gray-500">${friendInfo.class}</p>
                         </div>
                     </div>
                 `;
                 
-                // 检查是否是好友
-                const isFriend = myFriends.some(friend => friend.account === account);
-                
-                if (isFriend) {
-                    // 好友 - 添加到好友列表
-                    userEl.innerHTML = userContent;
-                    userEl.addEventListener('click', () => startChat(account, info.name, info.avatar));
-                    friendListEl.appendChild(userEl);
-                } else {
-                    // 非好友 - 检查是否有未处理的请求
-                    const hasPendingRequest = checkPendingFriendRequest(account);
-                    
-                    // 非好友 - 添加到其他用户列表
-                    if (hasPendingRequest) {
-                        userEl.innerHTML = `
-                            ${userContent}
-                            <span class="text-xs text-pending px-2 py-0.5 rounded-full bg-pending/10">请求已发送</span>
-                        `;
-                    } else {
-                        userEl.innerHTML = `
-                            ${userContent}
-                            <button onclick="sendFriendRequest('${account}', '${info.name}')" class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full hover:bg-primary/20 transition-colors">
-                                添加
-                            </button>
-                        `;
-                    }
-                    
-                    otherUsersListEl.appendChild(userEl);
-                }
-            }
+                friendEl.addEventListener('click', () => startChat(friend.account, friendInfo.name, friendInfo.avatar));
+                friendListEl.appendChild(friendEl);
+            });
             
             // 如果没有好友
             if (friendListEl.children.length === 0) {
-                friendListEl.innerHTML = '<p class="text-gray-500 italic text-center text-sm p-2">还没有好友，添加好友开始聊天吧</p>';
+                friendListEl.innerHTML = '<p class="text-gray-500 italic text-center text-sm p-2">还没有好友，使用上方搜索框添加好友吧</p>';
             }
-        }
-
-        // 过滤用户列表
-        function filterUsers() {
-            const searchTerm = document.getElementById('friend-search').value.toLowerCase().trim();
-            const allUserElements = document.querySelectorAll('#friend-list > div, #other-users-list > div');
-            
-            allUserElements.forEach(el => {
-                const userName = el.textContent.toLowerCase();
-                if (userName.includes(searchTerm)) {
-                    el.style.display = 'flex';
-                } else {
-                    el.style.display = 'none';
-                }
-            });
         }
 
         // 开始与指定用户聊天
@@ -1295,6 +1506,8 @@
 
         // 更新好友请求计数
         function updateFriendRequestCount() {
+            if (!currentUser) return;
+            
             const friendRequests = getFriendRequests();
             const countEl = document.getElementById('friend-request-count');
             const headerUsernameEl = document.getElementById('current-username');
@@ -1306,7 +1519,7 @@
             }
             
             // 更新顶部导航中的计数
-            if (headerUsernameEl && currentUser) {
+            if (headerUsernameEl) {
                 let hasRequestBadge = headerUsernameEl.innerHTML.includes('bg-pending');
                 if (friendRequests.length > 0 && !hasRequestBadge) {
                     headerUsernameEl.innerHTML += `<span class="badge bg-pending ml-1">${friendRequests.length}条请求</span>`;
@@ -1407,6 +1620,10 @@
             
             // 更新列表
             loadFriendList();
+            updateFriendRequestCount();
+            
+            // 隐藏搜索结果
+            document.getElementById('friend-search-results').classList.add('hidden');
             
             alert(`已向${targetName}发送好友请求`);
         }
@@ -1454,6 +1671,414 @@
                 showFriendRequestModal();
                 
                 alert('已拒绝该好友请求');
+            }
+        }
+
+        // 公告相关功能
+        function checkNewAnnouncements() {
+            const announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
+            const announcementReads = JSON.parse(localStorage.getItem('announcementReads') || '{}');
+            const currentUserAccount = currentUser ? currentUser.account : 'guest';
+            
+            // 获取未读公告数量
+            let unreadCount = 0;
+            let latestAnnouncement = null;
+            
+            announcements.forEach(announcement => {
+                // 检查是否已读
+                if (!announcementReads[currentUserAccount] || !announcementReads[currentUserAccount][announcement.id]) {
+                    unreadCount++;
+                    if (!latestAnnouncement || new Date(announcement.createdAt) > new Date(latestAnnouncement.createdAt)) {
+                        latestAnnouncement = announcement;
+                    }
+                }
+            });
+            
+            // 更新未读计数显示
+            const countEl = document.getElementById('unread-announcement-count');
+            if (countEl) {
+                if (unreadCount > 0) {
+                    countEl.textContent = unreadCount;
+                    countEl.classList.remove('hidden');
+                    
+                    // 显示最新公告栏（仅对未登录用户或未读用户）
+                    if (latestAnnouncement && (!currentUser || !announcementReads[currentUserAccount] || !announcementReads[currentUserAccount][latestAnnouncement.id])) {
+                        showAnnouncementBar(latestAnnouncement);
+                    }
+                } else {
+                    countEl.classList.add('hidden');
+                    document.getElementById('announcement-bar').classList.add('hidden');
+                }
+            }
+        }
+
+        function showAnnouncementBar(announcement) {
+            const bar = document.getElementById('announcement-bar');
+            document.getElementById('announcement-title').textContent = announcement.title;
+            document.getElementById('announcement-content').textContent = announcement.content;
+            document.getElementById('announcement-date').textContent = new Date(announcement.createdAt).toLocaleString();
+            bar.classList.remove('hidden');
+        }
+
+        function closeAnnouncementBar() {
+            const bar = document.getElementById('announcement-bar');
+            bar.classList.add('hidden');
+            
+            // 标记为已读
+            const currentAnnouncementTitle = document.getElementById('announcement-title').textContent;
+            const announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
+            const announcementReads = JSON.parse(localStorage.getItem('announcementReads') || '{}');
+            const currentUserAccount = currentUser ? currentUser.account : 'guest';
+            
+            const announcement = announcements.find(a => a.title === currentAnnouncementTitle);
+            if (announcement) {
+                if (!announcementReads[currentUserAccount]) {
+                    announcementReads[currentUserAccount] = {};
+                }
+                announcementReads[currentUserAccount][announcement.id] = true;
+                localStorage.setItem('announcementReads', JSON.stringify(announcementReads));
+                checkNewAnnouncements();
+            }
+        }
+
+        function showAnnouncementsModal() {
+            const modal = document.getElementById('announcements-modal');
+            const listEl = document.getElementById('announcements-list');
+            const createContainer = document.getElementById('create-announcement-container');
+            const announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
+            const announcementReads = JSON.parse(localStorage.getItem('announcementReads') || '{}');
+            const currentUserAccount = currentUser ? currentUser.account : 'guest';
+            
+            // 清空列表
+            listEl.innerHTML = '';
+            
+            // 按时间排序，最新的在前
+            const sortedAnnouncements = [...announcements].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            // 显示所有公告
+            sortedAnnouncements.forEach(announcement => {
+                const isRead = currentUser && announcementReads[currentUserAccount] && announcementReads[currentUserAccount][announcement.id];
+                const annEl = document.createElement('div');
+                annEl.className = `p-4 border rounded-lg ${!isRead ? 'bg-announcement/5 border-announcement/20' : ''}`;
+                
+                annEl.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-lg ${!isRead ? 'text-announcement' : ''}">${announcement.title}</h4>
+                        ${!isRead ? '<span class="badge bg-announcement">新</span>' : ''}
+                    </div>
+                    <p class="text-gray-700 mb-3">${announcement.content}</p>
+                    <div class="flex justify-between items-center text-sm text-gray-500">
+                        <span>发布者: ${announcement.createdByName}</span>
+                        <span>${new Date(announcement.createdAt).toLocaleString()}</span>
+                    </div>
+                `;
+                
+                listEl.appendChild(annEl);
+                
+                // 标记为已读
+                if (currentUser && !isRead) {
+                    if (!announcementReads[currentUserAccount]) {
+                        announcementReads[currentUserAccount] = {};
+                    }
+                    announcementReads[currentUserAccount][announcement.id] = true;
+                }
+            });
+            
+            // 保存已读状态
+            if (currentUser) {
+                localStorage.setItem('announcementReads', JSON.stringify(announcementReads));
+                checkNewAnnouncements();
+            }
+            
+            // 只有超级管理员可以发布公告
+            if (currentUser && currentUser.isSuper) {
+                createContainer.classList.remove('hidden');
+            } else {
+                createContainer.classList.add('hidden');
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideAnnouncementsModal() {
+            document.getElementById('announcements-modal').classList.add('hidden');
+        }
+
+        function publishAnnouncement() {
+            if (!currentUser || !currentUser.isSuper) return;
+            
+            const title = document.getElementById('announcement-new-title').value.trim();
+            const content = document.getElementById('announcement-new-content').value.trim();
+            
+            if (!title || !content) {
+                alert('请填写公告标题和内容');
+                return;
+            }
+            
+            const announcements = JSON.parse(localStorage.getItem('announcements') || '[]');
+            
+            // 创建新公告
+            const newAnnouncement = {
+                id: 'ann_' + Date.now(),
+                title: title,
+                content: content,
+                createdAt: new Date().toISOString(),
+                createdBy: currentUser.account,
+                createdByName: currentUser.name
+            };
+            
+            announcements.push(newAnnouncement);
+            localStorage.setItem('announcements', JSON.stringify(announcements));
+            
+            // 清空表单
+            document.getElementById('announcement-new-title').value = '';
+            document.getElementById('announcement-new-content').value = '';
+            
+            // 重新加载公告列表
+            showAnnouncementsModal();
+            
+            // 记录日志
+            addAdminLog('发布公告', currentUser.account, `发布了公告：${title}`);
+        }
+
+        // 建议相关功能
+        function checkNewSuggestionReplies() {
+            if (!currentUser) return;
+            
+            const suggestions = JSON.parse(localStorage.getItem('suggestions') || '[]');
+            let unreadCount = 0;
+            
+            // 普通用户只能看到自己的建议的未读回复
+            if (!currentUser.isSuper) {
+                suggestions.forEach(suggestion => {
+                    if (suggestion.createdBy === currentUser.account && 
+                        suggestion.replies && 
+                        suggestion.replies.some(reply => !reply.isRead)) {
+                        unreadCount++;
+                    }
+                });
+            } else {
+                // 超级管理员看到所有未处理的建议
+                suggestions.forEach(suggestion => {
+                    if (!suggestion.processed) {
+                        unreadCount++;
+                    }
+                });
+            }
+            
+            // 更新未读计数显示
+            const countEl = document.getElementById('unread-suggestion-count');
+            if (countEl) {
+                if (unreadCount > 0) {
+                    countEl.textContent = unreadCount;
+                    countEl.classList.remove('hidden');
+                } else {
+                    countEl.classList.add('hidden');
+                }
+            }
+        }
+
+        function showSuggestionsModal() {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+            
+            const modal = document.getElementById('suggestions-modal');
+            const listEl = document.getElementById('suggestions-list');
+            const suggestions = JSON.parse(localStorage.getItem('suggestions') || '[]');
+            
+            // 清空列表
+            listEl.innerHTML = '';
+            
+            // 筛选显示的建议
+            let displaySuggestions = [];
+            if (currentUser.isSuper) {
+                // 超级管理员可以看到所有建议
+                displaySuggestions = [...suggestions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            } else {
+                // 普通用户只能看到自己的建议
+                displaySuggestions = [...suggestions]
+                    .filter(s => s.createdBy === currentUser.account)
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+            
+            if (displaySuggestions.length === 0) {
+                listEl.innerHTML = '<p class="text-gray-500 italic text-center">暂无建议</p>';
+            } else {
+                displaySuggestions.forEach(suggestion => {
+                    const sugEl = document.createElement('div');
+                    sugEl.className = `p-4 border rounded-lg ${!suggestion.processed && currentUser.isSuper ? 'bg-primary/5 border-primary/20' : ''}`;
+                    
+                    // 处理状态标签
+                    let statusBadge = '';
+                    if (currentUser.isSuper) {
+                        statusBadge = suggestion.processed 
+                            ? '<span class="badge bg-secondary">已处理</span>' 
+                            : '<span class="badge bg-pending">未处理</span>';
+                    }
+                    
+                    // 回复区域
+                    let repliesHtml = '';
+                    if (suggestion.replies && suggestion.replies.length > 0) {
+                        repliesHtml = '<div class="mt-3 pt-3 border-t">';
+                        suggestion.replies.forEach(reply => {
+                            // 标记回复为已读
+                            if (reply.createdBy !== currentUser.account && !reply.isRead) {
+                                reply.isRead = true;
+                            }
+                            
+                            repliesHtml += `
+                                <div class="mb-2 ${reply.createdBy === currentUser.account ? 'bg-primary/5' : 'bg-gray-50'} p-2 rounded">
+                                    <div class="flex justify-between items-center text-xs text-gray-500 mb-1">
+                                        <span>${reply.createdBy === currentUser.account ? '我' : '管理员回复'}</span>
+                                        <span>${new Date(reply.createdAt).toLocaleString()}</span>
+                                    </div>
+                                    <p class="text-sm">${reply.content}</p>
+                                </div>
+                            `;
+                        });
+                        repliesHtml += '</div>';
+                    }
+                    
+                    // 回复输入框（仅超级管理员可回复）
+                    let replyInput = '';
+                    if (currentUser.isSuper) {
+                        replyInput = `
+                            <div class="mt-3">
+                                <textarea id="reply-${suggestion.id}" rows="2" placeholder="输入回复内容..." 
+                                    class="w-full px-3 py-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+                                <div class="flex justify-end mt-1">
+                                    <button onclick="replyToSuggestion('${suggestion.id}')" class="text-sm bg-primary text-white px-3 py-1 rounded hover:bg-primary/90">
+                                        回复
+                                    </button>
+                                    ${!suggestion.processed ? 
+                                        `<button onclick="markSuggestionProcessed('${suggestion.id}')" class="text-sm bg-secondary text-white px-3 py-1 rounded hover:bg-secondary/90 ml-2">
+                                            标记为已处理
+                                        </button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    sugEl.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold">${suggestion.title}</h4>
+                            ${statusBadge}
+                        </div>
+                        <p class="text-gray-700 mb-2">${suggestion.content}</p>
+                        <div class="flex justify-between items-center text-sm text-gray-500 mb-3">
+                            <span>提交者: ${suggestion.createdByName}</span>
+                            <span>${new Date(suggestion.createdAt).toLocaleString()}</span>
+                        </div>
+                        ${repliesHtml}
+                        ${replyInput}
+                    `;
+                    
+                    listEl.appendChild(sugEl);
+                });
+                
+                // 保存已读状态
+                localStorage.setItem('suggestions', JSON.stringify(suggestions));
+                checkNewSuggestionReplies();
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideSuggestionsModal() {
+            document.getElementById('suggestions-modal').classList.add('hidden');
+        }
+
+        function submitSuggestion() {
+            if (!currentUser) return;
+            
+            const title = document.getElementById('suggestion-new-title').value.trim();
+            const content = document.getElementById('suggestion-new-content').value.trim();
+            
+            if (!title || !content) {
+                alert('请填写建议标题和内容');
+                return;
+            }
+            
+            const suggestions = JSON.parse(localStorage.getItem('suggestions') || '[]');
+            
+            // 创建新建议
+            const newSuggestion = {
+                id: 'sug_' + Date.now(),
+                title: title,
+                content: content,
+                createdAt: new Date().toISOString(),
+                createdBy: currentUser.account,
+                createdByName: currentUser.name,
+                processed: false,
+                replies: []
+            };
+            
+            suggestions.push(newSuggestion);
+            localStorage.setItem('suggestions', JSON.stringify(suggestions));
+            
+            // 清空表单
+            document.getElementById('suggestion-new-title').value = '';
+            document.getElementById('suggestion-new-content').value = '';
+            
+            // 重新加载建议列表
+            showSuggestionsModal();
+            
+            alert('建议提交成功，感谢你的反馈！');
+        }
+
+        function replyToSuggestion(suggestionId) {
+            if (!currentUser || !currentUser.isSuper) return;
+            
+            const replyInput = document.getElementById(`reply-${suggestionId}`);
+            const content = replyInput.value.trim();
+            
+            if (!content) {
+                alert('请输入回复内容');
+                return;
+            }
+            
+            const suggestions = JSON.parse(localStorage.getItem('suggestions') || '[]');
+            const suggestionIndex = suggestions.findIndex(s => s.id === suggestionId);
+            
+            if (suggestionIndex !== -1) {
+                // 添加回复
+                if (!suggestions[suggestionIndex].replies) {
+                    suggestions[suggestionIndex].replies = [];
+                }
+                
+                suggestions[suggestionIndex].replies.push({
+                    id: 'reply_' + Date.now(),
+                    content: content,
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentUser.account,
+                    createdByName: currentUser.name,
+                    isRead: false // 接收方未读
+                });
+                
+                localStorage.setItem('suggestions', JSON.stringify(suggestions));
+                
+                // 清空输入框
+                replyInput.value = '';
+                
+                // 重新加载建议列表
+                showSuggestionsModal();
+            }
+        }
+
+        function markSuggestionProcessed(suggestionId) {
+            if (!currentUser || !currentUser.isSuper) return;
+            
+            const suggestions = JSON.parse(localStorage.getItem('suggestions') || '[]');
+            const suggestionIndex = suggestions.findIndex(s => s.id === suggestionId);
+            
+            if (suggestionIndex !== -1) {
+                suggestions[suggestionIndex].processed = true;
+                localStorage.setItem('suggestions', JSON.stringify(suggestions));
+                
+                // 重新加载建议列表
+                showSuggestionsModal();
             }
         }
 
@@ -1788,424 +2413,4 @@
                 if (info.isAdmin && !currentUser.isSuper) continue;
                 
                 const userEl = document.createElement('div');
-                userEl.className = `p-3 border rounded-lg flex justify-between items-center ${info.isBanned ? 'bg-gray-100' : ''}`;
-                
-                // 角色标识
-                let roleBadge = '';
-                if (info.isAdmin) {
-                    roleBadge = '<span class="badge bg-secondary ml-1">管理员</span>';
-                }
-                
-                // 禁言状态
-                let banStatus = info.isBanned ? 
-                    '<span class="badge bg-danger ml-1">已禁言</span>' : '';
-                
-                userEl.innerHTML = `
-                    <div class="flex items-center">
-                        <img src="${info.avatar}" alt="${info.name}的头像" class="avatar mr-3">
-                        <div>
-                            <p><strong>${info.name}</strong>（${account}）${roleBadge}${banStatus}</p>
-                            <p class="text-sm text-gray-600">班级：${info.class}</p>
-                        </div>
-                    </div>
-                    <div>
-                        <button onclick="toggleBanUser('${account}')" class="text-sm ${info.isBanned ? 'bg-green-100 text-green-700' : 'bg-danger/10 text-danger'} px-2 py-1 rounded mr-2">
-                            ${info.isBanned ? '解除禁言' : '禁言'}
-                        </button>
-                        <button onclick="deleteUser('${account}')" class="text-sm bg-gray-200 px-2 py-1 rounded">
-                            删除
-                        </button>
-                    </div>
-                `;
-                listEl.appendChild(userEl);
-                listEl.appendChild(userEl);
-            }
-            
-            // 如果没有用户
-            if (listEl.children.length === 0) {
-                listEl.innerHTML = '<p class="text-gray-500 italic text-center">还没有添加用户</p>';
-            }
-        }
-
-        // 加载管理员列表
-        function loadAdminList() {
-            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
-            const listEl = document.getElementById('admin-list');
-            listEl.innerHTML = '';
-            
-            // 遍历显示所有管理员（不包括超级管理员）
-            for (const [account, info] of Object.entries(users)) {
-                if (info.isAdmin && !info.isSuper) {
-                    const adminEl = document.createElement('div');
-                    adminEl.className = 'p-3 border rounded-lg flex justify-between items-center';
-                    adminEl.innerHTML = `
-                        <div class="flex items-center">
-                            <img src="${info.avatar}" alt="${info.name}的头像" class="avatar mr-3">
-                            <div>
-                                <p><strong>${info.name}</strong>（${account}）<span class="badge bg-secondary ml-1">管理员</span></p>
-                                <p class="text-sm text-gray-600">班级：${info.class}</p>
-                            </div>
-                        </div>
-                        <div>
-                            <button onclick="removeAdmin('${account}')" class="text-sm bg-gray-200 px-2 py-1 rounded">
-                                移除管理员权限
-                            </button>
-                        </div>
-                    `;
-                    listEl.appendChild(adminEl);
-                }
-            }
-            
-            // 如果没有管理员
-            if (listEl.children.length === 0) {
-                listEl.innerHTML = '<p class="text-gray-500 italic text-center">还没有设置管理员</p>';
-            }
-        }
-
-        // 加载申请列表
-        function loadApplicationList() {
-            const applications = JSON.parse(localStorage.getItem('accountApplications') || '{}');
-            const listEl = document.getElementById('application-list');
-            listEl.innerHTML = '';
-            
-            // 转换为数组并按时间排序
-            const appList = Object.entries(applications).map(([account, app]) => ({
-                account,
-                ...app
-            })).sort((a, b) => new Date(b.time) - new Date(a.time));
-            
-            // 显示申请
-            appList.forEach(app => {
-                const appEl = document.createElement('div');
-                appEl.className = `p-4 border rounded-lg ${
-                    app.status === 'pending' ? 'bg-yellow-50 border-yellow-100' : 
-                    app.status === 'approved' ? 'bg-green-50 border-green-100' : 
-                    'bg-red-50 border-red-100'
-                }`;
-                
-                let statusBadge = '';
-                let actionButtons = '';
-                
-                if (app.status === 'pending') {
-                    statusBadge = '<span class="badge bg-yellow-500">待审核</span>';
-                    actionButtons = `
-                        <div class="mt-3 flex justify-end space-x-2">
-                            <button onclick="approveApplication('${app.account}')" class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded">
-                                同意
-                            </button>
-                            <button onclick="rejectApplication('${app.account}')" class="text-sm bg-red-100 text-red-700 px-3 py-1 rounded">
-                                拒绝
-                            </button>
-                        </div>
-                    `;
-                } else if (app.status === 'approved') {
-                    statusBadge = '<span class="badge bg-green-500">已通过</span>';
-                } else {
-                    statusBadge = '<span class="badge bg-red-500">已拒绝</span>';
-                }
-                
-                appEl.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h5 class="font-medium">${app.name}（${app.account}）</h5>
-                        ${statusBadge}
-                    </div>
-                    <p class="text-sm text-gray-600 mb-1">班级：${app.class}</p>
-                    <p class="text-sm text-gray-600 mb-1">申请时间：${new Date(app.time).toLocaleString()}</p>
-                    ${app.reason ? `<p class="text-sm mt-2"><strong>申请理由：</strong>${app.reason}</p>` : ''}
-                    ${actionButtons}
-                `;
-                listEl.appendChild(appEl);
-            });
-            
-            // 如果没有申请
-            if (listEl.children.length === 0) {
-                listEl.innerHTML = '<p class="text-gray-500 italic text-center">暂无账号申请</p>';
-            }
-        }
-
-        // 添加用户
-        function addUser() {
-            const account = document.getElementById('new-user-account').value.trim();
-            const name = document.getElementById('new-user-name').value.trim();
-            const className = document.getElementById('new-user-class').value.trim();
-            const password = document.getElementById('new-user-password').value.trim();
-            
-            if (!account || !name || !className || !password) {
-                alert('请填写完整的用户信息');
-                return;
-            }
-            
-            // 检查密码格式
-            if (password.length !== 8 || !/^[A-Za-z0-9]+$/.test(password)) {
-                alert('密码必须是8位，且只能包含数字和字母');
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
-            
-            if (users[account]) {
-                alert('该账号已存在');
-                return;
-            }
-            
-            users[account] = {
-                password: password,
-                name: name,
-                class: className,
-                isAdmin: false,
-                isSuper: false,
-                isBanned: false,
-                avatar: `https://picsum.photos/200/200?random=${account}` // 默认头像
-            };
-            
-            localStorage.setItem('systemUsers', JSON.stringify(users));
-            loadUserList();
-            
-            // 清空表单
-            document.getElementById('new-user-account').value = '';
-            document.getElementById('new-user-name').value = '';
-            document.getElementById('new-user-class').value = '';
-            document.getElementById('new-user-password').value = '12345678';
-            
-            alert('用户添加成功');
-            
-            // 记录日志
-            addAdminLog('添加用户', currentUser.account, `添加了新用户 ${name}（${account}）`);
-        }
-
-        // 删除用户
-        function deleteUser(account) {
-            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
-            if (!users[account]) return;
-            
-            // 不能删除自己
-            if (account === currentUser.account) {
-                alert('不能删除自己的账号');
-                return;
-            }
-            
-            // 普通管理员不能删除管理员账号
-            if (users[account].isAdmin && !currentUser.isSuper) {
-                alert('你没有权限删除管理员账号');
-                return;
-            }
-            
-            if (confirm(`确定要删除用户 ${users[account].name}（${account}）吗？此操作不可恢复。`)) {
-                const userName = users[account].name;
-                delete users[account];
-                localStorage.setItem('systemUsers', JSON.stringify(users));
-                loadUserList();
-                
-                // 同时删除相关的好友关系
-                const friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
-                for (const [id, friendship] of Object.entries(friendships)) {
-                    if (friendship.user === account || friendship.friend === account) {
-                        delete friendships[id];
-                    }
-                }
-                localStorage.setItem('friendships', JSON.stringify(friendships));
-                
-                // 记录日志
-                addAdminLog('删除用户', currentUser.account, `删除了用户 ${userName}（${account}）`);
-            }
-        }
-
-        // 禁言/解除禁言用户
-        function toggleBanUser(account) {
-            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
-            if (!users[account]) return;
-            
-            // 不能禁言自己
-            if (account === currentUser.account) {
-                alert('不能禁言自己');
-                return;
-            }
-            
-            // 普通管理员不能禁言管理员
-            if (users[account].isAdmin && !currentUser.isSuper) {
-                alert('你没有权限禁言管理员');
-                return;
-            }
-            
-            const isBanning = !users[account].isBanned;
-            if (confirm(`${isBanning ? '禁言' : '解除禁言'}用户 ${users[account].name}（${account}）吗？`)) {
-                users[account].isBanned = isBanning;
-                localStorage.setItem('systemUsers', JSON.stringify(users));
-                loadUserList();
-                
-                // 记录日志
-                addAdminLog(
-                    isBanning ? '禁言用户' : '解除禁言', 
-                    currentUser.account, 
-                    `${isBanning ? '禁言' : '解除禁言'}了用户 ${users[account].name}（${account}）`
-                );
-            }
-        }
-
-        // 添加管理员
-        function addAdmin() {
-            // 只有超级管理员可以添加管理员
-            if (!currentUser.isSuper) return;
-            
-            const account = document.getElementById('set-admin-account').value.trim();
-            if (!account) {
-                alert('请输入用户账号');
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
-            
-            if (!users[account]) {
-                alert('该用户不存在');
-                return;
-            }
-            
-            if (users[account].isAdmin) {
-                alert('该用户已是管理员');
-                return;
-            }
-            
-            if (users[account].isSuper) {
-                alert('该用户是超级管理员');
-                return;
-            }
-            
-            if (confirm(`确定要将 ${users[account].name}（${account}）设为管理员吗？`)) {
-                users[account].isAdmin = true;
-                localStorage.setItem('systemUsers', JSON.stringify(users));
-                loadAdminList();
-                document.getElementById('set-admin-account').value = '';
-                
-                // 记录日志
-                addAdminLog(
-                    '设置管理员', 
-                    currentUser.account, 
-                    `将用户 ${users[account].name}（${account}）设为管理员`
-                );
-            }
-        }
-
-        // 移除管理员权限
-        function removeAdmin(account) {
-            // 只有超级管理员可以移除管理员
-            if (!currentUser.isSuper) return;
-            
-            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
-            if (!users[account] || !users[account].isAdmin || users[account].isSuper) return;
-            
-            if (confirm(`确定要移除 ${users[account].name}（${account}）的管理员权限吗？`)) {
-                users[account].isAdmin = false;
-                localStorage.setItem('systemUsers', JSON.stringify(users));
-                loadAdminList();
-                
-                // 记录日志
-                addAdminLog(
-                    '移除管理员', 
-                    currentUser.account, 
-                    `移除了 ${users[account].name}（${account}）的管理员权限`
-                );
-            }
-        }
-
-        // 同意账号申请
-        function approveApplication(account) {
-            const applications = JSON.parse(localStorage.getItem('accountApplications') || '{}');
-            if (!applications[account] || applications[account].status !== 'pending') return;
-            
-            const app = applications[account];
-            const users = JSON.parse(localStorage.getItem('systemUsers') || '{}');
-            
-            if (users[account]) {
-                alert('该账号已存在');
-                return;
-            }
-            
-            if (confirm(`确定要同意 ${app.name}（${account}）的账号申请吗？`)) {
-                // 创建用户账号（默认密码12345678）
-                users[account] = {
-                    password: '12345678',
-                    name: app.name,
-                    class: app.class,
-                    isAdmin: false,
-                    isSuper: false,
-                    isBanned: false,
-                    avatar: `https://picsum.photos/200/200?random=${account}` // 默认头像
-                };
-                
-                // 更新申请状态
-                applications[account].status = 'approved';
-                applications[account].approvedBy = currentUser.account;
-                applications[account].approvedTime = new Date().toISOString();
-                
-                localStorage.setItem('systemUsers', JSON.stringify(users));
-                localStorage.setItem('accountApplications', JSON.stringify(applications));
-                loadApplicationList();
-                
-                // 记录日志
-                addAdminLog(
-                    '同意账号申请', 
-                    currentUser.account, 
-                    `同意了 ${app.name}（${account}）的账号申请`
-                );
-            }
-        }
-
-        // 拒绝账号申请
-        function rejectApplication(account) {
-            const applications = JSON.parse(localStorage.getItem('accountApplications') || '{}');
-            if (!applications[account] || applications[account].status !== 'pending') return;
-            
-            const app = applications[account];
-            
-            if (confirm(`确定要拒绝 ${app.name}（${account}）的账号申请吗？`)) {
-                // 更新申请状态
-                applications[account].status = 'rejected';
-                applications[account].rejectedBy = currentUser.account;
-                applications[account].rejectedTime = new Date().toISOString();
-                
-                localStorage.setItem('accountApplications', JSON.stringify(applications));
-                loadApplicationList();
-                
-                // 记录日志
-                addAdminLog(
-                    '拒绝账号申请', 
-                    currentUser.account, 
-                    `拒绝了 ${app.name}（${account}）的账号申请`
-                );
-            }
-        }
-
-        // 添加管理员日志
-        function addAdminLog(action, operator, target) {
-            const logs = JSON.parse(localStorage.getItem('adminLogs') || '[]');
-            
-            logs.push({
-                action: action,
-                operator: operator,
-                target: target,
-                time: new Date().toISOString()
-            });
-            
-            // 只保留最近100条日志
-            if (logs.length > 100) {
-                logs.splice(0, logs.length - 100);
-            }
-            
-            localStorage.setItem('adminLogs', JSON.stringify(logs));
-        }
-
-        // 暴露函数到全局，供HTML中直接调用
-        window.toggleBanUser = toggleBanUser;
-        window.deleteUser = deleteUser;
-        window.removeAdmin = removeAdmin;
-        window.approveApplication = approveApplication;
-        window.rejectApplication = rejectApplication;
-        window.sendFriendRequest = sendFriendRequest;
-        window.acceptFriendRequest = acceptFriendRequest;
-        window.rejectFriendRequest = rejectFriendRequest;
-
-        // 页面加载完成后初始化应用
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
-</body>
-</html>
+                userEl.className = `p-3 border rounded-lg flex justify-between items-center
