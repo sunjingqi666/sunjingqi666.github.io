@@ -21,15 +21,41 @@
 <body class="bg-gray-100 min-h-screen">
     <!-- 顶部导航 -->
     <header class="bg-blue-600 text-white shadow-md">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="container mx-auto px-4 py-3 flex flex-col md:flex-row gap-3 justify-between items-center">
             <h1 class="text-xl md:text-2xl font-bold flex items-center">
                 <i class="fa fa-comments-o mr-2"></i>校园聊天系统
             </h1>
+            
+            <!-- 搜索引擎模块 -->
+            <div class="w-full md:w-96 relative">
+                <input type="text" id="globalSearchInput" placeholder="搜索用户、聊天记录、公告..." 
+                       class="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 pl-10 text-gray-800">
+                <i class="fa fa-search absolute left-3 top-3 text-gray-500"></i>
+                <!-- 搜索结果下拉框 -->
+                <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg max-h-80 overflow-y-auto z-20 text-gray-800">
+                    <div class="p-2 border-b border-gray-200 flex justify-between items-center">
+                        <h3 class="font-semibold">搜索结果</h3>
+                        <button id="closeSearchBtn" class="text-gray-500 hover:text-gray-700">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="searchResultsContent" class="p-2">
+                        <!-- 搜索结果将动态生成 -->
+                    </div>
+                </div>
+            </div>
+            
             <div class="flex items-center space-x-4">
                 <button id="announcementBtn" class="hover:text-blue-200 transition relative">
                     <i class="fa fa-bullhorn mr-1"></i> 公告
                     <span id="announcementBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">1</span>
                 </button>
+                
+                <!-- 超级管理员功能入口 -->
+                <button id="adminPanelBtn" class="hidden bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition">
+                    <i class="fa fa-cog mr-1"></i> 管理面板
+                </button>
+                
                 <div id="userArea" class="flex items-center space-x-3">
                     <span id="userNickname" class="hidden md:inline">请登录</span>
                     <img id="userAvatar" src="https://picsum.photos/32?random=default" alt="用户头像" class="w-8 h-8 rounded-full border-2 border-white">
@@ -40,6 +66,7 @@
                         <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                             <a href="#" id="profileLink" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">个人资料</a>
                             <a href="#" id="friendsLink" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">我的好友</a>
+                            <a href="#" id="searchHistoryLink" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">搜索历史</a>
                             <a href="#" id="logoutLink" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">退出登录</a>
                         </div>
                     </div>
@@ -236,9 +263,14 @@
         <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 transform transition-all max-h-[80vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-800">系统公告</h2>
-                <button class="closeModal text-gray-500 hover:text-gray-700">
-                    <i class="fa fa-times text-xl"></i>
-                </button>
+                <div>
+                    <button id="addAnnouncementBtn" class="hidden bg-green-500 text-white px-3 py-1 rounded text-sm mr-2">
+                        <i class="fa fa-plus mr-1"></i> 发布公告
+                    </button>
+                    <button class="closeModal text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
             </div>
             <div id="announcementsList" class="space-y-4">
                 <!-- 公告内容将通过JS动态生成 -->
@@ -251,11 +283,120 @@
         </div>
     </div>
 
+    <!-- 搜索历史模态框 -->
+    <div id="searchHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 transform transition-all max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">搜索历史</h2>
+                <div>
+                    <button id="clearSearchHistoryBtn" class="text-red-500 hover:text-red-700 mr-2">
+                        <i class="fa fa-trash mr-1"></i> 清空历史
+                    </button>
+                    <button class="closeModal text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="searchHistoryList" class="space-y-2">
+                <!-- 搜索历史将通过JS动态生成 -->
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fa fa-history text-4xl mb-2"></i>
+                    <p>暂无搜索历史</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理员面板模态框 -->
+    <div id="adminPanelModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl p-6 transform transition-all max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">超级管理员面板</h2>
+                <button class="closeModal text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- 管理员标签页 -->
+            <div class="border-b border-gray-200 mb-4">
+                <ul class="flex flex-wrap -mb-px" id="adminTabs" role="tablist">
+                    <li class="mr-2" role="presentation">
+                        <button class="admin-tab active inline-block p-4 border-b-2 border-purple-500 text-purple-600 rounded-t-lg" 
+                                data-tab="userManagement">用户管理</button>
+                    </li>
+                    <li class="mr-2" role="presentation">
+                        <button class="admin-tab inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg" 
+                                data-tab="announcementManagement">公告管理</button>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 用户管理面板 -->
+            <div id="userManagementTab" class="admin-tab-content">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-lg">用户列表</h3>
+                    <div class="relative w-64">
+                        <input type="text" id="adminUserSearch" placeholder="搜索用户..." class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 pl-9">
+                        <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div id="adminUserList" class="space-y-3">
+                    <!-- 用户列表将通过JS动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 公告管理面板 -->
+            <div id="announcementManagementTab" class="admin-tab-content hidden">
+                <button id="adminCreateAnnouncementBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition mb-4">
+                    <i class="fa fa-plus mr-1"></i> 创建新公告
+                </button>
+                <div id="adminAnnouncementList" class="space-y-3">
+                    <!-- 公告列表将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建/编辑公告模态框 -->
+    <div id="editAnnouncementModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800" id="editAnnouncementTitle">发布新公告</h2>
+                <button class="closeModal text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="editAnnouncementForm" class="space-y-4">
+                <input type="hidden" id="announcementId">
+                <div>
+                    <label for="announcementTitleInput" class="block text-gray-700 mb-1">公告标题</label>
+                    <input type="text" id="announcementTitleInput" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div>
+                    <label for="announcementContentInput" class="block text-gray-700 mb-1">公告内容</label>
+                    <textarea id="announcementContentInput" required rows="6" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">
+                    <i class="fa fa-save mr-1"></i> 保存公告
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // 全局变量
         let currentUser = null;
         let currentFriend = null;
         let unreadAnnouncements = 0;
+        let isSuperAdmin = false;
+
+        // 默认超级管理员账号信息 (首次运行会自动创建)
+        const SUPER_ADMIN = {
+            account: 'superadmin',
+            password: 'Super123456', // 建议登录后修改密码
+            nickname: '超级管理员',
+            avatarUrl: 'https://picsum.photos/200?random=admin'
+        };
 
         // DOM元素
         const loginModal = document.getElementById('loginModal');
@@ -263,6 +404,9 @@
         const profileModal = document.getElementById('profileModal');
         const addFriendModal = document.getElementById('addFriendModal');
         const announcementModal = document.getElementById('announcementModal');
+        const searchHistoryModal = document.getElementById('searchHistoryModal');
+        const adminPanelModal = document.getElementById('adminPanelModal');
+        const editAnnouncementModal = document.getElementById('editAnnouncementModal');
         
         const userNickname = document.getElementById('userNickname');
         const userAvatar = document.getElementById('userAvatar');
@@ -270,12 +414,23 @@
         const messagesArea = document.getElementById('messagesArea');
         const messageInput = document.getElementById('messageInput');
         const chatHeader = document.getElementById('chatHeader');
+        const adminPanelBtn = document.getElementById('adminPanelBtn');
+        const addAnnouncementBtn = document.getElementById('addAnnouncementBtn');
         
+        // 搜索相关元素
+        const globalSearchInput = document.getElementById('globalSearchInput');
+        const searchResults = document.getElementById('searchResults');
+        const searchResultsContent = document.getElementById('searchResultsContent');
+        const closeSearchBtn = document.getElementById('closeSearchBtn');
+
         // 初始化页面
         document.addEventListener('DOMContentLoaded', init);
 
         // 初始化函数
         async function init() {
+            // 确保超级管理员账号存在
+            await ensureSuperAdminExists();
+            
             // 绑定事件监听器
             bindEventListeners();
             
@@ -289,6 +444,58 @@
                 hideModal(loginModal);
             } else {
                 showModal(loginModal);
+            }
+        }
+
+        // 确保超级管理员账号存在
+        async function ensureSuperAdminExists() {
+            try {
+                // 检查超级管理员账号是否已存在
+                const userQuery = new AV.Query('_User');
+                userQuery.equalTo('username', SUPER_ADMIN.account);
+                const existingUser = await userQuery.first();
+                
+                if (existingUser) {
+                    // 确保超级管理员权限正确
+                    const profileQuery = new AV.Query('UserProfile');
+                    profileQuery.equalTo('userId', existingUser.id);
+                    const profile = await profileQuery.first();
+                    
+                    if (profile && !profile.get('isSuper')) {
+                        profile.set('isSuper', true);
+                        profile.set('isAdmin', true);
+                        await profile.save();
+                    }
+                    return;
+                }
+                
+                // 如果不存在，创建超级管理员账号
+                const user = new AV.User();
+                user.setUsername(SUPER_ADMIN.account);
+                user.setPassword(SUPER_ADMIN.password);
+                await user.signUp();
+                
+                // 创建超级管理员资料
+                const UserProfile = AV.Object.extend('UserProfile');
+                const profile = new UserProfile();
+                profile.set('userId', user.id);
+                profile.set('nickname', SUPER_ADMIN.nickname);
+                profile.set('avatarUrl', SUPER_ADMIN.avatarUrl);
+                profile.set('friends', []);
+                profile.set('isAdmin', true);
+                profile.set('isSuper', true);
+                profile.set('isBanned', false);
+                
+                const acl = new AV.ACL();
+                acl.setReadAccess(user, true);
+                acl.setWriteAccess(user, true);
+                profile.setACL(acl);
+                
+                await profile.save();
+                
+                console.log('超级管理员账号已创建:', SUPER_ADMIN.account);
+            } catch (error) {
+                console.error('创建超级管理员失败:', error);
             }
         }
 
@@ -354,6 +561,10 @@
                     profile.set('nickname', nickname);
                     profile.set('avatarUrl', avatarUrl);
                     profile.set('friends', []);
+                    profile.set('searchHistory', []); // 新增：搜索历史
+                    profile.set('isAdmin', false);
+                    profile.set('isSuper', false);
+                    profile.set('isBanned', false);
                     
                     const acl = new AV.ACL();
                     acl.setReadAccess(user, true);
@@ -436,6 +647,7 @@
                     await AV.User.logOut();
                     currentUser = null;
                     currentFriend = null;
+                    isSuperAdmin = false;
                     
                     // 重置UI
                     userNickname.textContent = '请登录';
@@ -454,6 +666,8 @@
                     `;
                     chatHeader.innerHTML = `<h2 class="font-bold text-gray-800">选择一个好友开始聊天</h2>`;
                     disableChatInput(true);
+                    adminPanelBtn.classList.add('hidden');
+                    addAnnouncementBtn.classList.add('hidden');
                     
                     showModal(loginModal);
                     showToast('已退出登录');
@@ -592,6 +806,754 @@
                     }
                 }
             });
+            
+            // 搜索历史
+            document.getElementById('searchHistoryLink').addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (!currentUser) {
+                    showToast('请先登录');
+                    return;
+                }
+                
+                await loadSearchHistory();
+                showModal(searchHistoryModal);
+            });
+            
+            // 清空搜索历史
+            document.getElementById('clearSearchHistoryBtn').addEventListener('click', async () => {
+                if (!currentUser) return;
+                
+                if (confirm('确定要清空所有搜索历史吗？')) {
+                    try {
+                        const profile = await getUserProfile(currentUser.id);
+                        profile.set('searchHistory', []);
+                        await profile.save();
+                        
+                        document.getElementById('searchHistoryList').innerHTML = `
+                            <div class="text-center text-gray-500 py-8">
+                                <i class="fa fa-history text-4xl mb-2"></i>
+                                <p>暂无搜索历史</p>
+                            </div>
+                        `;
+                        showToast('搜索历史已清空');
+                    } catch (error) {
+                        showToast(`操作失败: ${error.message}`);
+                    }
+                }
+            });
+            
+            // 管理员面板
+            document.getElementById('adminPanelBtn').addEventListener('click', async () => {
+                if (!currentUser || !isSuperAdmin) return;
+                
+                await loadAdminUserList();
+                await loadAdminAnnouncementList();
+                showModal(adminPanelModal);
+            });
+            
+            // 管理员标签切换
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有标签的active状态
+                    document.querySelectorAll('.admin-tab').forEach(t => {
+                        t.classList.remove('active', 'border-purple-500', 'text-purple-600');
+                        t.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+                    });
+                    
+                    // 添加当前标签的active状态
+                    this.classList.add('active', 'border-purple-500', 'text-purple-600');
+                    this.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+                    
+                    // 隐藏所有内容
+                    document.querySelectorAll('.admin-tab-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // 显示当前标签对应的内容
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}Tab`).classList.remove('hidden');
+                });
+            });
+            
+            // 创建公告按钮（管理员）
+            document.getElementById('adminCreateAnnouncementBtn').addEventListener('click', () => {
+                document.getElementById('editAnnouncementTitle').textContent = '发布新公告';
+                document.getElementById('announcementId').value = '';
+                document.getElementById('announcementTitleInput').value = '';
+                document.getElementById('announcementContentInput').value = '';
+                hideModal(adminPanelModal);
+                showModal(editAnnouncementModal);
+            });
+            
+            // 添加公告按钮（公告列表中）
+            document.getElementById('addAnnouncementBtn').addEventListener('click', () => {
+                document.getElementById('editAnnouncementTitle').textContent = '发布新公告';
+                document.getElementById('announcementId').value = '';
+                document.getElementById('announcementTitleInput').value = '';
+                document.getElementById('announcementContentInput').value = '';
+                hideModal(announcementModal);
+                showModal(editAnnouncementModal);
+            });
+            
+            // 保存公告（创建/编辑）
+            document.getElementById('editAnnouncementForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                if (!currentUser || !isSuperAdmin) return;
+                
+                const announcementId = document.getElementById('announcementId').value;
+                const title = document.getElementById('announcementTitleInput').value.trim();
+                const content = document.getElementById('announcementContentInput').value.trim();
+                
+                if (!title || !content) {
+                    showToast('标题和内容不能为空');
+                    return;
+                }
+                
+                try {
+                    const Announcement = AV.Object.extend('Announcement');
+                    let announcement;
+                    
+                    if (announcementId) {
+                        // 编辑现有公告
+                        announcement = AV.Object.createWithoutData('Announcement', announcementId);
+                    } else {
+                        // 创建新公告
+                        announcement = new Announcement();
+                    }
+                    
+                    announcement.set('title', title);
+                    announcement.set('content', content);
+                    announcement.set('createdAt', new Date());
+                    announcement.set('creatorId', currentUser.id);
+                    
+                    const acl = new AV.ACL();
+                    acl.setPublicReadAccess(true);
+                    acl.setWriteAccess(currentUser, true); // 只有创建者和超级管理员可以修改
+                    announcement.setACL(acl);
+                    
+                    await announcement.save();
+                    
+                    hideModal(editAnnouncementModal);
+                    showModal(adminPanelModal);
+                    await loadAdminAnnouncementList();
+                    showToast(announcementId ? '公告更新成功' : '公告发布成功');
+                } catch (error) {
+                    showToast(`操作失败: ${error.message}`);
+                }
+            });
+            
+            // 搜索相关事件
+            globalSearchInput.addEventListener('input', debounce(handleSearch, 300));
+            globalSearchInput.addEventListener('focus', async () => {
+                const query = globalSearchInput.value.trim();
+                if (query) {
+                    await handleSearch();
+                }
+            });
+            
+            closeSearchBtn.addEventListener('click', () => {
+                searchResults.classList.add('hidden');
+            });
+            
+            // 点击页面其他地方关闭搜索结果
+            document.addEventListener('click', (e) => {
+                if (!globalSearchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+        }
+
+        // 搜索处理函数
+        async function handleSearch() {
+            if (!currentUser) return;
+            
+            const query = globalSearchInput.value.trim();
+            if (!query) {
+                searchResults.classList.add('hidden');
+                return;
+            }
+            
+            try {
+                // 显示加载状态
+                searchResultsContent.innerHTML = '<div class="text-center py-4"><i class="fa fa-spinner fa-spin"></i> 搜索中...</div>';
+                searchResults.classList.remove('hidden');
+                
+                // 同时搜索用户、聊天记录和公告
+                const [userResults, messageResults, announcementResults] = await Promise.all([
+                    searchUsers(query),
+                    searchMessages(query),
+                    searchAnnouncements(query)
+                ]);
+                
+                // 生成搜索结果HTML
+                let resultsHTML = '';
+                
+                // 用户搜索结果
+                if (userResults.length > 0) {
+                    resultsHTML += `
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-2 border-b pb-1">
+                                <i class="fa fa-users mr-1"></i> 用户 (${userResults.length})
+                            </h4>
+                            <div class="space-y-2">
+                    `;
+                    
+                    userResults.forEach(user => {
+                        resultsHTML += `
+                            <div class="flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer">
+                                <img src="${user.avatarUrl}" alt="${user.nickname}" class="w-8 h-8 rounded-full mr-2">
+                                <div>
+                                    <p class="font-medium">${user.nickname}</p>
+                                    <p class="text-xs text-gray-500">账号: ${user.account}</p>
+                                </div>
+                                ${user.isFriend ? '' : `
+                                    <button class="ml-auto text-blue-600 hover:text-blue-800 add-friend-btn" data-account="${user.account}">
+                                        <i class="fa fa-user-plus"></i> 添加
+                                    </button>
+                                `}
+                            </div>
+                        `;
+                    });
+                    
+                    resultsHTML += `</div></div>`;
+                }
+                
+                // 聊天记录搜索结果
+                if (messageResults.length > 0) {
+                    resultsHTML += `
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-2 border-b pb-1">
+                                <i class="fa fa-comments mr-1"></i> 聊天记录 (${messageResults.length})
+                            </h4>
+                            <div class="space-y-2">
+                    `;
+                    
+                    messageResults.forEach(msg => {
+                        resultsHTML += `
+                            <div class="p-2 hover:bg-gray-100 rounded cursor-pointer view-message-btn" 
+                                 data-friend-id="${msg.friendId}" data-friend-name="${msg.friendName}">
+                                <p class="text-xs text-gray-500">与 ${msg.friendName} 的聊天</p>
+                                <p class="text-sm">${highlightMatch(msg.content, query)}</p>
+                                <p class="text-xs text-gray-400 mt-1">${formatDate(new Date(msg.time))}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    resultsHTML += `</div></div>`;
+                }
+                
+                // 公告搜索结果
+                if (announcementResults.length > 0) {
+                    resultsHTML += `
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-2 border-b pb-1">
+                                <i class="fa fa-bullhorn mr-1"></i> 公告 (${announcementResults.length})
+                            </h4>
+                            <div class="space-y-2">
+                    `;
+                    
+                    announcementResults.forEach(announcement => {
+                        resultsHTML += `
+                            <div class="p-2 hover:bg-gray-100 rounded cursor-pointer view-announcement-btn">
+                                <p class="font-medium">${highlightMatch(announcement.title, query)}</p>
+                                <p class="text-sm text-gray-600 line-clamp-2">${highlightMatch(announcement.content, query)}</p>
+                                <p class="text-xs text-gray-400 mt-1">${formatDate(new Date(announcement.time))}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    resultsHTML += `</div></div>`;
+                }
+                
+                // 没有搜索结果
+                if (resultsHTML === '') {
+                    resultsHTML = `
+                        <div class="text-center py-8">
+                            <i class="fa fa-search text-4xl mb-2 text-gray-400"></i>
+                            <p class="text-gray-500">没有找到与"${query}"相关的结果</p>
+                        </div>
+                    `;
+                } else {
+                    // 保存搜索历史
+                    await saveSearchHistory(query);
+                }
+                
+                // 更新搜索结果
+                searchResultsContent.innerHTML = resultsHTML;
+                
+                // 绑定搜索结果中的按钮事件
+                bindSearchResultEvents();
+                
+            } catch (error) {
+                console.error('搜索失败:', error);
+                searchResultsContent.innerHTML = `<div class="text-center py-4 text-red-500">搜索失败: ${error.message}</div>`;
+            }
+        }
+
+        // 绑定搜索结果中的事件
+        function bindSearchResultEvents() {
+            // 添加好友按钮
+            document.querySelectorAll('.add-friend-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const account = this.getAttribute('data-account');
+                    document.getElementById('friendAccount').value = account;
+                    searchResults.classList.add('hidden');
+                    showModal(addFriendModal);
+                });
+            });
+            
+            // 查看消息按钮
+            document.querySelectorAll('.view-message-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const friendId = this.getAttribute('data-friend-id');
+                    const friendName = this.getAttribute('data-friend-name');
+                    
+                    // 查找好友信息
+                    const profile = await getUserProfile(currentUser.id);
+                    const friends = profile.get('friends') || [];
+                    currentFriend = friends.find(f => f.userId === friendId);
+                    
+                    if (currentFriend) {
+                        // 更新聊天标题
+                        chatHeader.innerHTML = `
+                            <div class="flex items-center">
+                                <img src="${currentFriend.avatarUrl}" alt="${currentFriend.nickname}" class="w-8 h-8 rounded-full mr-2">
+                                <h2 class="font-bold text-gray-800">${currentFriend.remark || currentFriend.nickname}</h2>
+                            </div>
+                            <div>
+                                <button id="clearChatBtn" class="text-gray-500 hover:text-gray-700 mr-2">
+                                    <i class="fa fa-trash-o"></i>
+                                </button>
+                            </div>
+                        `;
+                        
+                        // 加载聊天记录
+                        await loadChatMessages();
+                        
+                        // 关闭搜索结果
+                        searchResults.classList.add('hidden');
+                        
+                        // 高亮显示找到的消息
+                        highlightSearchedMessage();
+                    }
+                });
+            });
+            
+            // 查看公告按钮
+            document.querySelectorAll('.view-announcement-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    searchResults.classList.add('hidden');
+                    await loadAnnouncements(true);
+                    showModal(announcementModal);
+                });
+            });
+        }
+
+        // 搜索用户
+        async function searchUsers(query) {
+            if (!currentUser) return [];
+            
+            try {
+                // 获取当前用户的好友列表
+                const currentProfile = await getUserProfile(currentUser.id);
+                const friends = currentProfile.get('friends') || [];
+                const friendIds = friends.map(f => f.userId);
+                
+                // 搜索所有用户
+                const userQuery = new AV.Query('_User');
+                userQuery.contains('username', query);
+                
+                // 对于超级管理员，搜索所有用户；普通用户只能搜索到自己和好友
+                if (!isSuperAdmin) {
+                    const orQuery = AV.Query.or(
+                        userQuery,
+                        new AV.Query('_User').equalTo('objectId', currentUser.id)
+                    );
+                    userQuery._where = orQuery._where;
+                }
+                
+                const users = await userQuery.find();
+                
+                // 获取这些用户的资料
+                const results = [];
+                for (const user of users) {
+                    if (user.id === currentUser.id) continue; // 排除自己
+                    
+                    const profile = await getUserProfile(user.id);
+                    if (profile) {
+                        results.push({
+                            userId: user.id,
+                            account: user.getUsername(),
+                            nickname: profile.get('nickname'),
+                            avatarUrl: profile.get('avatarUrl'),
+                            isFriend: friendIds.includes(user.id)
+                        });
+                    }
+                }
+                
+                return results;
+            } catch (error) {
+                console.error('搜索用户失败:', error);
+                return [];
+            }
+        }
+
+        // 搜索聊天记录
+        async function searchMessages(query) {
+            if (!currentUser) return [];
+            
+            try {
+                // 获取当前用户的好友列表
+                const currentProfile = await getUserProfile(currentUser.id);
+                const friends = currentProfile.get('friends') || [];
+                
+                // 搜索聊天记录
+                const messageQuery = new AV.Query('ChatMessage');
+                messageQuery.equalTo('userId', currentUser.id);
+                messageQuery.contains('content', query);
+                messageQuery.descending('createdAt');
+                messageQuery.limit(10);
+                
+                const messages = await messageQuery.find();
+                
+                // 处理结果
+                const results = [];
+                for (const msg of messages) {
+                    const friend = friends.find(f => f.userId === msg.get('friendId'));
+                    if (friend) {
+                        results.push({
+                            id: msg.id,
+                            content: msg.get('content'),
+                            time: msg.get('createdAt'),
+                            friendId: msg.get('friendId'),
+                            friendName: friend.remark || friend.nickname
+                        });
+                    }
+                }
+                
+                return results;
+            } catch (error) {
+                console.error('搜索聊天记录失败:', error);
+                return [];
+            }
+        }
+
+        // 搜索公告
+        async function searchAnnouncements(query) {
+            try {
+                const announcementQuery = new AV.Query('Announcement');
+                announcementQuery.or(
+                    announcementQuery.contains('title', query),
+                    announcementQuery.contains('content', query)
+                );
+                announcementQuery.descending('createdAt');
+                announcementQuery.limit(10);
+                
+                const announcements = await announcementQuery.find();
+                
+                return announcements.map(announcement => ({
+                    id: announcement.id,
+                    title: announcement.get('title'),
+                    content: announcement.get('content'),
+                    time: announcement.get('createdAt')
+                }));
+            } catch (error) {
+                console.error('搜索公告失败:', error);
+                return [];
+            }
+        }
+
+        // 保存搜索历史
+        async function saveSearchHistory(query) {
+            if (!currentUser || !query) return;
+            
+            try {
+                const profile = await getUserProfile(currentUser.id);
+                let history = profile.get('searchHistory') || [];
+                
+                // 去重并限制历史记录数量
+                history = [query, ...history.filter(item => item.toLowerCase() !== query.toLowerCase())].slice(0, 20);
+                
+                profile.set('searchHistory', history);
+                await profile.save();
+            } catch (error) {
+                console.error('保存搜索历史失败:', error);
+            }
+        }
+
+        // 加载搜索历史
+        async function loadSearchHistory() {
+            if (!currentUser) return;
+            
+            try {
+                const profile = await getUserProfile(currentUser.id);
+                const history = profile.get('searchHistory') || [];
+                
+                if (history.length === 0) {
+                    document.getElementById('searchHistoryList').innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fa fa-history text-4xl mb-2"></i>
+                            <p>暂无搜索历史</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let historyHTML = '<div class="grid grid-cols-1 md:grid-cols-2 gap-2">';
+                history.forEach(item => {
+                    historyHTML += `
+                        <div class="flex items-center p-2 hover:bg-gray-100 rounded">
+                            <i class="fa fa-history text-gray-400 mr-2"></i>
+                            <span class="flex-1">${item}</span>
+                            <button class="text-gray-400 hover:text-red-500 delete-history-btn" data-query="${item}">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                historyHTML += '</div>';
+                
+                document.getElementById('searchHistoryList').innerHTML = historyHTML;
+                
+                // 绑定删除历史记录事件
+                document.querySelectorAll('.delete-history-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const query = this.getAttribute('data-query');
+                        
+                        try {
+                            const profile = await getUserProfile(currentUser.id);
+                            let history = profile.get('searchHistory') || [];
+                            history = history.filter(item => item !== query);
+                            profile.set('searchHistory', history);
+                            await profile.save();
+                            
+                            await loadSearchHistory();
+                            showToast('已删除该搜索记录');
+                        } catch (error) {
+                            showToast(`删除失败: ${error.message}`);
+                        }
+                    });
+                });
+                
+                // 绑定历史记录点击事件
+                document.querySelectorAll('#searchHistoryList > div > div').forEach(item => {
+                    if (!item.querySelector('.delete-history-btn').contains(event.target)) {
+                        item.addEventListener('click', function() {
+                            const query = this.querySelector('span').textContent;
+                            globalSearchInput.value = query;
+                            hideModal(searchHistoryModal);
+                            handleSearch();
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('加载搜索历史失败:', error);
+                showToast('加载搜索历史失败');
+            }
+        }
+
+        // 加载管理员用户列表
+        async function loadAdminUserList() {
+            if (!currentUser || !isSuperAdmin) return;
+            
+            try {
+                // 获取所有用户
+                const userQuery = new AV.Query('_User');
+                const users = await userQuery.find();
+                
+                // 获取用户资料
+                let userHTML = '';
+                for (const user of users) {
+                    const profile = await getUserProfile(user.id);
+                    
+                    if (profile) {
+                        userHTML += `
+                            <div class="p-3 border rounded-lg flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="${profile.get('avatarUrl')}" alt="${profile.get('nickname')}" class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <p class="font-medium">${profile.get('nickname')}</p>
+                                        <p class="text-sm text-gray-500">账号: ${user.getUsername()}</p>
+                                        <p class="text-xs text-gray-500">ID: ${user.id}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm ${profile.get('isSuper') ? 'text-purple-600' : profile.get('isAdmin') ? 'text-blue-600' : 'text-gray-600'}">
+                                        ${profile.get('isSuper') ? '超级管理员' : profile.get('isAdmin') ? '管理员' : '普通用户'}
+                                    </p>
+                                    <div class="mt-2 flex gap-1">
+                                        ${!profile.get('isSuper') ? `
+                                            <button class="admin-set-admin-btn text-sm px-2 py-1 rounded ${profile.get('isAdmin') ? 'bg-gray-200 text-gray-600' : 'bg-blue-100 text-blue-600'}" 
+                                                    data-user-id="${user.id}" data-is-admin="${profile.get('isAdmin')}">
+                                                ${profile.get('isAdmin') ? '取消管理员' : '设为管理员'}
+                                            </button>
+                                        ` : ''}
+                                        <button class="admin-ban-user-btn text-sm px-2 py-1 rounded ${profile.get('isBanned') ? 'bg-gray-200 text-gray-600' : 'bg-red-100 text-red-600'}" 
+                                                data-user-id="${user.id}" data-is-banned="${profile.get('isBanned')}">
+                                            ${profile.get('isBanned') ? '解除禁言' : '禁言'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                document.getElementById('adminUserList').innerHTML = userHTML;
+                
+                // 绑定管理员操作按钮事件
+                bindAdminUserActions();
+            } catch (error) {
+                console.error('加载管理员用户列表失败:', error);
+                document.getElementById('adminUserList').innerHTML = `<div class="text-center py-4 text-red-500">加载失败: ${error.message}</div>`;
+            }
+        }
+
+        // 绑定管理员用户操作事件
+        function bindAdminUserActions() {
+            // 设置/取消管理员
+            document.querySelectorAll('.admin-set-admin-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const userId = this.getAttribute('data-user-id');
+                    const isAdmin = this.getAttribute('data-is-admin') === 'true';
+                    
+                    try {
+                        const profileQuery = new AV.Query('UserProfile');
+                        profileQuery.equalTo('userId', userId);
+                        const profile = await profileQuery.first();
+                        
+                        if (profile) {
+                            profile.set('isAdmin', !isAdmin);
+                            await profile.save();
+                            await loadAdminUserList();
+                            showToast(isAdmin ? '已取消管理员权限' : '已设置为管理员');
+                        }
+                    } catch (error) {
+                        console.error('设置管理员失败:', error);
+                        showToast(`操作失败: ${error.message}`);
+                    }
+                });
+            });
+            
+            // 禁言/解除禁言用户
+            document.querySelectorAll('.admin-ban-user-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const userId = this.getAttribute('data-user-id');
+                    const isBanned = this.getAttribute('data-is-banned') === 'true';
+                    
+                    try {
+                        const profileQuery = new AV.Query('UserProfile');
+                        profileQuery.equalTo('userId', userId);
+                        const profile = await profileQuery.first();
+                        
+                        if (profile) {
+                            profile.set('isBanned', !isBanned);
+                            await profile.save();
+                            await loadAdminUserList();
+                            showToast(isBanned ? '已解除禁言' : '已禁言该用户');
+                        }
+                    } catch (error) {
+                        console.error('禁言用户失败:', error);
+                        showToast(`操作失败: ${error.message}`);
+                    }
+                });
+            });
+        }
+
+        // 加载管理员公告列表
+        async function loadAdminAnnouncementList() {
+            if (!currentUser || !isSuperAdmin) return;
+            
+            try {
+                const announcementQuery = new AV.Query('Announcement');
+                announcementQuery.descending('createdAt');
+                const announcements = await announcementQuery.find();
+                
+                if (announcements.length === 0) {
+                    document.getElementById('adminAnnouncementList').innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fa fa-bullhorn text-4xl mb-2"></i>
+                            <p>暂无公告，点击"创建新公告"发布</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let announcementHTML = '';
+                announcements.forEach(announcement => {
+                    announcementHTML += `
+                        <div class="p-3 border rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-semibold">${announcement.get('title')}</h3>
+                                <div>
+                                    <button class="admin-edit-announcement-btn text-blue-600 hover:text-blue-800 mr-2" 
+                                            data-id="${announcement.id}"
+                                            data-title="${announcement.get('title')}"
+                                            data-content="${announcement.get('content')}">
+                                        <i class="fa fa-edit"></i> 编辑
+                                    </button>
+                                    <button class="admin-delete-announcement-btn text-red-600 hover:text-red-800" 
+                                            data-id="${announcement.id}">
+                                        <i class="fa fa-trash"></i> 删除
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 mt-2">${announcement.get('content')}</p>
+                            <p class="text-xs text-gray-500 mt-2">
+                                发布时间: ${formatDate(new Date(announcement.get('createdAt')))}
+                            </p>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('adminAnnouncementList').innerHTML = announcementHTML;
+                
+                // 绑定公告操作事件
+                bindAdminAnnouncementActions();
+            } catch (error) {
+                console.error('加载管理员公告列表失败:', error);
+                document.getElementById('adminAnnouncementList').innerHTML = `<div class="text-center py-4 text-red-500">加载失败: ${error.message}</div>`;
+            }
+        }
+
+        // 绑定管理员公告操作事件
+        function bindAdminAnnouncementActions() {
+            // 编辑公告
+            document.querySelectorAll('.admin-edit-announcement-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const title = this.getAttribute('data-title');
+                    const content = this.getAttribute('data-content');
+                    
+                    document.getElementById('editAnnouncementTitle').textContent = '编辑公告';
+                    document.getElementById('announcementId').value = id;
+                    document.getElementById('announcementTitleInput').value = title;
+                    document.getElementById('announcementContentInput').value = content;
+                    
+                    hideModal(adminPanelModal);
+                    showModal(editAnnouncementModal);
+                });
+            });
+            
+            // 删除公告
+            document.querySelectorAll('.admin-delete-announcement-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const id = this.getAttribute('data-id');
+                    
+                    if (confirm('确定要删除这条公告吗？')) {
+                        try {
+                            const announcement = AV.Object.createWithoutData('Announcement', id);
+                            await announcement.destroy();
+                            await loadAdminAnnouncementList();
+                            showToast('公告已删除');
+                        } catch (error) {
+                            console.error('删除公告失败:', error);
+                            showToast(`删除失败: ${error.message}`);
+                        }
+                    }
+                });
+            });
         }
 
         // 加载用户信息
@@ -603,6 +1565,16 @@
                 userNickname.textContent = profile.get('nickname');
                 userAvatar.src = profile.get('avatarUrl');
                 disableChatInput(false);
+                
+                // 检查是否为超级管理员
+                isSuperAdmin = profile.get('isSuper') || false;
+                if (isSuperAdmin) {
+                    adminPanelBtn.classList.remove('hidden');
+                    addAnnouncementBtn.classList.remove('hidden');
+                } else {
+                    adminPanelBtn.classList.add('hidden');
+                    addAnnouncementBtn.classList.add('hidden');
+                }
             } catch (error) {
                 console.error('加载用户信息失败:', error);
                 showToast('加载用户信息失败');
@@ -732,6 +1704,13 @@
         // 发送消息
         async function sendMessage() {
             if (!currentUser || !currentFriend) return;
+            
+            // 检查是否被禁言
+            const profile = await getUserProfile(currentUser.id);
+            if (profile.get('isBanned')) {
+                showToast('你已被禁言，无法发送消息');
+                return;
+            }
             
             const content = messageInput.value.trim();
             if (!content) return;
@@ -874,8 +1853,9 @@
                 // 创建默认公告
                 const announcement = new Announcement();
                 announcement.set('title', '欢迎使用校园聊天系统');
-                announcement.set('content', '这是一个基于LeanCloud的校园聊天系统，可以添加好友、发送消息，所有数据都会安全保存。');
+                announcement.set('content', '这是一个基于LeanCloud的校园聊天系统，可以添加好友、发送消息，所有数据都会安全保存。使用搜索功能可以快速查找用户、聊天记录和公告。');
                 announcement.set('createdAt', new Date());
+                announcement.set('creatorId', currentUser ? currentUser.id : 'system');
                 
                 const acl = new AV.ACL();
                 acl.setPublicReadAccess(true);
@@ -924,6 +1904,33 @@
             
             messageDiv.appendChild(messageBubble);
             messagesArea.appendChild(messageDiv);
+        }
+
+        // 辅助函数：高亮显示搜索匹配的文本
+        function highlightMatch(text, query) {
+            if (!query) return text;
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="bg-yellow-200">$1</span>');
+        }
+
+        // 辅助函数：高亮显示搜索到的消息
+        function highlightSearchedMessage() {
+            const query = globalSearchInput.value.trim();
+            if (!query) return;
+            
+            const messages = messagesArea.querySelectorAll('.message p:first-child');
+            messages.forEach(msg => {
+                if (msg.textContent.toLowerCase().includes(query.toLowerCase())) {
+                    msg.innerHTML = highlightMatch(msg.textContent, query);
+                    msg.closest('.message').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // 添加闪烁效果
+                    msg.closest('.message').classList.add('animate-pulse');
+                    setTimeout(() => {
+                        msg.closest('.message').classList.remove('animate-pulse');
+                    }, 2000);
+                }
+            });
         }
 
         // 辅助函数：滚动到消息底部
@@ -983,6 +1990,17 @@
         // 辅助函数：格式化日期
         function formatDate(date) {
             return date.toLocaleString();
+        }
+
+        // 辅助函数：防抖
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
         }
     </script>
 </body>
