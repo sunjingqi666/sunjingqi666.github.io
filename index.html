@@ -3,146 +3,1800 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>校园服务中心</title>
-  <!-- 网站图标 -->
-  <link rel="icon" href="https://picsum.photos/32/32?random=icon" type="image/png">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <title>校园管理系统</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
   
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#3B82F6',
-            secondary: '#10B981',
-            accent: '#8B5CF6',
-            dark: '#1E293B',
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-          },
-        }
-      }
+  <!-- 引入CSS样式 -->
+  <style>
+    /* 基础样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-  </script>
-  
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .card-shadow {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: var(--primary-color);
+      color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .search-box {
+      display: flex;
+      flex: 0 0 30%;
+      margin: 0 1rem;
+    }
+    
+    .search-box input {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 4px 0 0 4px;
+      outline: none;
+    }
+    
+    .search-box button {
+      padding: 0 1rem;
+      background-color: var(--btn-hover);
+      border: none;
+      border-radius: 0 4px 4px 0;
+      color: white;
+      cursor: pointer;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+    }
+    
+    .sidebar {
+      width: 220px;
+      background-color: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      height: calc(100vh - 64px);
+      position: fixed;
+      overflow-y: auto;
+    }
+    
+    .menu-list {
+      list-style: none;
+    }
+    
+    .menu-item {
+      display: block;
+      padding: 1rem 1.5rem;
+      color: var(--text-color);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.2s;
+    }
+    
+    .menu-item:hover, .menu-item.active {
+      background-color: rgba(0,0,0,0.05);
+      font-weight: 500;
+    }
+    
+    .content {
+      flex: 1;
+      margin-left: 220px;
+      padding: 2rem;
+      min-height: calc(100vh - 64px);
+    }
+    
+    .page {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .page.active {
+      display: block;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+      margin-left: 220px;
+    }
+    
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .feature-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+    
+    .btn:hover {
+      background-color: var(--btn-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card h3 {
+      color: var(--text-color);
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+    
+    .stat-card p {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    
+    th, td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    th {
+      background-color: rgba(0,0,0,0.05);
+      font-weight: 500;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .error {
+      color: #ff4d4f;
+      margin: 0.5rem 0;
+    }
+    
+    .admin-section {
+      margin-bottom: 2rem;
+    }
+    
+    .online-status {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+    
+    .online-status.online {
+      background-color: #52C41A;
+    }
+    
+    .online-status.offline {
+      background-color: #9CA3AF;
+    }
+    
+    .role-super {
+      color: #FF4D4F;
+      font-weight: bold;
+      margin-left: 4px;
+    }
+    
+    .role-admin {
+      color: #165DFF;
+      font-weight: bold;
+      margin-left: 4px;
+    }
+    
+    .theme-selector {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .theme-option {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+    
+    .theme-option.selected {
+      border-color: var(--primary-color);
+    }
+    
+    .schedule-item, .resource-item, .qa-item {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
       }
-      .hover-lift {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      
+      .content, .footer {
+        margin-left: 0;
       }
-      .hover-lift:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      
+      .search-box {
+        flex: none;
+        width: 100%;
+        margin: 1rem 0;
+      }
+      
+      .navbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .feature-cards, .stats-cards {
+        grid-template-columns: 1fr;
       }
     }
   </style>
+  
+  <!-- 主题样式 -->
+  <style>
+    /* 主题变量定义 */
+    :root {
+      --bg-color: #FFFFFF;
+      --text-color: #333333;
+      --card-bg: #F5F7FA;
+      --primary-color: #165DFF;
+      --btn-hover: #0E4CD1;
+      --border-color: #E5E7EB;
+    }
+    
+    /* 暗黑主题 */
+    :root.dark-theme {
+      --bg-color: #1E293B;
+      --text-color: #E2E8F0;
+      --card-bg: #334155;
+      --primary-color: #0F172A;
+      --btn-hover: #1E40AF;
+      --border-color: #475569;
+    }
+    
+    /* 校园主题 */
+    :root.campus-theme {
+      --bg-color: #FFFBEB;
+      --text-color: #1F2937;
+      --card-bg: #D1FAE5;
+      --primary-color: #36D399;
+      --btn-hover: #10B981;
+      --border-color: #A7F3D0;
+      --accent-color: #FBBF24;
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-  <div class="container mx-auto px-4 py-8 max-w-6xl">
-    <!-- 顶部标题区域 -->
-    <header class="text-center mb-10">
-      <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-dark mb-2">校园服务中心</h1>
-      <p class="text-gray-600 text-lg">便捷的校园工具与社交平台</p>
-    </header>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="navbar">
+    <div class="logo">校园管理系统</div>
+    <div class="search-box">
+      <input type="text" placeholder="搜索..." id="globalSearch">
+      <button onclick="searchHandler()">搜索</button>
+    </div>
+    <div class="user-info" id="userInfo">
+      <span class="online-status offline"></span>
+      <span class="username">未登录</span>
+      <button class="btn" style="margin-left: 10px;" id="loginBtn">登录</button>
+    </div>
+  </header>
 
-    <!-- 搜索区域 -->
-    <div class="bg-white rounded-xl p-6 mb-10 shadow-lg">
-      <h2 class="text-xl font-semibold mb-4 text-dark">全网搜索</h2>
-      <div class="flex flex-col md:flex-row gap-4">
-        <input 
-          type="text" 
-          id="searchInput" 
-          placeholder="输入搜索内容..." 
-          class="flex-grow px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-        >
-        <div class="flex flex-wrap gap-2 justify-center md:justify-start">
-          <button onclick="search('baidu')" class="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2">
-            <i class="fa fa-baidu"></i> 百度
-          </button>
-          <button onclick="search('google')" class="px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2">
-            <i class="fa fa-google"></i> 谷歌
-          </button>
-          <button onclick="search('bing')" class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-            <i class="fa fa-bing"></i> 必应
-          </button>
-          <button onclick="search('sogou')" class="px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2">
-            <i class="fa fa-sogou"></i> 搜狗
-          </button>
+  <!-- 侧边栏菜单 -->
+  <aside class="sidebar">
+    <ul class="menu-list">
+      <li><a href="#home" class="menu-item active" onclick="switchPage('homePage')">首页</a></li>
+      <li><a href="#userApplication" class="menu-item" onclick="switchPage('userApplicationPage')">账号申请</a></li>
+      <li><a href="#passwordReset" class="menu-item" onclick="switchPage('passwordResetPage')">密码重置</a></li>
+      <li><a href="#announcement" class="menu-item" onclick="switchPage('announcementPage')">公告</a></li>
+      <li><a href="#message" class="menu-item" onclick="switchPage('messagePage')">聊天消息</a></li>
+      <li><a href="#suggestion" class="menu-item" onclick="switchPage('suggestionPage')">建议反馈</a></li>
+      <!-- 校园特色功能 -->
+      <li><a href="#schedule" class="menu-item" onclick="switchPage('schedulePage')">校园日程</a></li>
+      <li><a href="#resources" class="menu-item" onclick="switchPage('resourcesPage')">学习资源</a></li>
+      <li><a href="#qa" class="menu-item" onclick="switchPage('qaPage')">互助问答</a></li>
+      <!-- 管理中心（权限控制显示） -->
+      <li><a href="#adminCenter" class="menu-item admin-only" onclick="switchPage('adminCenterPage')">管理中心</a></li>
+      <!-- 个人中心 -->
+      <li><a href="#profile" class="menu-item" onclick="switchPage('profilePage')">个人中心</a></li>
+    </ul>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="content" id="mainContent">
+    <!-- 首页内容 -->
+    <div class="page active" id="homePage">
+      <h1>欢迎使用校园管理系统</h1>
+      <div class="feature-cards">
+        <div class="card">
+          <h3>账号管理</h3>
+          <p>申请账号、重置密码、管理用户</p>
+          <button class="btn" onclick="switchPage('userApplicationPage')">进入</button>
+        </div>
+        <div class="card">
+          <h3>校园工具</h3>
+          <p>日程安排、学习资源、互助问答</p>
+          <button class="btn" onclick="switchPage('schedulePage')">进入</button>
+        </div>
+        <div class="card">
+          <h3>系统设置</h3>
+          <p>主题切换、数据备份</p>
+          <button class="btn" onclick="switchPage('profilePage')">进入</button>
         </div>
       </div>
     </div>
 
-    <!-- 功能卡片区域 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- 校园聊天系统 -->
-      <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift cursor-pointer" onclick="window.location='chat.html'">
-        <div class="h-40 bg-gradient-to-r from-primary to-accent flex items-center justify-center">
-          <i class="fa fa-comments text-white text-6xl"></i>
-        </div>
-        <div class="p-6">
-          <h3 class="text-xl font-bold mb-2 text-dark">校园聊天系统</h3>
-          <p class="text-gray-600">与同学实时交流，分享校园生活，查看最新公告</p>
-        </div>
+    <!-- 账号申请页 -->
+    <div class="page" id="userApplicationPage">
+      <h1>账号申请</h1>
+      <div class="card">
+        <form id="applicationForm">
+          <div class="form-group">
+            <label for="appUsername">用户名</label>
+            <input type="text" id="appUsername" required>
+          </div>
+          <div class="form-group">
+            <label for="appPhone">手机号</label>
+            <input type="text" id="appPhone" required>
+          </div>
+          <div class="form-group">
+            <label for="appReason">申请理由</label>
+            <textarea id="appReason" rows="3" required></textarea>
+          </div>
+          <div id="applicationErrors"></div>
+          <button type="button" class="btn" onclick="submitApplication()">提交申请</button>
+        </form>
       </div>
+    </div>
 
-      <!-- 其他功能卡片可以在这里继续添加 -->
-      <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift cursor-pointer">
-        <div class="h-40 bg-gradient-to-r from-secondary to-green-600 flex items-center justify-center">
-          <i class="fa fa-calendar text-white text-6xl"></i>
+    <!-- 密码重置页 -->
+    <div class="page" id="passwordResetPage">
+      <h1>密码重置</h1>
+      <div class="card">
+        <p>请输入您的用户名，我们将处理您的密码重置申请</p>
+        <div class="form-group">
+          <label for="resetUsername">用户名</label>
+          <input type="text" id="resetUsername" required>
         </div>
-        <div class="p-6">
-          <h3 class="text-xl font-bold mb-2 text-dark">校园日程</h3>
-          <p class="text-gray-600">查看课程安排、考试时间和校园活动日程</p>
-        </div>
+        <button class="btn" onclick="submitPasswordReset()">提交申请</button>
       </div>
+    </div>
 
-      <div class="bg-white rounded-xl overflow-hidden shadow-md hover-lift cursor-pointer">
-        <div class="h-40 bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center">
-          <i class="fa fa-book text-white text-6xl"></i>
+    <!-- 公告页 -->
+    <div class="page" id="announcementPage">
+      <h1>公告</h1>
+      <div class="card admin-only">
+        <h3>发布新公告</h3>
+        <div class="form-group">
+          <label for="annTitle">标题</label>
+          <input type="text" id="annTitle">
         </div>
-        <div class="p-6">
-          <h3 class="text-xl font-bold mb-2 text-dark">学习资源</h3>
-          <p class="text-gray-600">获取课程资料、复习笔记和学习经验分享</p>
+        <div class="form-group">
+          <label for="annContent">内容</label>
+          <textarea id="annContent" rows="3"></textarea>
+        </div>
+        <button class="btn" onclick="publishAnnouncement()">发布</button>
+      </div>
+      
+      <div id="announcementList">
+        <!-- 公告列表将通过JS动态生成 -->
+      </div>
+    </div>
+
+    <!-- 聊天消息页 -->
+    <div class="page" id="messagePage">
+      <h1>聊天消息</h1>
+      <div class="card" style="height: 400px; display: flex; flex-direction: column;">
+        <div id="messageList" style="flex: 1; overflow-y: auto; margin-bottom: 1rem;">
+          <!-- 消息列表将通过JS动态生成 -->
+        </div>
+        <div style="display: flex;">
+          <input type="text" id="messageContent" placeholder="输入消息..." style="margin-right: 0.5rem;">
+          <button class="btn" onclick="sendMessage()">发送</button>
         </div>
       </div>
     </div>
 
-    <!-- 页脚 -->
-    <footer class="mt-16 text-center text-gray-500 text-sm">
-      <p>© 2023 校园服务中心 - 让校园生活更便捷</p>
-    </footer>
+    <!-- 建议反馈页 -->
+    <div class="page" id="suggestionPage">
+      <h1>建议反馈</h1>
+      <div class="card">
+        <div class="form-group">
+          <label for="suggestionContent">您的建议</label>
+          <textarea id="suggestionContent" rows="3"></textarea>
+        </div>
+        <button class="btn" onclick="submitSuggestion()">提交建议</button>
+      </div>
+      
+      <div id="mySuggestions">
+        <!-- 我的建议将通过JS动态生成 -->
+      </div>
+    </div>
+
+    <!-- 校园日程页 -->
+    <div class="page" id="schedulePage">
+      <h1>校园日程</h1>
+      <button class="btn" onclick="showAddScheduleForm()">添加日程</button>
+      
+      <div id="scheduleForm" style="display: none; margin: 1rem 0;" class="card">
+        <div class="form-group">
+          <label for="scheduleTitle">标题</label>
+          <input type="text" id="scheduleTitle">
+        </div>
+        <div class="form-group">
+          <label for="scheduleTime">时间</label>
+          <input type="text" id="scheduleTime" placeholder="格式：2024-05-20 08:00">
+        </div>
+        <div class="form-group">
+          <label for="scheduleLocation">地点</label>
+          <input type="text" id="scheduleLocation">
+        </div>
+        <div id="scheduleErrors"></div>
+        <button class="btn" onclick="addSchedule()">保存</button>
+        <button class="btn" style="background-color: #9CA3AF;" onclick="hideAddScheduleForm()">取消</button>
+      </div>
+      
+      <div id="scheduleList">
+        <!-- 日程列表将通过JS动态生成 -->
+      </div>
+    </div>
+
+    <!-- 学习资源页 -->
+    <div class="page" id="resourcesPage">
+      <h1>学习资源</h1>
+      <button class="btn" onclick="showAddResourceForm()">上传资源</button>
+      
+      <div id="resourceForm" style="display: none; margin: 1rem 0;" class="card">
+        <div class="form-group">
+          <label for="resourceName">资源名称</label>
+          <input type="text" id="resourceName">
+        </div>
+        <div class="form-group">
+          <label for="resourceCategory">分类</label>
+          <select id="resourceCategory">
+            <option value="课件">课件</option>
+            <option value="习题">习题</option>
+            <option value="笔记">笔记</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="resourceUrl">资源链接</label>
+          <input type="text" id="resourceUrl" placeholder="输入资源下载链接">
+        </div>
+        <button class="btn" onclick="addResource()">保存</button>
+        <button class="btn" style="background-color: #9CA3AF;" onclick="hideAddResourceForm()">取消</button>
+      </div>
+      
+      <div id="resourcesList">
+        <!-- 资源列表将通过JS动态生成 -->
+      </div>
+    </div>
+
+    <!-- 互助问答页 -->
+    <div class="page" id="qaPage">
+      <h1>互助问答</h1>
+      <button class="btn" onclick="showAddQuestionForm()">提问</button>
+      
+      <div id="questionForm" style="display: none; margin: 1rem 0;" class="card">
+        <div class="form-group">
+          <label for="questionTitle">问题标题</label>
+          <input type="text" id="questionTitle">
+        </div>
+        <div class="form-group">
+          <label for="questionContent">问题内容</label>
+          <textarea id="questionContent" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="questionTags">标签（用逗号分隔）</label>
+          <input type="text" id="questionTags" placeholder="如：学习,高数">
+        </div>
+        <button class="btn" onclick="addQuestion()">发布问题</button>
+        <button class="btn" style="background-color: #9CA3AF;" onclick="hideAddQuestionForm()">取消</button>
+      </div>
+      
+      <div id="qaList">
+        <!-- 问答列表将通过JS动态生成 -->
+      </div>
+    </div>
+
+    <!-- 管理中心页面 -->
+    <div class="page" id="adminCenterPage">
+      <h1>管理中心</h1>
+      
+      <!-- 数据概览 -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <h3>待处理申请</h3>
+          <p id="pendingApplications">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>用户总数</h3>
+          <p id="totalUsers">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>公告总数</h3>
+          <p id="totalAnnouncements">0</p>
+        </div>
+      </div>
+
+      <!-- 用户管理 -->
+      <div class="admin-section">
+        <h2>用户管理</h2>
+        <input type="text" placeholder="搜索用户名..." id="userSearch">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>在线状态</th>
+              <th>用户名</th>
+              <th>角色</th>
+              <th>注册时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <!-- JS动态生成用户列表 -->
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 申请管理 -->
+      <div class="admin-section">
+        <h2>账号申请管理</h2>
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>用户名</th>
+              <th>手机号</th>
+              <th>申请理由</th>
+              <th>申请时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="applicationTableBody">
+            <!-- JS动态生成申请列表 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 个人中心页 -->
+    <div class="page" id="profilePage">
+      <h1>个人中心</h1>
+      
+      <div class="card">
+        <h3>个人信息</h3>
+        <div id="profileInfo">
+          <!-- 个人信息将通过JS动态生成 -->
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3>主题设置</h3>
+        <div class="theme-selector">
+          <div class="theme-option selected" id="theme-default" style="background-color: #FFFFFF; color: #333333;" onclick="switchTheme('default')">默认</div>
+          <div class="theme-option" id="theme-dark" style="background-color: #1E293B; color: #E2E8F0;" onclick="switchTheme('dark')">暗黑</div>
+          <div class="theme-option" id="theme-campus" style="background-color: #FFFBEB; color: #1F2937;" onclick="switchTheme('campus')">校园</div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3>数据备份</h3>
+        <button class="btn" onclick="Backup.export()">导出数据</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="Backup.import(this.files[0])">
+        <button class="btn" style="margin-left: 10px;" onclick="document.getElementById('importFile').click()">导入数据</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 底部 -->
+  <footer class="footer">
+    <p>© 2024 校园管理系统</p>
+  </footer>
+
+  <!-- 登录模态框 -->
+  <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background-color: var(--bg-color); padding: 2rem; border-radius: 8px; width: 300px;">
+      <h2>登录</h2>
+      <div class="form-group">
+        <label for="loginUsername">用户名</label>
+        <input type="text" id="loginUsername">
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">密码</label>
+        <input type="password" id="loginPassword">
+      </div>
+      <div id="loginError" class="error"></div>
+      <button class="btn" onclick="login()">登录</button>
+      <button class="btn" style="background-color: #9CA3AF; margin-left: 10px;" onclick="document.getElementById('loginModal').style.display = 'none'">取消</button>
+    </div>
   </div>
 
+  <!-- JavaScript 代码 -->
   <script>
-    // 搜索引擎映射
-    const searchEngines = {
-      baidu: 'https://www.baidu.com/s?wd=',
-      google: 'https://www.google.com/search?q=',
-      bing: 'https://www.bing.com/search?q=',
-      sogou: 'https://www.sogou.com/web?query='
+    // 配置信息
+    const Config = {
+      leanCloudConfig: {
+        appId: '30kUc571qTv0YSCTWVGRbAxk-gzGzoHsz',
+        appKey: 'LxFqgqjRZ3SaRGYUGznRiWAr',
+        masterKey: 'lMfqmBOj54N0r8hLynl1ZSUv',
+        serverUrl: 'https://30kuc571.lc-cn-n1-shared.com'
+      },
+      ROLES: {
+        SUPER_ADMIN: 'super_admin',
+        ADMIN: 'admin',
+        USER: 'user'
+      },
+      PAGES: {
+        HOME: 'homePage',
+        USER_APPLICATION: 'userApplicationPage',
+        PASSWORD_RESET: 'passwordResetPage',
+        ANNOUNCEMENT: 'announcementPage',
+        MESSAGE: 'messagePage',
+        SUGGESTION: 'suggestionPage',
+        SCHEDULE: 'schedulePage',
+        RESOURCES: 'resourcesPage',
+        QA: 'qaPage',
+        ADMIN_CENTER: 'adminCenterPage',
+        PROFILE: 'profilePage'
+      }
     };
 
-    // 执行搜索
-    function search(engine) {
-      const query = document.getElementById('searchInput').value.trim();
-      if (query) {
-        window.open(searchEngines[engine] + encodeURIComponent(query), '_blank');
+    // 初始化LeanCloud
+    function initLeanCloud() {
+      if (window.AV) {
+        AV.init({
+          appId: Config.leanCloudConfig.appId,
+          appKey: Config.leanCloudConfig.appKey,
+          serverURL: Config.leanCloudConfig.serverUrl
+        });
+        console.log('LeanCloud初始化成功');
       } else {
-        alert('请输入搜索内容');
+        console.error('请引入LeanCloud SDK');
       }
     }
 
-    // 按回车键默认使用百度搜索
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        search('baidu');
+    // 权限与登录管理
+    const Auth = {
+      currentUser: null,
+      currentRole: null,
+
+      init() {
+        // 检查本地存储的用户信息
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+          this.currentUser = JSON.parse(savedUser);
+          this.updateUserInfoDisplay();
+          this.checkUserRole();
+          this.updateMenuPermissions();
+        }
+        
+        // 绑定登录按钮事件
+        document.getElementById('loginBtn').addEventListener('click', () => {
+          document.getElementById('loginModal').style.display = 'flex';
+        });
+      },
+
+      async login(username, password) {
+        try {
+          const user = await AV.User.logIn(username, password);
+          this.currentUser = user.toJSON();
+          localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+          this.updateUserInfoDisplay();
+          await this.checkUserRole();
+          this.updateMenuPermissions();
+          document.getElementById('loginModal').style.display = 'none';
+          return { success: true };
+        } catch (err) {
+          return { success: false, message: err.message };
+        }
+      },
+
+      logout() {
+        AV.User.logOut();
+        this.currentUser = null;
+        this.currentRole = null;
+        localStorage.removeItem('currentUser');
+        this.updateUserInfoDisplay();
+        this.updateMenuPermissions();
+      },
+
+      async checkUserRole() {
+        if (!this.currentUser) return;
+        
+        const user = AV.Object.createWithoutData('_User', this.currentUser.objectId);
+        const query = new AV.Query('_Role');
+        query.equalTo('users', user);
+        
+        try {
+          const roles = await query.find();
+          if (roles.length > 0) {
+            this.currentRole = roles[0].get('name');
+          } else {
+            this.currentRole = Config.ROLES.USER;
+          }
+        } catch (err) {
+          console.error('获取用户角色失败:', err);
+          this.currentRole = Config.ROLES.USER;
+        }
+      },
+
+      updateUserInfoDisplay() {
+        const userInfo = document.getElementById('userInfo');
+        const loginBtn = document.getElementById('loginBtn');
+        const usernameEl = userInfo.querySelector('.username');
+        const statusEl = userInfo.querySelector('.online-status');
+        
+        if (this.currentUser) {
+          usernameEl.textContent = this.currentUser.username;
+          statusEl.className = 'online-status online';
+          loginBtn.textContent = '退出';
+          loginBtn.onclick = () => this.logout();
+        } else {
+          usernameEl.textContent = '未登录';
+          statusEl.className = 'online-status offline';
+          loginBtn.textContent = '登录';
+          loginBtn.onclick = () => {
+            document.getElementById('loginModal').style.display = 'flex';
+          };
+        }
+      },
+
+      updateMenuPermissions() {
+        const adminItems = document.querySelectorAll('.admin-only');
+        adminItems.forEach(item => {
+          item.style.display = this.hasAdminPermission() ? 'block' : 'none';
+        });
+      },
+
+      hasAdminPermission() {
+        return this.currentRole === Config.ROLES.SUPER_ADMIN || this.currentRole === Config.ROLES.ADMIN;
+      },
+
+      isSuperAdmin() {
+        return this.currentRole === Config.ROLES.SUPER_ADMIN;
+      },
+
+      getCurrentUserId() {
+        return this.currentUser ? this.currentUser.objectId : null;
+      },
+
+      getCurrentUsername() {
+        return this.currentUser ? this.currentUser.username : '匿名';
       }
-    });
+    };
+
+    // 主题切换
+    function switchTheme(themeName) {
+      const root = document.documentElement;
+      // 移除所有主题类
+      root.classList.remove('dark-theme', 'campus-theme');
+      // 应用选中主题
+      if (themeName === 'dark') {
+        root.classList.add('dark-theme');
+      } else if (themeName === 'campus') {
+        root.classList.add('campus-theme');
+      }
+      // 更新主题选择器的选中状态
+      document.querySelectorAll('.theme-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+      document.getElementById(`theme-${themeName}`).classList.add('selected');
+      // 保存到本地
+      localStorage.setItem('selectedTheme', themeName);
+    }
+
+    // 页面切换
+    function switchPage(pageId) {
+      // 隐藏所有页面
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+      });
+      // 显示选中页面
+      document.getElementById(pageId).classList.add('active');
+      // 更新菜单选中状态
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.querySelector(`.menu-item[onclick="switchPage('${pageId}')"]`).classList.add('active');
+      
+      // 特定页面加载数据
+      if (pageId === 'schedulePage') {
+        Schedule.load();
+      } else if (pageId === 'resourcesPage') {
+        Resources.load();
+      } else if (pageId === 'qaPage') {
+        QA.load();
+      } else if (pageId === 'adminCenterPage') {
+        Admin.loadUserList();
+        Admin.loadApplications();
+      } else if (pageId === 'profilePage') {
+        Profile.load();
+      }
+    }
+
+    // 搜索处理
+    function searchHandler() {
+      const keyword = document.getElementById('globalSearch').value.trim();
+      if (!keyword) return;
+      
+      // 先搜索本地数据
+      const localResults = searchLocalData(keyword);
+      if (localResults.length > 0) {
+        alert(`找到${localResults.length}条本地结果：\n${localResults.join('\n')}`);
+      } else {
+        // 本地无结果，跳转百度搜索
+        window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(keyword)}`);
+      }
+    }
+
+    // 搜索本地数据
+    function searchLocalData(keyword) {
+      const results = [];
+      const lowerKeyword = keyword.toLowerCase();
+      
+      // 搜索日程
+      const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+      schedules.forEach(item => {
+        if (item.title.toLowerCase().includes(lowerKeyword) || 
+            item.location.toLowerCase().includes(lowerKeyword)) {
+          results.push(`日程：${item.title}`);
+        }
+      });
+      
+      // 搜索资源
+      const resources = JSON.parse(localStorage.getItem('resources') || '[]');
+      resources.forEach(item => {
+        if (item.name.toLowerCase().includes(lowerKeyword) || 
+            item.category.toLowerCase().includes(lowerKeyword)) {
+          results.push(`资源：${item.name}`);
+        }
+      });
+      
+      // 搜索问答
+      const questions = JSON.parse(localStorage.getItem('questions') || '[]');
+      questions.forEach(item => {
+        if (item.title.toLowerCase().includes(lowerKeyword) || 
+            item.content.toLowerCase().includes(lowerKeyword) ||
+            item.tags.some(tag => tag.toLowerCase().includes(lowerKeyword))) {
+          results.push(`问答：${item.title}`);
+        }
+      });
+      
+      return results;
+    }
+
+    // 登录函数
+    function login() {
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      const errorEl = document.getElementById('loginError');
+      
+      if (!username || !password) {
+        errorEl.textContent = '用户名和密码不能为空';
+        return;
+      }
+      
+      Auth.login(username, password).then(result => {
+        if (!result.success) {
+          errorEl.textContent = result.message;
+        } else {
+          document.getElementById('loginUsername').value = '';
+          document.getElementById('loginPassword').value = '';
+          errorEl.textContent = '';
+        }
+      });
+    }
+
+    // 校园日程模块
+    const Schedule = {
+      data: [],
+      
+      load() {
+        this.data = JSON.parse(localStorage.getItem('schedules') || '[]');
+        // 只显示当前用户的日程
+        const currentUserId = Auth.getCurrentUserId();
+        if (currentUserId) {
+          this.data = this.data.filter(item => item.userId === currentUserId);
+        } else {
+          this.data = [];
+        }
+        this.render();
+      },
+      
+      render() {
+        const container = document.getElementById('scheduleList');
+        if (!container) return;
+        
+        if (this.data.length === 0) {
+          container.innerHTML = '<p>暂无日程，点击"添加日程"创建新日程</p>';
+          return;
+        }
+        
+        // 按时间排序
+        this.data.sort((a, b) => new Date(a.time) - new Date(b.time));
+        
+        container.innerHTML = this.data.map(item => `
+          <div class="schedule-item">
+            <h4>${item.title}</h4>
+            <p>时间：${item.time}</p>
+            <p>地点：${item.location}</p>
+            <div class="actions">
+              <button class="btn" onclick="Schedule.edit('${item.id}')">编辑</button>
+              <button class="btn" style="background-color: #ff4d4f;" onclick="Schedule.delete('${item.id}')">删除</button>
+            </div>
+          </div>
+        `).join('');
+      },
+      
+      add() {
+        if (!Auth.getCurrentUserId()) {
+          alert('请先登录');
+          return;
+        }
+        
+        const title = document.getElementById('scheduleTitle').value;
+        const time = document.getElementById('scheduleTime').value;
+        const location = document.getElementById('scheduleLocation').value;
+        
+        // 验证
+        const validation = Validator.validateSchedule({ title, time, location });
+        if (!validation.valid) {
+          Validator.showErrors('scheduleErrors', validation.errors);
+          return;
+        }
+        
+        const newItem = {
+          id: Date.now().toString(),
+          title,
+          time,
+          location,
+          userId: Auth.getCurrentUserId()
+        };
+        
+        this.data.push(newItem);
+        localStorage.setItem('schedules', JSON.stringify(this.data));
+        this.render();
+        
+        // 重置表单
+        document.getElementById('scheduleTitle').value = '';
+        document.getElementById('scheduleTime').value = '';
+        document.getElementById('scheduleLocation').value = '';
+        document.getElementById('scheduleErrors').innerHTML = '';
+        hideAddScheduleForm();
+      },
+      
+      edit(id) {
+        const item = this.data.find(i => i.id === id);
+        if (!item) return;
+        
+        document.getElementById('scheduleTitle').value = item.title;
+        document.getElementById('scheduleTime').value = item.time;
+        document.getElementById('scheduleLocation').value = item.location;
+        
+        // 将添加按钮改为更新按钮
+        const saveBtn = document.querySelector('#scheduleForm .btn:first-of-type');
+        saveBtn.textContent = '更新';
+        saveBtn.onclick = () => {
+          // 验证
+          const validation = Validator.validateSchedule({ 
+            title: document.getElementById('scheduleTitle').value,
+            time: document.getElementById('scheduleTime').value,
+            location: document.getElementById('scheduleLocation').value
+          });
+          if (!validation.valid) {
+            Validator.showErrors('scheduleErrors', validation.errors);
+            return;
+          }
+          
+          item.title = document.getElementById('scheduleTitle').value;
+          item.time = document.getElementById('scheduleTime').value;
+          item.location = document.getElementById('scheduleLocation').value;
+          
+          localStorage.setItem('schedules', JSON.stringify(this.data));
+          this.render();
+          
+          // 重置表单和按钮
+          document.getElementById('scheduleTitle').value = '';
+          document.getElementById('scheduleTime').value = '';
+          document.getElementById('scheduleLocation').value = '';
+          document.getElementById('scheduleErrors').innerHTML = '';
+          saveBtn.textContent = '保存';
+          saveBtn.onclick = () => Schedule.add();
+          hideAddScheduleForm();
+        };
+        
+        showAddScheduleForm();
+      },
+      
+      delete(id) {
+        if (confirm('确定要删除这个日程吗？')) {
+          this.data = this.data.filter(item => item.id !== id);
+          localStorage.setItem('schedules', JSON.stringify(this.data));
+          this.render();
+        }
+      }
+    };
+
+    // 学习资源模块
+    const Resources = {
+      data: [],
+      
+      load() {
+        this.data = JSON.parse(localStorage.getItem('resources') || '[]');
+        this.render();
+      },
+      
+      render() {
+        const container = document.getElementById('resourcesList');
+        if (!container) return;
+        
+        if (this.data.length === 0) {
+          container.innerHTML = '<p>暂无资源，点击"上传资源"分享学习资料</p>';
+          return;
+        }
+        
+        container.innerHTML = this.data.map(item => `
+          <div class="resource-item">
+            <h4>${item.name} <span style="font-size: 0.8rem; color: #666;">[${item.category}]</span></h4>
+            <p>上传者：${item.uploader}</p>
+            <a href="${item.url}" target="_blank" class="btn" style="display: inline-block; margin-top: 0.5rem;">查看资源</a>
+            ${item.userId === Auth.getCurrentUserId() ? `
+              <div class="actions" style="margin-top: 0.5rem;">
+                <button class="btn" onclick="Resources.edit('${item.id}')">编辑</button>
+                <button class="btn" style="background-color: #ff4d4f;" onclick="Resources.delete('${item.id}')">删除</button>
+              </div>
+            ` : ''}
+          </div>
+        `).join('');
+      },
+      
+      add() {
+        if (!Auth.getCurrentUserId()) {
+          alert('请先登录');
+          return;
+        }
+        
+        const name = document.getElementById('resourceName').value;
+        const category = document.getElementById('resourceCategory').value;
+        const url = document.getElementById('resourceUrl').value;
+        
+        if (!name || !url) {
+          alert('资源名称和链接不能为空');
+          return;
+        }
+        
+        const newItem = {
+          id: Date.now().toString(),
+          name,
+          category,
+          url,
+          uploader: Auth.getCurrentUsername(),
+          userId: Auth.getCurrentUserId(),
+          uploadTime: new Date().toLocaleString()
+        };
+        
+        this.data.push(newItem);
+        localStorage.setItem('resources', JSON.stringify(this.data));
+        this.render();
+        
+        // 重置表单
+        document.getElementById('resourceName').value = '';
+        document.getElementById('resourceUrl').value = '';
+        hideAddResourceForm();
+      },
+      
+      edit(id) {
+        const item = this.data.find(i => i.id === id);
+        if (!item || item.userId !== Auth.getCurrentUserId()) return;
+        
+        document.getElementById('resourceName').value = item.name;
+        document.getElementById('resourceCategory').value = item.category;
+        document.getElementById('resourceUrl').value = item.url;
+        
+        // 将添加按钮改为更新按钮
+        const saveBtn = document.querySelector('#resourceForm .btn:first-of-type');
+        saveBtn.textContent = '更新';
+        saveBtn.onclick = () => {
+          const name = document.getElementById('resourceName').value;
+          const category = document.getElementById('resourceCategory').value;
+          const url = document.getElementById('resourceUrl').value;
+          
+          if (!name || !url) {
+            alert('资源名称和链接不能为空');
+            return;
+          }
+          
+          item.name = name;
+          item.category = category;
+          item.url = url;
+          
+          localStorage.setItem('resources', JSON.stringify(this.data));
+          this.render();
+          
+          // 重置表单和按钮
+          document.getElementById('resourceName').value = '';
+          document.getElementById('resourceUrl').value = '';
+          saveBtn.textContent = '保存';
+          saveBtn.onclick = () => Resources.add();
+          hideAddResourceForm();
+        };
+        
+        showAddResourceForm();
+      },
+      
+      delete(id) {
+        const item = this.data.find(i => i.id === id);
+        if (!item || item.userId !== Auth.getCurrentUserId()) return;
+        
+        if (confirm('确定要删除这个资源吗？')) {
+          this.data = this.data.filter(item => item.id !== id);
+          localStorage.setItem('resources', JSON.stringify(this.data));
+          this.render();
+        }
+      }
+    };
+
+    // 互助问答模块
+    const QA = {
+      questions: [],
+      answers: [],
+      
+      load() {
+        this.questions = JSON.parse(localStorage.getItem('questions') || '[]');
+        this.answers = JSON.parse(localStorage.getItem('answers') || '[]');
+        this.renderQuestions();
+      },
+      
+      renderQuestions() {
+        const container = document.getElementById('qaList');
+        if (!container) return;
+        
+        if (this.questions.length === 0) {
+          container.innerHTML = '<p>暂无问题，点击"提问"发起新问题</p>';
+          return;
+        }
+        
+        container.innerHTML = this.questions.map(question => {
+          const questionAnswers = this.answers.filter(a => a.questionId === question.id);
+          return `
+            <div class="qa-item">
+              <h3>${question.title}</h3>
+              <p>标签：${question.tags.map(tag => `<span style="background-color: var(--accent-color); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-right: 5px;">${tag}</span>`).join('')}</p>
+              <p>${question.content}</p>
+              <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                提问者：${question.username} 
+                ${question.role === 'super_admin' ? '<span class="role-super">👑超级管理员</span>' : 
+                  question.role === 'admin' ? '<span class="role-admin">🛡️管理员</span>' : ''}
+                · 时间：${question.createTime}
+              </p>
+              <p style="margin-top: 0.5rem;"><strong>回答(${questionAnswers.length})：</strong></p>
+              <div style="margin-left: 1rem; margin-bottom: 1rem;">
+                ${questionAnswers.length > 0 ? questionAnswers.map(answer => `
+                  <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                    <p>${answer.content}</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                      回答者：${answer.username}
+                      ${answer.isAccepted ? '<span style="background-color: #52C41A; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px;">最佳答案</span>' : ''}
+                    </p>
+                    ${question.userId === Auth.getCurrentUserId() && !answer.isAccepted ? 
+                      `<button class="btn" style="font-size: 0.8rem; padding: 2px 8px;" onclick="QA.acceptAnswer('${answer.id}', '${question.id}')">采纳为最佳答案</button>` : ''}
+                  </div>
+                `).join('') : '<p>暂无回答，快来抢沙发吧！</p>'}
+              </div>
+              ${Auth.getCurrentUserId() ? `
+                <div style="margin-top: 1rem;">
+                  <textarea id="answerContent-${question.id}" rows="2" placeholder="写下你的回答..."></textarea>
+                  <button class="btn" style="margin-top: 0.5rem;" onclick="QA.addAnswer('${question.id}')">提交回答</button>
+                </div>
+              ` : '<p>请登录后回答问题</p>'}
+            </div>
+          `;
+        }).join('');
+      },
+      
+      addQuestion() {
+        if (!Auth.getCurrentUserId()) {
+          alert('请先登录');
+          return;
+        }
+        
+        const title = document.getElementById('questionTitle').value;
+        const content = document.getElementById('questionContent').value;
+        const tagsInput = document.getElementById('questionTags').value;
+        
+        if (!title || !content) {
+          alert('问题标题和内容不能为空');
+          return;
+        }
+        
+        const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()) : [];
+        
+        const newQuestion = {
+          id: Date.now().toString(),
+          title,
+          content,
+          tags,
+          userId: Auth.getCurrentUserId(),
+          username: Auth.getCurrentUsername(),
+          role: Auth.currentRole || Config.ROLES.USER,
+          createTime: new Date().toLocaleString()
+        };
+        
+        this.questions.push(newQuestion);
+        localStorage.setItem('questions', JSON.stringify(this.questions));
+        this.renderQuestions();
+        
+        // 重置表单
+        document.getElementById('questionTitle').value = '';
+        document.getElementById('questionContent').value = '';
+        document.getElementById('questionTags').value = '';
+        hideAddQuestionForm();
+      },
+      
+      addAnswer(questionId) {
+        if (!Auth.getCurrentUserId()) {
+          alert('请先登录');
+          return;
+        }
+        
+        const content = document.getElementById(`answerContent-${questionId}`).value;
+        if (!content) {
+          alert('回答内容不能为空');
+          return;
+        }
+        
+        const newAnswer = {
+          id: Date.now().toString() + '-answer',
+          questionId,
+          content,
+          userId: Auth.getCurrentUserId(),
+          username: Auth.getCurrentUsername(),
+          createTime: new Date().toLocaleString(),
+          isAccepted: false
+        };
+        
+        this.answers.push(newAnswer);
+        localStorage.setItem('answers', JSON.stringify(this.answers));
+        this.renderQuestions();
+        
+        // 清空输入框
+        document.getElementById(`answerContent-${questionId}`).value = '';
+      },
+      
+      acceptAnswer(answerId, questionId) {
+        // 检查是否是提问者
+        const question = this.questions.find(q => q.id === questionId);
+        if (!question || question.userId !== Auth.getCurrentUserId()) return;
+        
+        // 将所有答案设为未采纳，再将当前答案设为采纳
+        this.answers = this.answers.map(answer => {
+          if (answer.questionId === questionId) {
+            answer.isAccepted = answer.id === answerId;
+          }
+          return answer;
+        });
+        
+        localStorage.setItem('answers', JSON.stringify(this.answers));
+        this.renderQuestions();
+      }
+    };
+
+    // 管理中心模块
+    const Admin = {
+      loadUserList() {
+        // 仅管理员/超管可访问
+        if (!Auth.hasAdminPermission()) {
+          document.getElementById('adminCenterPage').innerHTML = '<p>无权限访问管理中心</p>';
+          return;
+        }
+        
+        // 模拟数据，实际项目中替换为LeanCloud查询_User表
+        const mockUsers = [
+          { id: '1', username: '张三', role: 'super_admin', online: true, registerTime: '2024-01-10' },
+          { id: '2', username: '李四', role: 'admin', online: false, registerTime: '2024-02-15' },
+          { id: '3', username: '王五', role: 'user', online: true, registerTime: '2024-03-20' },
+          { id: '4', username: '赵六', role: 'user', online: false, registerTime: '2024-04-05' }
+        ];
+        
+        const tableBody = document.getElementById('userTableBody');
+        tableBody.innerHTML = mockUsers.map(user => `
+          <tr>
+            <td><span class="online-status ${user.online ? 'online' : 'offline'}"></span></td>
+            <td>${user.username}</td>
+            <td>
+              <span class="role-${user.role === 'super_admin' ? 'super' : user.role === 'admin' ? 'admin' : ''}">
+                ${user.role === 'super_admin' ? '👑超级管理员' : user.role === 'admin' ? '🛡️管理员' : '普通用户'}
+              </span>
+            </td>
+            <td>${user.registerTime}</td>
+            <td class="actions">
+              ${Auth.isSuperAdmin() ? `
+                <button class="btn" onclick="Admin.changeRole('${user.id}', '${user.role}')">
+                  ${user.role === 'user' ? '设为管理员' : user.role === 'admin' ? '撤销管理员' : ''}
+                </button>
+                ${user.role !== 'super_admin' ? `<button class="btn" style="background-color: #ff4d4f;" onclick="Admin.deleteUser('${user.id}')">删除</button>` : ''}
+              ` : '<button class="btn" onclick="Admin.editUser(\''+user.id+'\')">编辑</button>'}
+            </td>
+          </tr>
+        `).join('');
+        
+        // 更新统计数据
+        document.getElementById('totalUsers').textContent = mockUsers.length;
+      },
+      
+      loadApplications() {
+        // 模拟数据
+        const mockApplications = [
+          { id: '1', username: '钱七', phone: '13800138000', reason: '需要使用图书馆资源', time: '2024-05-01' },
+          { id: '2', username: '孙八', phone: '13900139000', reason: '课程学习需要', time: '2024-05-05' }
+        ];
+        
+        const tableBody = document.getElementById('applicationTableBody');
+        tableBody.innerHTML = mockApplications.map(app => `
+          <tr>
+            <td>${app.username}</td>
+            <td>${app.phone}</td>
+            <td>${app.reason}</td>
+            <td>${app.time}</td>
+            <td class="actions">
+              <button class="btn" onclick="Admin.approveApplication('${app.id}')">同意</button>
+              <button class="btn" style="background-color: #ff4d4f;" onclick="Admin.rejectApplication('${app.id}')">拒绝</button>
+            </td>
+          </tr>
+        `).join('');
+        
+        // 更新统计数据
+        document.getElementById('pendingApplications').textContent = mockApplications.length;
+      },
+      
+      changeRole(userId, currentRole) {
+        if (!Auth.isSuperAdmin()) return;
+        
+        const newRole = currentRole === 'user' ? 'admin' : 'user';
+        if (confirm(`确定要将用户设为${newRole === 'admin' ? '管理员' : '普通用户'}吗？`)) {
+          // 实际项目中替换为：LeanCloud更新用户角色
+          alert('角色已更新');
+          this.loadUserList(); // 刷新列表
+        }
+      },
+      
+      deleteUser(userId) {
+        if (!Auth.isSuperAdmin()) return;
+        
+        if (confirm('确定要删除该用户吗？')) {
+          // 实际项目中替换为：LeanCloud删除用户
+          alert('用户已删除');
+          this.loadUserList();
+        }
+      },
+      
+      editUser(userId) {
+        alert(`编辑用户 ${userId} 的信息（模拟操作）`);
+      },
+      
+      approveApplication(appId) {
+        if (confirm('确定要同意该申请吗？')) {
+          // 实际项目中替换为：LeanCloud更新申请状态并创建用户
+          alert('申请已同意，已创建默认账号');
+          this.loadApplications();
+        }
+      },
+      
+      rejectApplication(appId) {
+        const reason = prompt('请输入拒绝理由：');
+        if (reason) {
+          // 实际项目中替换为：LeanCloud更新申请状态和拒绝理由
+          alert('申请已拒绝');
+          this.loadApplications();
+        }
+      }
+    };
+
+    // 数据备份模块
+    const Backup = {
+      // 导出数据
+      export() {
+        const backupData = {
+          schedules: JSON.parse(localStorage.getItem('schedules') || '[]'),
+          resources: JSON.parse(localStorage.getItem('resources') || '[]'),
+          questions: JSON.parse(localStorage.getItem('questions') || '[]'),
+          answers: JSON.parse(localStorage.getItem('answers') || '[]'),
+          exportTime: new Date().toLocaleString()
+        };
+        
+        // 生成JSON文件并下载
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `campus-data-backup-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      
+      // 导入数据
+      import(file) {
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = JSON.parse(e.target.result);
+            if (confirm('确定要导入数据吗？这将覆盖现有数据')) {
+              // 导入数据
+              if (data.schedules) {
+                localStorage.setItem('schedules', JSON.stringify(data.schedules));
+              }
+              if (data.resources) {
+                localStorage.setItem('resources', JSON.stringify(data.resources));
+              }
+              if (data.questions) {
+                localStorage.setItem('questions', JSON.stringify(data.questions));
+              }
+              if (data.answers) {
+                localStorage.setItem('answers', JSON.stringify(data.answers));
+              }
+              
+              alert('数据导入成功！');
+              // 刷新当前页面
+              const currentPage = document.querySelector('.page.active').id;
+              switchPage(currentPage);
+            }
+          } catch (err) {
+            alert('导入失败，请检查文件格式是否正确');
+            console.error('导入数据错误:', err);
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+
+    // 个人中心模块
+    const Profile = {
+      load() {
+        const container = document.getElementById('profileInfo');
+        if (!container) return;
+        
+        if (Auth.currentUser) {
+          container.innerHTML = `
+            <p><strong>用户名：</strong>${Auth.currentUser.username}</p>
+            <p><strong>注册时间：</strong>${Auth.currentUser.createdAt ? new Date(Auth.currentUser.createdAt).toLocaleString() : '未知'}</p>
+            <p><strong>角色：</strong>${Auth.currentRole === Config.ROLES.SUPER_ADMIN ? '👑超级管理员' : 
+              Auth.currentRole === Config.ROLES.ADMIN ? '🛡️管理员' : '普通用户'}</p>
+            <button class="btn" style="margin-top: 1rem;" onclick="Auth.logout()">退出登录</button>
+          `;
+        } else {
+          container.innerHTML = `
+            <p>请先登录以查看个人信息</p>
+            <button class="btn" onclick="document.getElementById('loginModal').style.display = 'flex'">登录</button>
+          `;
+        }
+      }
+    };
+
+    // 表单验证工具
+    const Validator = {
+      // 验证账号申请表单
+      validateApplication(formData) {
+        const errors = [];
+        if (!formData.username) errors.push('用户名不能为空');
+        if (!formData.phone) {
+          errors.push('手机号不能为空');
+        } else if (!/^1[3-9]\d{9}$/.test(formData.phone)) {
+          errors.push('手机号格式不正确');
+        }
+        if (!formData.reason) errors.push('申请理由不能为空');
+        return { valid: errors.length === 0, errors };
+      },
+      
+      // 验证日程表单
+      validateSchedule(formData) {
+        const errors = [];
+        if (!formData.title) errors.push('日程标题不能为空');
+        if (!formData.time) {
+          errors.push('时间不能为空');
+        } else if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(formData.time)) {
+          errors.push('时间格式应为：2024-05-20 08:00');
+        }
+        return { valid: errors.length === 0, errors };
+      },
+      
+      // 显示错误提示
+      showErrors(containerId, errors) {
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML = errors.map(err => `<p class="error">${err}</p>`).join('');
+        }
+      }
+    };
+
+    // 辅助函数：显示/隐藏表单
+    function showAddScheduleForm() {
+      document.getElementById('scheduleForm').style.display = 'block';
+    }
+    
+    function hideAddScheduleForm() {
+      document.getElementById('scheduleForm').style.display = 'none';
+      document.getElementById('scheduleErrors').innerHTML = '';
+      // 重置按钮事件
+      const saveBtn = document.querySelector('#scheduleForm .btn:first-of-type');
+      saveBtn.textContent = '保存';
+      saveBtn.onclick = () => Schedule.add();
+    }
+    
+    function showAddResourceForm() {
+      document.getElementById('resourceForm').style.display = 'block';
+    }
+    
+    function hideAddResourceForm() {
+      document.getElementById('resourceForm').style.display = 'none';
+    }
+    
+    function showAddQuestionForm() {
+      document.getElementById('questionForm').style.display = 'block';
+    }
+    
+    function hideAddQuestionForm() {
+      document.getElementById('questionForm').style.display = 'none';
+    }
+
+    // 其他功能函数
+    // 其他功能函数
+    function submitApplication() {
+      const username = document.getElementById('appUsername').value;
+      const phone = document.getElementById('appPhone').value;
+      const reason = document.getElementById('appReason').value;
+      
+      const validation = Validator.validateApplication({ username, phone, reason });
+      if (!validation.valid) {
+        Validator.showErrors('applicationErrors', validation.errors);
+        return;
+      }
+      
+      // 实际项目中替换为LeanCloud提交申请
+      alert('申请已提交，等待管理员审核');
+      document.getElementById('applicationForm').reset();
+      document.getElementById('applicationErrors').innerHTML = '';
+    }
+    
+    function submitPasswordReset() {
+      const username = document.getElementById('resetUsername').value;
+      
+      if (!username) {
+        alert('请输入用户名');
+        return;
+      }
+      
+      // 实际项目中替换为LeanCloud提交重置申请
+      alert(`密码重置申请已提交，将发送通知给 ${username}`);
+      document.getElementById('resetUsername').value = '';
+    }
+    
+    function publishAnnouncement() {
+      if (!Auth.hasAdminPermission()) {
+        alert('无权限发布公告');
+        return;
+      }
+      
+      const title = document.getElementById('annTitle').value;
+      const content = document.getElementById('annContent').value;
+      
+      if (!title || !content) {
+        alert('标题和内容不能为空');
+        return;
+      }
+      
+      // 实际项目中替换为LeanCloud保存公告
+      alert('公告发布成功');
+      
+      // 更新公告列表
+      const list = document.getElementById('announcementList');
+      const newAnnouncement = document.createElement('div');
+      newAnnouncement.className = 'card';
+      newAnnouncement.innerHTML = `
+        <h3>${title}</h3>
+        <p>${content}</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+          发布人：${Auth.getCurrentUsername()} 
+          ${Auth.currentRole === 'super_admin' ? '<span class="role-super">👑超级管理员</span>' : 
+            Auth.currentRole === 'admin' ? '<span class="role-admin">🛡️管理员</span>' : ''}
+          · 时间：${new Date().toLocaleString()}
+        </p>
+      `;
+      
+      if (list.firstChild) {
+        list.insertBefore(newAnnouncement, list.firstChild);
+      } else {
+        list.appendChild(newAnnouncement);
+      }
+      
+      // 清空表单
+      document.getElementById('annTitle').value = '';
+      document.getElementById('annContent').value = '';
+      
+      // 更新统计
+      const count = document.getElementById('totalAnnouncements');
+      count.textContent = parseInt(count.textContent) + 1;
+    }
+    
+    function sendMessage() {
+      if (!Auth.getCurrentUserId()) {
+        alert('请先登录');
+        return;
+      }
+      
+      const content = document.getElementById('messageContent').value;
+      if (!content) return;
+      
+      // 实际项目中替换为LeanCloud保存消息
+      const list = document.getElementById('messageList');
+      const newMessage = document.createElement('div');
+      newMessage.style.marginBottom = '1rem';
+      newMessage.innerHTML = `
+        <p><strong>${Auth.getCurrentUsername()} 
+          ${Auth.currentRole === 'super_admin' ? '<span class="role-super">👑超级管理员</span>' : 
+            Auth.currentRole === 'admin' ? '<span class="role-admin">🛡️管理员</span>' : ''}
+          <span style="font-size: 0.8rem; color: #666;">${new Date().toLocaleTimeString()}</span></strong></p>
+        <p>${content}</p>
+      `;
+      list.appendChild(newMessage);
+      
+      // 滚动到底部
+      list.scrollTop = list.scrollHeight;
+      
+      // 清空输入框
+      document.getElementById('messageContent').value = '';
+    }
+    
+    function submitSuggestion() {
+      if (!Auth.getCurrentUserId()) {
+        alert('请先登录');
+        return;
+      }
+      
+      const content = document.getElementById('suggestionContent').value;
+      if (!content) {
+        alert('请输入建议内容');
+        return;
+      }
+      
+      // 实际项目中替换为LeanCloud保存建议
+      alert('建议提交成功，感谢您的反馈');
+      
+      // 更新我的建议列表
+      const list = document.getElementById('mySuggestions');
+      const newSuggestion = document.createElement('div');
+      newSuggestion.className = 'card';
+      newSuggestion.innerHTML = `
+        <p>${content}</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+          提交时间：${new Date().toLocaleString()}
+          <span style="margin-left: 1rem; background-color: #FBBF24; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">待处理</span>
+        </p>
+      `;
+      
+      if (list.firstChild) {
+        list.insertBefore(newSuggestion, list.firstChild);
+      } else {
+        list.appendChild(newSuggestion);
+      }
+      
+      // 清空输入框
+      document.getElementById('suggestionContent').value = '';
+    }
+
+    // 页面加载完成后初始化
+    window.onload = () => {
+      // 初始化LeanCloud
+      initLeanCloud();
+      
+      // 初始化权限与登录
+      Auth.init();
+      
+      // 加载保存的主题
+      const savedTheme = localStorage.getItem('selectedTheme') || 'default';
+      switchTheme(savedTheme);
+      
+      // 初始化首页数据
+      // 加载公告示例数据
+      const annList = document.getElementById('announcementList');
+      annList.innerHTML = `
+        <div class="card">
+          <h3>欢迎使用校园管理系统</h3>
+          <p>本系统提供账号管理、日程安排、学习资源分享等功能，欢迎使用并提出宝贵建议。</p>
+          <p style="margin-top: 1rem; font-size: 0.9rem;">
+            发布人：系统管理员 <span class="role-super">👑超级管理员</span>
+            · 时间：2024-01-01
+          </p>
+        </div>
+      `;
+      document.getElementById('totalAnnouncements').textContent = '1';
+    };
   </script>
 </body>
 </html>
