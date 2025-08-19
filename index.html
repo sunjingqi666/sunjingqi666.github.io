@@ -1,1802 +1,1637 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>校园管理系统</title>
-  <!-- 引入外部资源 -->
-  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
-  
-  <!-- 引入CSS样式 -->
-  <style>
-    /* 基础样式 */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>次元校园 - 管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
     
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background-color: var(--primary-color);
-      color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-    
-    .search-box {
-      display: flex;
-      flex: 0 0 30%;
-      margin: 0 1rem;
-    }
-    
-    .search-box input {
-      flex: 1;
-      padding: 0.5rem;
-      border: none;
-      border-radius: 4px 0 0 4px;
-      outline: none;
-    }
-    
-    .search-box button {
-      padding: 0 1rem;
-      background-color: var(--btn-hover);
-      border: none;
-      border-radius: 0 4px 4px 0;
-      color: white;
-      cursor: pointer;
-    }
-    
-    .user-info {
-      display: flex;
-      align-items: center;
-    }
-    
-    .sidebar {
-      width: 220px;
-      background-color: var(--card-bg);
-      border-right: 1px solid var(--border-color);
-      height: calc(100vh - 64px);
-      position: fixed;
-      overflow-y: auto;
-    }
-    
-    .menu-list {
-      list-style: none;
-    }
-    
-    .menu-item {
-      display: block;
-      padding: 1rem 1.5rem;
-      color: var(--text-color);
-      text-decoration: none;
-      border-bottom: 1px solid var(--border-color);
-      transition: background-color 0.2s;
-    }
-    
-    .menu-item:hover, .menu-item.active {
-      background-color: rgba(0,0,0,0.05);
-      font-weight: 500;
-    }
-    
-    .content {
-      flex: 1;
-      margin-left: 220px;
-      padding: 2rem;
-      min-height: calc(100vh - 64px);
-    }
-    
-    .page {
-      display: none;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-    
-    .page.active {
-      display: block;
-    }
-    
-    .footer {
-      text-align: center;
-      padding: 1rem;
-      border-top: 1px solid var(--border-color);
-      margin-left: 220px;
-    }
-    
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .feature-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
-    }
-    
-    .btn {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.9rem;
-    }
-    
-    .btn:hover {
-      background-color: var(--btn-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-    
-    input, textarea, select {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-    }
-    
-    .stats-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    
-    .stat-card {
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .stat-card h3 {
-      color: var(--text-color);
-      margin-bottom: 0.5rem;
-      font-size: 1rem;
-    }
-    
-    .stat-card p {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: var(--primary-color);
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    
-    th, td {
-      padding: 0.8rem;
-      text-align: left;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    th {
-      background-color: rgba(0,0,0,0.05);
-      font-weight: 500;
-    }
-    
-    .actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-    
-    .error {
-      color: #ff4d4f;
-      margin: 0.5rem 0;
-    }
-    
-    .admin-section {
-      margin-bottom: 2rem;
-    }
-    
-    .online-status {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 4px;
-    }
-    
-    .online-status.online {
-      background-color: #52C41A;
-    }
-    
-    .online-status.offline {
-      background-color: #9CA3AF;
-    }
-    
-    .role-super {
-      color: #FF4D4F;
-      font-weight: bold;
-      margin-left: 4px;
-    }
-    
-    .role-admin {
-      color: #165DFF;
-      font-weight: bold;
-      margin-left: 4px;
-    }
-    
-    .theme-selector {
-      display: flex;
-      gap: 1rem;
-      margin: 1rem 0;
-    }
-    
-    .theme-option {
-      width: 80px;
-      height: 80px;
-      border-radius: 8px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-    }
-    
-    .theme-option.selected {
-      border-color: var(--primary-color);
-    }
-    
-    .schedule-item, .resource-item, .qa-item {
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-left: 4px solid var(--primary-color);
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* 响应式设计 */
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-      }
-      
-      .content, .footer {
-        margin-left: 0;
-      }
-      
-      .search-box {
-        flex: none;
-        width: 100%;
-        margin: 1rem 0;
-      }
-      
-      .navbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
-      .feature-cards, .stats-cards {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-  
-  <!-- 主题样式 -->
-  <style>
-    /* 主题变量定义 */
-    :root {
-      --bg-color: #FFFFFF;
-      --text-color: #333333;
-      --card-bg: #F5F7FA;
-      --primary-color: #165DFF;
-      --btn-hover: #0E4CD1;
-      --border-color: #E5E7EB;
-    }
-    
-    /* 暗黑主题 */
-    :root.dark-theme {
-      --bg-color: #1E293B;
-      --text-color: #E2E8F0;
-      --card-bg: #334155;
-      --primary-color: #0F172A;
-      --btn-hover: #1E40AF;
-      --border-color: #475569;
-    }
-    
-    /* 校园主题 */
-    :root.campus-theme {
-      --bg-color: #FFFBEB;
-      --text-color: #1F2937;
-      --card-bg: #D1FAE5;
-      --primary-color: #36D399;
-      --btn-hover: #10B981;
-      --border-color: #A7F3D0;
-      --accent-color: #FBBF24;
-    }
-  </style>
-</head>
-<body>
-  <!-- 顶部导航栏 -->
-  <header class="navbar">
-    <div class="logo">校园管理系统</div>
-    <div class="search-box">
-      <input type="text" placeholder="搜索..." id="globalSearch">
-      <button onclick="searchHandler()">搜索</button>
-    </div>
-    <div class="user-info" id="userInfo">
-      <span class="online-status offline"></span>
-      <span class="username">未登录</span>
-      <button class="btn" style="margin-left: 10px;" id="loginBtn">登录</button>
-    </div>
-  </header>
-
-  <!-- 侧边栏菜单 -->
-  <aside class="sidebar">
-    <ul class="menu-list">
-      <li><a href="#home" class="menu-item active" onclick="switchPage('homePage')">首页</a></li>
-      <li><a href="#userApplication" class="menu-item" onclick="switchPage('userApplicationPage')">账号申请</a></li>
-      <li><a href="#passwordReset" class="menu-item" onclick="switchPage('passwordResetPage')">密码重置</a></li>
-      <li><a href="#announcement" class="menu-item" onclick="switchPage('announcementPage')">公告</a></li>
-      <li><a href="#message" class="menu-item" onclick="switchPage('messagePage')">聊天消息</a></li>
-      <li><a href="#suggestion" class="menu-item" onclick="switchPage('suggestionPage')">建议反馈</a></li>
-      <!-- 校园特色功能 -->
-      <li><a href="#schedule" class="menu-item" onclick="switchPage('schedulePage')">校园日程</a></li>
-      <li><a href="#resources" class="menu-item" onclick="switchPage('resourcesPage')">学习资源</a></li>
-      <li><a href="#qa" class="menu-item" onclick="switchPage('qaPage')">互助问答</a></li>
-      <!-- 管理中心（权限控制显示） -->
-      <li><a href="#adminCenter" class="menu-item admin-only" onclick="switchPage('adminCenterPage')">管理中心</a></li>
-      <!-- 个人中心 -->
-      <li><a href="#profile" class="menu-item" onclick="switchPage('profilePage')">个人中心</a></li>
-    </ul>
-  </aside>
-
-  <!-- 主内容区 -->
-  <main class="content" id="mainContent">
-    <!-- 首页内容 -->
-    <div class="page active" id="homePage">
-      <h1>欢迎使用校园管理系统</h1>
-      <div class="feature-cards">
-        <div class="card">
-          <h3>账号管理</h3>
-          <p>申请账号、重置密码、管理用户</p>
-          <button class="btn" onclick="switchPage('userApplicationPage')">进入</button>
-        </div>
-        <div class="card">
-          <h3>校园工具</h3>
-          <p>日程安排、学习资源、互助问答</p>
-          <button class="btn" onclick="switchPage('schedulePage')">进入</button>
-        </div>
-        <div class="card">
-          <h3>系统设置</h3>
-          <p>主题切换、数据备份</p>
-          <button class="btn" onclick="switchPage('profilePage')">进入</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 账号申请页 -->
-    <div class="page" id="userApplicationPage">
-      <h1>账号申请</h1>
-      <div class="card">
-        <form id="applicationForm">
-          <div class="form-group">
-            <label for="appUsername">用户名</label>
-            <input type="text" id="appUsername" required>
-          </div>
-          <div class="form-group">
-            <label for="appPhone">手机号</label>
-            <input type="text" id="appPhone" required>
-          </div>
-          <div class="form-group">
-            <label for="appReason">申请理由</label>
-            <textarea id="appReason" rows="3" required></textarea>
-          </div>
-          <div id="applicationErrors"></div>
-          <button type="button" class="btn" onclick="submitApplication()">提交申请</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- 密码重置页 -->
-    <div class="page" id="passwordResetPage">
-      <h1>密码重置</h1>
-      <div class="card">
-        <p>请输入您的用户名，我们将处理您的密码重置申请</p>
-        <div class="form-group">
-          <label for="resetUsername">用户名</label>
-          <input type="text" id="resetUsername" required>
-        </div>
-        <button class="btn" onclick="submitPasswordReset()">提交申请</button>
-      </div>
-    </div>
-
-    <!-- 公告页 -->
-    <div class="page" id="announcementPage">
-      <h1>公告</h1>
-      <div class="card admin-only">
-        <h3>发布新公告</h3>
-        <div class="form-group">
-          <label for="annTitle">标题</label>
-          <input type="text" id="annTitle">
-        </div>
-        <div class="form-group">
-          <label for="annContent">内容</label>
-          <textarea id="annContent" rows="3"></textarea>
-        </div>
-        <button class="btn" onclick="publishAnnouncement()">发布</button>
-      </div>
-      
-      <div id="announcementList">
-        <!-- 公告列表将通过JS动态生成 -->
-      </div>
-    </div>
-
-    <!-- 聊天消息页 -->
-    <div class="page" id="messagePage">
-      <h1>聊天消息</h1>
-      <div class="card" style="height: 400px; display: flex; flex-direction: column;">
-        <div id="messageList" style="flex: 1; overflow-y: auto; margin-bottom: 1rem;">
-          <!-- 消息列表将通过JS动态生成 -->
-        </div>
-        <div style="display: flex;">
-          <input type="text" id="messageContent" placeholder="输入消息..." style="margin-right: 0.5rem;">
-          <button class="btn" onclick="sendMessage()">发送</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 建议反馈页 -->
-    <div class="page" id="suggestionPage">
-      <h1>建议反馈</h1>
-      <div class="card">
-        <div class="form-group">
-          <label for="suggestionContent">您的建议</label>
-          <textarea id="suggestionContent" rows="3"></textarea>
-        </div>
-        <button class="btn" onclick="submitSuggestion()">提交建议</button>
-      </div>
-      
-      <div id="mySuggestions">
-        <!-- 我的建议将通过JS动态生成 -->
-      </div>
-    </div>
-
-    <!-- 校园日程页 -->
-    <div class="page" id="schedulePage">
-      <h1>校园日程</h1>
-      <button class="btn" onclick="showAddScheduleForm()">添加日程</button>
-      
-      <div id="scheduleForm" style="display: none; margin: 1rem 0;" class="card">
-        <div class="form-group">
-          <label for="scheduleTitle">标题</label>
-          <input type="text" id="scheduleTitle">
-        </div>
-        <div class="form-group">
-          <label for="scheduleTime">时间</label>
-          <input type="text" id="scheduleTime" placeholder="格式：2024-05-20 08:00">
-        </div>
-        <div class="form-group">
-          <label for="scheduleLocation">地点</label>
-          <input type="text" id="scheduleLocation">
-        </div>
-        <div id="scheduleErrors"></div>
-        <button class="btn" onclick="addSchedule()">保存</button>
-        <button class="btn" style="background-color: #9CA3AF;" onclick="hideAddScheduleForm()">取消</button>
-      </div>
-      
-      <div id="scheduleList">
-        <!-- 日程列表将通过JS动态生成 -->
-      </div>
-    </div>
-
-    <!-- 学习资源页 -->
-    <div class="page" id="resourcesPage">
-      <h1>学习资源</h1>
-      <button class="btn" onclick="showAddResourceForm()">上传资源</button>
-      
-      <div id="resourceForm" style="display: none; margin: 1rem 0;" class="card">
-        <div class="form-group">
-          <label for="resourceName">资源名称</label>
-          <input type="text" id="resourceName">
-        </div>
-        <div class="form-group">
-          <label for="resourceCategory">分类</label>
-          <select id="resourceCategory">
-            <option value="课件">课件</option>
-            <option value="习题">习题</option>
-            <option value="笔记">笔记</option>
-            <option value="其他">其他</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="resourceUrl">资源链接</label>
-          <input type="text" id="resourceUrl" placeholder="输入资源下载链接">
-        </div>
-        <button class="btn" onclick="addResource()">保存</button>
-        <button class="btn" style="background-color: #9CA3AF;" onclick="hideAddResourceForm()">取消</button>
-      </div>
-      
-      <div id="resourcesList">
-        <!-- 资源列表将通过JS动态生成 -->
-      </div>
-    </div>
-
-    <!-- 互助问答页 -->
-    <div class="page" id="qaPage">
-      <h1>互助问答</h1>
-      <button class="btn" onclick="showAddQuestionForm()">提问</button>
-      
-      <div id="questionForm" style="display: none; margin: 1rem 0;" class="card">
-        <div class="form-group">
-          <label for="questionTitle">问题标题</label>
-          <input type="text" id="questionTitle">
-        </div>
-        <div class="form-group">
-          <label for="questionContent">问题内容</label>
-          <textarea id="questionContent" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="questionTags">标签（用逗号分隔）</label>
-          <input type="text" id="questionTags" placeholder="如：学习,高数">
-        </div>
-        <button class="btn" onclick="addQuestion()">发布问题</button>
-        <button class="btn" style="background-color: #9CA3AF;" onclick="hideAddQuestionForm()">取消</button>
-      </div>
-      
-      <div id="qaList">
-        <!-- 问答列表将通过JS动态生成 -->
-      </div>
-    </div>
-
-    <!-- 管理中心页面 -->
-    <div class="page" id="adminCenterPage">
-      <h1>管理中心</h1>
-      
-      <!-- 数据概览 -->
-      <div class="stats-cards">
-        <div class="stat-card">
-          <h3>待处理申请</h3>
-          <p id="pendingApplications">0</p>
-        </div>
-        <div class="stat-card">
-          <h3>用户总数</h3>
-          <p id="totalUsers">0</p>
-        </div>
-        <div class="stat-card">
-          <h3>公告总数</h3>
-          <p id="totalAnnouncements">0</p>
-        </div>
-      </div>
-
-      <!-- 用户管理 -->
-      <div class="admin-section">
-        <h2>用户管理</h2>
-        <input type="text" placeholder="搜索用户名..." id="userSearch">
-        <table class="user-table">
-          <thead>
-            <tr>
-              <th>在线状态</th>
-              <th>用户名</th>
-              <th>角色</th>
-              <th>注册时间</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="userTableBody">
-            <!-- JS动态生成用户列表 -->
-          </tbody>
-        </table>
-      </div>
-      
-      <!-- 申请管理 -->
-      <div class="admin-section">
-        <h2>账号申请管理</h2>
-        <table class="user-table">
-          <thead>
-            <tr>
-              <th>用户名</th>
-              <th>手机号</th>
-              <th>申请理由</th>
-              <th>申请时间</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="applicationTableBody">
-            <!-- JS动态生成申请列表 -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 个人中心页 -->
-    <div class="page" id="profilePage">
-      <h1>个人中心</h1>
-      
-      <div class="card">
-        <h3>个人信息</h3>
-        <div id="profileInfo">
-          <!-- 个人信息将通过JS动态生成 -->
-        </div>
-      </div>
-      
-      <div class="card">
-        <h3>主题设置</h3>
-        <div class="theme-selector">
-          <div class="theme-option selected" id="theme-default" style="background-color: #FFFFFF; color: #333333;" onclick="switchTheme('default')">默认</div>
-          <div class="theme-option" id="theme-dark" style="background-color: #1E293B; color: #E2E8F0;" onclick="switchTheme('dark')">暗黑</div>
-          <div class="theme-option" id="theme-campus" style="background-color: #FFFBEB; color: #1F2937;" onclick="switchTheme('campus')">校园</div>
-        </div>
-      </div>
-      
-      <div class="card">
-        <h3>数据备份</h3>
-        <button class="btn" onclick="Backup.export()">导出数据</button>
-        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="Backup.import(this.files[0])">
-        <button class="btn" style="margin-left: 10px;" onclick="document.getElementById('importFile').click()">导入数据</button>
-      </div>
-    </div>
-  </main>
-
-  <!-- 底部 -->
-  <footer class="footer">
-    <p>© 2024 校园管理系统</p>
-  </footer>
-
-  <!-- 登录模态框 -->
-  <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="background-color: var(--bg-color); padding: 2rem; border-radius: 8px; width: 300px;">
-      <h2>登录</h2>
-      <div class="form-group">
-        <label for="loginUsername">用户名</label>
-        <input type="text" id="loginUsername">
-      </div>
-      <div class="form-group">
-        <label for="loginPassword">密码</label>
-        <input type="password" id="loginPassword">
-      </div>
-      <div id="loginError" class="error"></div>
-      <button class="btn" onclick="login()">登录</button>
-      <button class="btn" style="background-color: #9CA3AF; margin-left: 10px;" onclick="document.getElementById('loginModal').style.display = 'none'">取消</button>
-    </div>
-  </div>
-
-  <!-- JavaScript 代码 -->
-  <script>
-    // 配置信息
-    const Config = {
-      leanCloudConfig: {
-        appId: '30kUc571qTv0YSCTWVGRbAxk-gzGzoHsz',
-        appKey: 'LxFqgqjRZ3SaRGYUGznRiWAr',
-        masterKey: 'lMfqmBOj54N0r8hLynl1ZSUv',
-        serverUrl: 'https://30kuc571.lc-cn-n1-shared.com'
-      },
-      ROLES: {
-        SUPER_ADMIN: 'super_admin',
-        ADMIN: 'admin',
-        USER: 'user'
-      },
-      PAGES: {
-        HOME: 'homePage',
-        USER_APPLICATION: 'userApplicationPage',
-        PASSWORD_RESET: 'passwordResetPage',
-        ANNOUNCEMENT: 'announcementPage',
-        MESSAGE: 'messagePage',
-        SUGGESTION: 'suggestionPage',
-        SCHEDULE: 'schedulePage',
-        RESOURCES: 'resourcesPage',
-        QA: 'qaPage',
-        ADMIN_CENTER: 'adminCenterPage',
-        PROFILE: 'profilePage'
-      }
-    };
-
-    // 初始化LeanCloud
-    function initLeanCloud() {
-      if (window.AV) {
-        AV.init({
-          appId: Config.leanCloudConfig.appId,
-          appKey: Config.leanCloudConfig.appKey,
-          serverURL: Config.leanCloudConfig.serverUrl
-        });
-        console.log('LeanCloud初始化成功');
-      } else {
-        console.error('请引入LeanCloud SDK');
-      }
-    }
-
-    // 权限与登录管理
-    const Auth = {
-      currentUser: null,
-      currentRole: null,
-
-      init() {
-        // 检查本地存储的用户信息
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
-          this.currentUser = JSON.parse(savedUser);
-          this.updateUserInfoDisplay();
-          this.checkUserRole();
-          this.updateMenuPermissions();
-        }
-        
-        // 绑定登录按钮事件
-        document.getElementById('loginBtn').addEventListener('click', () => {
-          document.getElementById('loginModal').style.display = 'flex';
-        });
-      },
-
-      async login(username, password) {
-        try {
-          const user = await AV.User.logIn(username, password);
-          this.currentUser = user.toJSON();
-          localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-          this.updateUserInfoDisplay();
-          await this.checkUserRole();
-          this.updateMenuPermissions();
-          document.getElementById('loginModal').style.display = 'none';
-          return { success: true };
-        } catch (err) {
-          return { success: false, message: err.message };
-        }
-      },
-
-      logout() {
-        AV.User.logOut();
-        this.currentUser = null;
-        this.currentRole = null;
-        localStorage.removeItem('currentUser');
-        this.updateUserInfoDisplay();
-        this.updateMenuPermissions();
-      },
-
-      async checkUserRole() {
-        if (!this.currentUser) return;
-        
-        const user = AV.Object.createWithoutData('_User', this.currentUser.objectId);
-        const query = new AV.Query('_Role');
-        query.equalTo('users', user);
-        
-        try {
-          const roles = await query.find();
-          if (roles.length > 0) {
-            this.currentRole = roles[0].get('name');
-          } else {
-            this.currentRole = Config.ROLES.USER;
-          }
-        } catch (err) {
-          console.error('获取用户角色失败:', err);
-          this.currentRole = Config.ROLES.USER;
-        }
-      },
-
-      updateUserInfoDisplay() {
-        const userInfo = document.getElementById('userInfo');
-        const loginBtn = document.getElementById('loginBtn');
-        const usernameEl = userInfo.querySelector('.username');
-        const statusEl = userInfo.querySelector('.online-status');
-        
-        if (this.currentUser) {
-          usernameEl.textContent = this.currentUser.username;
-          statusEl.className = 'online-status online';
-          loginBtn.textContent = '退出';
-          loginBtn.onclick = () => this.logout();
-        } else {
-          usernameEl.textContent = '未登录';
-          statusEl.className = 'online-status offline';
-          loginBtn.textContent = '登录';
-          loginBtn.onclick = () => {
-            document.getElementById('loginModal').style.display = 'flex';
-          };
-        }
-      },
-
-      updateMenuPermissions() {
-        const adminItems = document.querySelectorAll('.admin-only');
-        adminItems.forEach(item => {
-          item.style.display = this.hasAdminPermission() ? 'block' : 'none';
-        });
-      },
-
-      hasAdminPermission() {
-        return this.currentRole === Config.ROLES.SUPER_ADMIN || this.currentRole === Config.ROLES.ADMIN;
-      },
-
-      isSuperAdmin() {
-        return this.currentRole === Config.ROLES.SUPER_ADMIN;
-      },
-
-      getCurrentUserId() {
-        return this.currentUser ? this.currentUser.objectId : null;
-      },
-
-      getCurrentUsername() {
-        return this.currentUser ? this.currentUser.username : '匿名';
-      }
-    };
-
-    // 主题切换
-    function switchTheme(themeName) {
-      const root = document.documentElement;
-      // 移除所有主题类
-      root.classList.remove('dark-theme', 'campus-theme');
-      // 应用选中主题
-      if (themeName === 'dark') {
-        root.classList.add('dark-theme');
-      } else if (themeName === 'campus') {
-        root.classList.add('campus-theme');
-      }
-      // 更新主题选择器的选中状态
-      document.querySelectorAll('.theme-option').forEach(option => {
-        option.classList.remove('selected');
-      });
-      document.getElementById(`theme-${themeName}`).classList.add('selected');
-      // 保存到本地
-      localStorage.setItem('selectedTheme', themeName);
-    }
-
-    // 页面切换
-    function switchPage(pageId) {
-      // 隐藏所有页面
-      document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-      });
-      // 显示选中页面
-      document.getElementById(pageId).classList.add('active');
-      // 更新菜单选中状态
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      document.querySelector(`.menu-item[onclick="switchPage('${pageId}')"]`).classList.add('active');
-      
-      // 特定页面加载数据
-      if (pageId === 'schedulePage') {
-        Schedule.load();
-      } else if (pageId === 'resourcesPage') {
-        Resources.load();
-      } else if (pageId === 'qaPage') {
-        QA.load();
-      } else if (pageId === 'adminCenterPage') {
-        Admin.loadUserList();
-        Admin.loadApplications();
-      } else if (pageId === 'profilePage') {
-        Profile.load();
-      }
-    }
-
-    // 搜索处理
-    function searchHandler() {
-      const keyword = document.getElementById('globalSearch').value.trim();
-      if (!keyword) return;
-      
-      // 先搜索本地数据
-      const localResults = searchLocalData(keyword);
-      if (localResults.length > 0) {
-        alert(`找到${localResults.length}条本地结果：\n${localResults.join('\n')}`);
-      } else {
-        // 本地无结果，跳转百度搜索
-        window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(keyword)}`);
-      }
-    }
-
-    // 搜索本地数据
-    function searchLocalData(keyword) {
-      const results = [];
-      const lowerKeyword = keyword.toLowerCase();
-      
-      // 搜索日程
-      const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
-      schedules.forEach(item => {
-        if (item.title.toLowerCase().includes(lowerKeyword) || 
-            item.location.toLowerCase().includes(lowerKeyword)) {
-          results.push(`日程：${item.title}`);
-        }
-      });
-      
-      // 搜索资源
-      const resources = JSON.parse(localStorage.getItem('resources') || '[]');
-      resources.forEach(item => {
-        if (item.name.toLowerCase().includes(lowerKeyword) || 
-            item.category.toLowerCase().includes(lowerKeyword)) {
-          results.push(`资源：${item.name}`);
-        }
-      });
-      
-      // 搜索问答
-      const questions = JSON.parse(localStorage.getItem('questions') || '[]');
-      questions.forEach(item => {
-        if (item.title.toLowerCase().includes(lowerKeyword) || 
-            item.content.toLowerCase().includes(lowerKeyword) ||
-            item.tags.some(tag => tag.toLowerCase().includes(lowerKeyword))) {
-          results.push(`问答：${item.title}`);
-        }
-      });
-      
-      return results;
-    }
-
-    // 登录函数
-    function login() {
-      const username = document.getElementById('loginUsername').value;
-      const password = document.getElementById('loginPassword').value;
-      const errorEl = document.getElementById('loginError');
-      
-      if (!username || !password) {
-        errorEl.textContent = '用户名和密码不能为空';
-        return;
-      }
-      
-      Auth.login(username, password).then(result => {
-        if (!result.success) {
-          errorEl.textContent = result.message;
-        } else {
-          document.getElementById('loginUsername').value = '';
-          document.getElementById('loginPassword').value = '';
-          errorEl.textContent = '';
-        }
-      });
-    }
-
-    // 校园日程模块
-    const Schedule = {
-      data: [],
-      
-      load() {
-        this.data = JSON.parse(localStorage.getItem('schedules') || '[]');
-        // 只显示当前用户的日程
-        const currentUserId = Auth.getCurrentUserId();
-        if (currentUserId) {
-          this.data = this.data.filter(item => item.userId === currentUserId);
-        } else {
-          this.data = [];
-        }
-        this.render();
-      },
-      
-      render() {
-        const container = document.getElementById('scheduleList');
-        if (!container) return;
-        
-        if (this.data.length === 0) {
-          container.innerHTML = '<p>暂无日程，点击"添加日程"创建新日程</p>';
-          return;
-        }
-        
-        // 按时间排序
-        this.data.sort((a, b) => new Date(a.time) - new Date(b.time));
-        
-        container.innerHTML = this.data.map(item => `
-          <div class="schedule-item">
-            <h4>${item.title}</h4>
-            <p>时间：${item.time}</p>
-            <p>地点：${item.location}</p>
-            <div class="actions">
-              <button class="btn" onclick="Schedule.edit('${item.id}')">编辑</button>
-              <button class="btn" style="background-color: #ff4d4f;" onclick="Schedule.delete('${item.id}')">删除</button>
-            </div>
-          </div>
-        `).join('');
-      },
-      
-      add() {
-        if (!Auth.getCurrentUserId()) {
-          alert('请先登录');
-          return;
-        }
-        
-        const title = document.getElementById('scheduleTitle').value;
-        const time = document.getElementById('scheduleTime').value;
-        const location = document.getElementById('scheduleLocation').value;
-        
-        // 验证
-        const validation = Validator.validateSchedule({ title, time, location });
-        if (!validation.valid) {
-          Validator.showErrors('scheduleErrors', validation.errors);
-          return;
-        }
-        
-        const newItem = {
-          id: Date.now().toString(),
-          title,
-          time,
-          location,
-          userId: Auth.getCurrentUserId()
-        };
-        
-        this.data.push(newItem);
-        localStorage.setItem('schedules', JSON.stringify(this.data));
-        this.render();
-        
-        // 重置表单
-        document.getElementById('scheduleTitle').value = '';
-        document.getElementById('scheduleTime').value = '';
-        document.getElementById('scheduleLocation').value = '';
-        document.getElementById('scheduleErrors').innerHTML = '';
-        hideAddScheduleForm();
-      },
-      
-      edit(id) {
-        const item = this.data.find(i => i.id === id);
-        if (!item) return;
-        
-        document.getElementById('scheduleTitle').value = item.title;
-        document.getElementById('scheduleTime').value = item.time;
-        document.getElementById('scheduleLocation').value = item.location;
-        
-        // 将添加按钮改为更新按钮
-        const saveBtn = document.querySelector('#scheduleForm .btn:first-of-type');
-        saveBtn.textContent = '更新';
-        saveBtn.onclick = () => {
-          // 验证
-          const validation = Validator.validateSchedule({ 
-            title: document.getElementById('scheduleTitle').value,
-            time: document.getElementById('scheduleTime').value,
-            location: document.getElementById('scheduleLocation').value
-          });
-          if (!validation.valid) {
-            Validator.showErrors('scheduleErrors', validation.errors);
-            return;
-          }
-          
-          item.title = document.getElementById('scheduleTitle').value;
-          item.time = document.getElementById('scheduleTime').value;
-          item.location = document.getElementById('scheduleLocation').value;
-          
-          localStorage.setItem('schedules', JSON.stringify(this.data));
-          this.render();
-          
-          // 重置表单和按钮
-          document.getElementById('scheduleTitle').value = '';
-          document.getElementById('scheduleTime').value = '';
-          document.getElementById('scheduleLocation').value = '';
-          document.getElementById('scheduleErrors').innerHTML = '';
-          saveBtn.textContent = '保存';
-          saveBtn.onclick = () => Schedule.add();
-          hideAddScheduleForm();
-        };
-        
-        showAddScheduleForm();
-      },
-      
-      delete(id) {
-        if (confirm('确定要删除这个日程吗？')) {
-          this.data = this.data.filter(item => item.id !== id);
-          localStorage.setItem('schedules', JSON.stringify(this.data));
-          this.render();
-        }
-      }
-    };
-
-    // 学习资源模块
-    const Resources = {
-      data: [],
-      
-      load() {
-        this.data = JSON.parse(localStorage.getItem('resources') || '[]');
-        this.render();
-      },
-      
-      render() {
-        const container = document.getElementById('resourcesList');
-        if (!container) return;
-        
-        if (this.data.length === 0) {
-          container.innerHTML = '<p>暂无资源，点击"上传资源"分享学习资料</p>';
-          return;
-        }
-        
-        container.innerHTML = this.data.map(item => `
-          <div class="resource-item">
-            <h4>${item.name} <span style="font-size: 0.8rem; color: #666;">[${item.category}]</span></h4>
-            <p>上传者：${item.uploader}</p>
-            <a href="${item.url}" target="_blank" class="btn" style="display: inline-block; margin-top: 0.5rem;">查看资源</a>
-            ${item.userId === Auth.getCurrentUserId() ? `
-              <div class="actions" style="margin-top: 0.5rem;">
-                <button class="btn" onclick="Resources.edit('${item.id}')">编辑</button>
-                <button class="btn" style="background-color: #ff4d4f;" onclick="Resources.delete('${item.id}')">删除</button>
-              </div>
-            ` : ''}
-          </div>
-        `).join('');
-      },
-      
-      add() {
-        if (!Auth.getCurrentUserId()) {
-          alert('请先登录');
-          return;
-        }
-        
-        const name = document.getElementById('resourceName').value;
-        const category = document.getElementById('resourceCategory').value;
-        const url = document.getElementById('resourceUrl').value;
-        
-        if (!name || !url) {
-          alert('资源名称和链接不能为空');
-          return;
-        }
-        
-        const newItem = {
-          id: Date.now().toString(),
-          name,
-          category,
-          url,
-          uploader: Auth.getCurrentUsername(),
-          userId: Auth.getCurrentUserId(),
-          uploadTime: new Date().toLocaleString()
-        };
-        
-        this.data.push(newItem);
-        localStorage.setItem('resources', JSON.stringify(this.data));
-        this.render();
-        
-        // 重置表单
-        document.getElementById('resourceName').value = '';
-        document.getElementById('resourceUrl').value = '';
-        hideAddResourceForm();
-      },
-      
-      edit(id) {
-        const item = this.data.find(i => i.id === id);
-        if (!item || item.userId !== Auth.getCurrentUserId()) return;
-        
-        document.getElementById('resourceName').value = item.name;
-        document.getElementById('resourceCategory').value = item.category;
-        document.getElementById('resourceUrl').value = item.url;
-        
-        // 将添加按钮改为更新按钮
-        const saveBtn = document.querySelector('#resourceForm .btn:first-of-type');
-        saveBtn.textContent = '更新';
-        saveBtn.onclick = () => {
-          const name = document.getElementById('resourceName').value;
-          const category = document.getElementById('resourceCategory').value;
-          const url = document.getElementById('resourceUrl').value;
-          
-          if (!name || !url) {
-            alert('资源名称和链接不能为空');
-            return;
-          }
-          
-          item.name = name;
-          item.category = category;
-          item.url = url;
-          
-          localStorage.setItem('resources', JSON.stringify(this.data));
-          this.render();
-          
-          // 重置表单和按钮
-          document.getElementById('resourceName').value = '';
-          document.getElementById('resourceUrl').value = '';
-          saveBtn.textContent = '保存';
-          saveBtn.onclick = () => Resources.add();
-          hideAddResourceForm();
-        };
-        
-        showAddResourceForm();
-      },
-      
-      delete(id) {
-        const item = this.data.find(i => i.id === id);
-        if (!item || item.userId !== Auth.getCurrentUserId()) return;
-        
-        if (confirm('确定要删除这个资源吗？')) {
-          this.data = this.data.filter(item => item.id !== id);
-          localStorage.setItem('resources', JSON.stringify(this.data));
-          this.render();
-        }
-      }
-    };
-
-    // 互助问答模块
-    const QA = {
-      questions: [],
-      answers: [],
-      
-      load() {
-        this.questions = JSON.parse(localStorage.getItem('questions') || '[]');
-        this.answers = JSON.parse(localStorage.getItem('answers') || '[]');
-        this.renderQuestions();
-      },
-      
-      renderQuestions() {
-        const container = document.getElementById('qaList');
-        if (!container) return;
-        
-        if (this.questions.length === 0) {
-          container.innerHTML = '<p>暂无问题，点击"提问"发起新问题</p>';
-          return;
-        }
-        
-        container.innerHTML = this.questions.map(question => {
-          const questionAnswers = this.answers.filter(a => a.questionId === question.id);
-          return `
-            <div class="qa-item">
-              <h3>${question.title}</h3>
-              <p>标签：${question.tags.map(tag => `<span style="background-color: var(--accent-color); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-right: 5px;">${tag}</span>`).join('')}</p>
-              <p>${question.content}</p>
-              <p style="margin-top: 0.5rem; font-size: 0.9rem;">
-                提问者：${question.username} 
-                ${question.role === 'super_admin' ? '<span class="role-super">👑超级管理员</span>' : 
-                  question.role === 'admin' ? '<span class="role-admin">🛡️管理员</span>' : ''}
-                · 时间：${question.createTime}
-              </p>
-              <p style="margin-top: 0.5rem;"><strong>回答(${questionAnswers.length})：</strong></p>
-              <div style="margin-left: 1rem; margin-bottom: 1rem;">
-                ${questionAnswers.length > 0 ? questionAnswers.map(answer => `
-                  <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
-                    <p>${answer.content}</p>
-                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
-                      回答者：${answer.username}
-                      ${answer.isAccepted ? '<span style="background-color: #52C41A; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px;">最佳答案</span>' : ''}
-                    </p>
-                    ${question.userId === Auth.getCurrentUserId() && !answer.isAccepted ? 
-                      `<button class="btn" style="font-size: 0.8rem; padding: 2px 8px;" onclick="QA.acceptAnswer('${answer.id}', '${question.id}')">采纳为最佳答案</button>` : ''}
-                  </div>
-                `).join('') : '<p>暂无回答，快来抢沙发吧！</p>'}
-              </div>
-              ${Auth.getCurrentUserId() ? `
-                <div style="margin-top: 1rem;">
-                  <textarea id="answerContent-${question.id}" rows="2" placeholder="写下你的回答..."></textarea>
-                  <button class="btn" style="margin-top: 0.5rem;" onclick="QA.addAnswer('${question.id}')">提交回答</button>
-                </div>
-              ` : '<p>请登录后回答问题</p>'}
-            </div>
-          `;
-        }).join('');
-      },
-      
-      addQuestion() {
-        if (!Auth.getCurrentUserId()) {
-          alert('请先登录');
-          return;
-        }
-        
-        const title = document.getElementById('questionTitle').value;
-        const content = document.getElementById('questionContent').value;
-        const tagsInput = document.getElementById('questionTags').value;
-        
-        if (!title || !content) {
-          alert('问题标题和内容不能为空');
-          return;
-        }
-        
-        const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()) : [];
-        
-        const newQuestion = {
-          id: Date.now().toString(),
-          title,
-          content,
-          tags,
-          userId: Auth.getCurrentUserId(),
-          username: Auth.getCurrentUsername(),
-          role: Auth.currentRole || Config.ROLES.USER,
-          createTime: new Date().toLocaleString()
-        };
-        
-        this.questions.push(newQuestion);
-        localStorage.setItem('questions', JSON.stringify(this.questions));
-        this.renderQuestions();
-        
-        // 重置表单
-        document.getElementById('questionTitle').value = '';
-        document.getElementById('questionContent').value = '';
-        document.getElementById('questionTags').value = '';
-        hideAddQuestionForm();
-      },
-      
-      addAnswer(questionId) {
-        if (!Auth.getCurrentUserId()) {
-          alert('请先登录');
-          return;
-        }
-        
-        const content = document.getElementById(`answerContent-${questionId}`).value;
-        if (!content) {
-          alert('回答内容不能为空');
-          return;
-        }
-        
-        const newAnswer = {
-          id: Date.now().toString() + '-answer',
-          questionId,
-          content,
-          userId: Auth.getCurrentUserId(),
-          username: Auth.getCurrentUsername(),
-          createTime: new Date().toLocaleString(),
-          isAccepted: false
-        };
-        
-        this.answers.push(newAnswer);
-        localStorage.setItem('answers', JSON.stringify(this.answers));
-        this.renderQuestions();
-        
-        // 清空输入框
-        document.getElementById(`answerContent-${questionId}`).value = '';
-      },
-      
-      acceptAnswer(answerId, questionId) {
-        // 检查是否是提问者
-        const question = this.questions.find(q => q.id === questionId);
-        if (!question || question.userId !== Auth.getCurrentUserId()) return;
-        
-        // 将所有答案设为未采纳，再将当前答案设为采纳
-        this.answers = this.answers.map(answer => {
-          if (answer.questionId === questionId) {
-            answer.isAccepted = answer.id === answerId;
-          }
-          return answer;
-        });
-        
-        localStorage.setItem('answers', JSON.stringify(this.answers));
-        this.renderQuestions();
-      }
-    };
-
-    // 管理中心模块
-    const Admin = {
-      loadUserList() {
-        // 仅管理员/超管可访问
-        if (!Auth.hasAdminPermission()) {
-          document.getElementById('adminCenterPage').innerHTML = '<p>无权限访问管理中心</p>';
-          return;
-        }
-        
-        // 模拟数据，实际项目中替换为LeanCloud查询_User表
-        const mockUsers = [
-          { id: '1', username: '张三', role: 'super_admin', online: true, registerTime: '2024-01-10' },
-          { id: '2', username: '李四', role: 'admin', online: false, registerTime: '2024-02-15' },
-          { id: '3', username: '王五', role: 'user', online: true, registerTime: '2024-03-20' },
-          { id: '4', username: '赵六', role: 'user', online: false, registerTime: '2024-04-05' }
-        ];
-        
-        const tableBody = document.getElementById('userTableBody');
-        tableBody.innerHTML = mockUsers.map(user => `
-          <tr>
-            <td><span class="online-status ${user.online ? 'online' : 'offline'}"></span></td>
-            <td>${user.username}</td>
-            <td>
-              <span class="role-${user.role === 'super_admin' ? 'super' : user.role === 'admin' ? 'admin' : ''}">
-                ${user.role === 'super_admin' ? '👑超级管理员' : user.role === 'admin' ? '🛡️管理员' : '普通用户'}
-              </span>
-            </td>
-            <td>${user.registerTime}</td>
-            <td class="actions">
-              ${Auth.isSuperAdmin() ? `
-                <button class="btn" onclick="Admin.changeRole('${user.id}', '${user.role}')">
-                  ${user.role === 'user' ? '设为管理员' : user.role === 'admin' ? '撤销管理员' : ''}
-                </button>
-                ${user.role !== 'super_admin' ? `<button class="btn" style="background-color: #ff4d4f;" onclick="Admin.deleteUser('${user.id}')">删除</button>` : ''}
-              ` : '<button class="btn" onclick="Admin.editUser(\''+user.id+'\')">编辑</button>'}
-            </td>
-          </tr>
-        `).join('');
-        
-        // 更新统计数据
-        document.getElementById('totalUsers').textContent = mockUsers.length;
-      },
-      
-      loadApplications() {
-        // 模拟数据
-        const mockApplications = [
-          { id: '1', username: '钱七', phone: '13800138000', reason: '需要使用图书馆资源', time: '2024-05-01' },
-          { id: '2', username: '孙八', phone: '13900139000', reason: '课程学习需要', time: '2024-05-05' }
-        ];
-        
-        const tableBody = document.getElementById('applicationTableBody');
-        tableBody.innerHTML = mockApplications.map(app => `
-          <tr>
-            <td>${app.username}</td>
-            <td>${app.phone}</td>
-            <td>${app.reason}</td>
-            <td>${app.time}</td>
-            <td class="actions">
-              <button class="btn" onclick="Admin.approveApplication('${app.id}')">同意</button>
-              <button class="btn" style="background-color: #ff4d4f;" onclick="Admin.rejectApplication('${app.id}')">拒绝</button>
-            </td>
-          </tr>
-        `).join('');
-        
-        // 更新统计数据
-        document.getElementById('pendingApplications').textContent = mockApplications.length;
-      },
-      
-      changeRole(userId, currentRole) {
-        if (!Auth.isSuperAdmin()) return;
-        
-        const newRole = currentRole === 'user' ? 'admin' : 'user';
-        if (confirm(`确定要将用户设为${newRole === 'admin' ? '管理员' : '普通用户'}吗？`)) {
-          // 实际项目中替换为：LeanCloud更新用户角色
-          alert('角色已更新');
-          this.loadUserList(); // 刷新列表
-        }
-      },
-      
-      deleteUser(userId) {
-        if (!Auth.isSuperAdmin()) return;
-        
-        if (confirm('确定要删除该用户吗？')) {
-          // 实际项目中替换为：LeanCloud删除用户
-          alert('用户已删除');
-          this.loadUserList();
-        }
-      },
-      
-      editUser(userId) {
-        alert(`编辑用户 ${userId} 的信息（模拟操作）`);
-      },
-      
-      approveApplication(appId) {
-        if (confirm('确定要同意该申请吗？')) {
-          // 实际项目中替换为：LeanCloud更新申请状态并创建用户
-          alert('申请已同意，已创建默认账号');
-          this.loadApplications();
-        }
-      },
-      
-      rejectApplication(appId) {
-        const reason = prompt('请输入拒绝理由：');
-        if (reason) {
-          // 实际项目中替换为：LeanCloud更新申请状态和拒绝理由
-          alert('申请已拒绝');
-          this.loadApplications();
-        }
-      }
-    };
-
-    // 数据备份模块
-    const Backup = {
-      // 导出数据
-      export() {
-        const backupData = {
-          schedules: JSON.parse(localStorage.getItem('schedules') || '[]'),
-          resources: JSON.parse(localStorage.getItem('resources') || '[]'),
-          questions: JSON.parse(localStorage.getItem('questions') || '[]'),
-          answers: JSON.parse(localStorage.getItem('answers') || '[]'),
-          exportTime: new Date().toLocaleString()
-        };
-        
-        // 生成JSON文件并下载
-        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `campus-data-backup-${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-      },
-      
-      // 导入数据
-      import(file) {
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const data = JSON.parse(e.target.result);
-            if (confirm('确定要导入数据吗？这将覆盖现有数据')) {
-              // 导入数据
-              if (data.schedules) {
-                localStorage.setItem('schedules', JSON.stringify(data.schedules));
-              }
-              if (data.resources) {
-                localStorage.setItem('resources', JSON.stringify(data.resources));
-              }
-              if (data.questions) {
-                localStorage.setItem('questions', JSON.stringify(data.questions));
-              }
-              if (data.answers) {
-                localStorage.setItem('answers', JSON.stringify(data.answers));
-              }
-              
-              alert('数据导入成功！');
-              // 刷新当前页面
-              const currentPage = document.querySelector('.page.active').id;
-              switchPage(currentPage);
+    <!-- 配置Tailwind自定义主题 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B9B',
+                        secondary: '#7B66FF',
+                        accent: '#FFD166',
+                        dark: '#2A2A4A',
+                        light: '#FFF5F8',
+                    },
+                    fontFamily: {
+                        anime: ['"Comic Sans MS"', '"Bubblegum Sans"', 'cursive'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
             }
-          } catch (err) {
-            alert('导入失败，请检查文件格式是否正确');
-            console.error('导入数据错误:', err);
-          }
-        };
-        reader.readAsText(file);
-      }
-    };
-
-    // 个人中心模块
-    const Profile = {
-      load() {
-        const container = document.getElementById('profileInfo');
-        if (!container) return;
-        
-        if (Auth.currentUser) {
-          container.innerHTML = `
-            <p><strong>用户名：</strong>${Auth.currentUser.username}</p>
-            <p><strong>注册时间：</strong>${Auth.currentUser.createdAt ? new Date(Auth.currentUser.createdAt).toLocaleString() : '未知'}</p>
-            <p><strong>角色：</strong>${Auth.currentRole === Config.ROLES.SUPER_ADMIN ? '👑超级管理员' : 
-              Auth.currentRole === Config.ROLES.ADMIN ? '🛡️管理员' : '普通用户'}</p>
-            <button class="btn" style="margin-top: 1rem;" onclick="Auth.logout()">退出登录</button>
-          `;
-        } else {
-          container.innerHTML = `
-            <p>请先登录以查看个人信息</p>
-            <button class="btn" onclick="document.getElementById('loginModal').style.display = 'flex'">登录</button>
-          `;
         }
-      }
-    };
-
-    // 表单验证工具
-    const Validator = {
-      // 验证账号申请表单
-      validateApplication(formData) {
-        const errors = [];
-        if (!formData.username) errors.push('用户名不能为空');
-        if (!formData.phone) {
-          errors.push('手机号不能为空');
-        } else if (!/^1[3-9]\d{9}$/.test(formData.phone)) {
-          errors.push('手机号格式不正确');
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+            .border-anime {
+                border-image: linear-gradient(to right, #FF6B9B, #7B66FF) 1;
+            }
+            .bg-anime-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff6b9b' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
         }
-        if (!formData.reason) errors.push('申请理由不能为空');
-        return { valid: errors.length === 0, errors };
-      },
-      
-      // 验证日程表单
-      validateSchedule(formData) {
-        const errors = [];
-        if (!formData.title) errors.push('日程标题不能为空');
-        if (!formData.time) {
-          errors.push('时间不能为空');
-        } else if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(formData.time)) {
-          errors.push('时间格式应为：2024-05-20 08:00');
-        }
-        return { valid: errors.length === 0, errors };
-      },
-      
-      // 显示错误提示
-      showErrors(containerId, errors) {
-        const container = document.getElementById(containerId);
-        if (container) {
-          container.innerHTML = errors.map(err => `<p class="error">${err}</p>`).join('');
-        }
-      }
-    };
-
-    // 辅助函数：显示/隐藏表单
-    function showAddScheduleForm() {
-      document.getElementById('scheduleForm').style.display = 'block';
-    }
-    
-    function hideAddScheduleForm() {
-      document.getElementById('scheduleForm').style.display = 'none';
-      document.getElementById('scheduleErrors').innerHTML = '';
-      // 重置按钮事件
-      const saveBtn = document.querySelector('#scheduleForm .btn:first-of-type');
-      saveBtn.textContent = '保存';
-      saveBtn.onclick = () => Schedule.add();
-    }
-    
-    function showAddResourceForm() {
-      document.getElementById('resourceForm').style.display = 'block';
-    }
-    
-    function hideAddResourceForm() {
-      document.getElementById('resourceForm').style.display = 'none';
-    }
-    
-    function showAddQuestionForm() {
-      document.getElementById('questionForm').style.display = 'block';
-    }
-    
-    function hideAddQuestionForm() {
-      document.getElementById('questionForm').style.display = 'none';
-    }
-
-    // 其他功能函数
-    // 其他功能函数
-    function submitApplication() {
-      const username = document.getElementById('appUsername').value;
-      const phone = document.getElementById('appPhone').value;
-      const reason = document.getElementById('appReason').value;
-      
-      const validation = Validator.validateApplication({ username, phone, reason });
-      if (!validation.valid) {
-        Validator.showErrors('applicationErrors', validation.errors);
-        return;
-      }
-      
-      // 实际项目中替换为LeanCloud提交申请
-      alert('申请已提交，等待管理员审核');
-      document.getElementById('applicationForm').reset();
-      document.getElementById('applicationErrors').innerHTML = '';
-    }
-    
-    function submitPasswordReset() {
-      const username = document.getElementById('resetUsername').value;
-      
-      if (!username) {
-        alert('请输入用户名');
-        return;
-      }
-      
-      // 实际项目中替换为LeanCloud提交重置申请
-      alert(`密码重置申请已提交，将发送通知给 ${username}`);
-      document.getElementById('resetUsername').value = '';
-    }
-    
-    function publishAnnouncement() {
-      if (!Auth.hasAdminPermission()) {
-        alert('无权限发布公告');
-        return;
-      }
-      
-      const title = document.getElementById('annTitle').value;
-      const content = document.getElementById('annContent').value;
-      
-      if (!title || !content) {
-        alert('标题和内容不能为空');
-        return;
-      }
-      
-      // 实际项目中替换为LeanCloud保存公告
-      alert('公告发布成功');
-      
-      // 更新公告列表
-      const list = document.getElementById('announcementList');
-      const newAnnouncement = document.createElement('div');
-      newAnnouncement.className = 'card';
-      newAnnouncement.innerHTML = `
-        <h3>${title}</h3>
-        <p>${content}</p>
-        <p style="margin-top: 1rem; font-size: 0.9rem;">
-          发布人：${Auth.getCurrentUsername()} 
-          ${Auth.currentRole === 'super_admin' ? '<span class="role-super">👑超级管理员</span>' : 
-            Auth.currentRole === 'admin' ? '<span class="role-admin">🛡️管理员</span>' : ''}
-          · 时间：${new Date().toLocaleString()}
-        </p>
-      `;
-      
-      if (list.firstChild) {
-        list.insertBefore(newAnnouncement, list.firstChild);
-      } else {
-        list.appendChild(newAnnouncement);
-      }
-      
-      // 清空表单
-      document.getElementById('annTitle').value = '';
-      document.getElementById('annContent').value = '';
-      
-      // 更新统计
-      const count = document.getElementById('totalAnnouncements');
-      count.textContent = parseInt(count.textContent) + 1;
-    }
-    
-    function sendMessage() {
-      if (!Auth.getCurrentUserId()) {
-        alert('请先登录');
-        return;
-      }
-      
-      const content = document.getElementById('messageContent').value;
-      if (!content) return;
-      
-      // 实际项目中替换为LeanCloud保存消息
-      const list = document.getElementById('messageList');
-      const newMessage = document.createElement('div');
-      newMessage.style.marginBottom = '1rem';
-      newMessage.innerHTML = `
-        <p><strong>${Auth.getCurrentUsername()} 
-          ${Auth.currentRole === 'super_admin' ? '<span class="role-super">👑超级管理员</span>' : 
-            Auth.currentRole === 'admin' ? '<span class="role-admin">🛡️管理员</span>' : ''}
-          <span style="font-size: 0.8rem; color: #666;">${new Date().toLocaleTimeString()}</span></strong></p>
-        <p>${content}</p>
-      `;
-      list.appendChild(newMessage);
-      
-      // 滚动到底部
-      list.scrollTop = list.scrollHeight;
-      
-      // 清空输入框
-      document.getElementById('messageContent').value = '';
-    }
-    
-    function submitSuggestion() {
-      if (!Auth.getCurrentUserId()) {
-        alert('请先登录');
-        return;
-      }
-      
-      const content = document.getElementById('suggestionContent').value;
-      if (!content) {
-        alert('请输入建议内容');
-        return;
-      }
-      
-      // 实际项目中替换为LeanCloud保存建议
-      alert('建议提交成功，感谢您的反馈');
-      
-      // 更新我的建议列表
-      const list = document.getElementById('mySuggestions');
-      const newSuggestion = document.createElement('div');
-      newSuggestion.className = 'card';
-      newSuggestion.innerHTML = `
-        <p>${content}</p>
-        <p style="margin-top: 1rem; font-size: 0.9rem;">
-          提交时间：${new Date().toLocaleString()}
-          <span style="margin-left: 1rem; background-color: #FBBF24; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">待处理</span>
-        </p>
-      `;
-      
-      if (list.firstChild) {
-        list.insertBefore(newSuggestion, list.firstChild);
-      } else {
-        list.appendChild(newSuggestion);
-      }
-      
-      // 清空输入框
-      document.getElementById('suggestionContent').value = '';
-    }
-
-    // 页面加载完成后初始化
-    window.onload = () => {
-      // 初始化LeanCloud
-      initLeanCloud();
-      
-      // 初始化权限与登录
-      Auth.init();
-      
-      // 加载保存的主题
-      const savedTheme = localStorage.getItem('selectedTheme') || 'default';
-      switchTheme(savedTheme);
-      
-      // 初始化首页数据
-      // 加载公告示例数据
-      const annList = document.getElementById('announcementList');
-      annList.innerHTML = `
-        <div class="card">
-          <h3>欢迎使用校园管理系统</h3>
-          <p>本系统提供账号管理、日程安排、学习资源分享等功能，欢迎使用并提出宝贵建议。</p>
-          <p style="margin-top: 1rem; font-size: 0.9rem;">
-            发布人：系统管理员 <span class="role-super">👑超级管理员</span>
-            · 时间：2024-01-01
-          </p>
+    </style>
+</head>
+<body class="bg-light bg-anime-pattern min-h-screen font-anime text-dark">
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-md transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                    <i class="fa fa-graduation-cap text-white text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">次元校园</h1>
+            </div>
+            
+            <!-- 搜索框 -->
+            <div class="hidden md:flex relative flex-1 max-w-md mx-8">
+                <input id="friendSearch" type="text" placeholder="搜索好友..." 
+                    class="w-full py-2 pl-10 pr-4 rounded-full border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <div id="searchResults" class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg overflow-hidden hidden z-50"></div>
+            </div>
+            
+            <!-- 用户区域 -->
+            <div class="flex items-center space-x-4">
+                <button id="mobileSearchBtn" class="md:hidden text-xl">
+                    <i class="fa fa-search text-primary"></i>
+                </button>
+                <div id="userMenu" class="relative">
+                    <button id="userAvatarBtn" class="flex items-center space-x-2 focus:outline-none">
+                        <div id="userAvatar" class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border-2 border-primary/50 transition-transform hover:scale-110">
+                            <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
+                        </div>
+                        <span id="userNickname" class="hidden md:inline font-medium">游客</span>
+                        <i class="fa fa-angle-down text-gray-500"></i>
+                    </button>
+                    <div id="avatarDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl overflow-hidden hidden z-50">
+                        <div class="p-3 border-b">
+                            <p id="dropdownNickname" class="font-bold">游客</p>
+                            <p id="dropdownRole" class="text-sm text-gray-500">未登录</p>
+                        </div>
+                        <button id="profileBtn" class="w-full text-left px-4 py-2 hover:bg-light transition-colors">
+                            <i class="fa fa-user-circle mr-2 text-primary"></i>个人中心
+                        </button>
+                        <button id="adminBtn" class="w-full text-left px-4 py-2 hover:bg-light transition-colors hidden">
+                            <i class="fa fa-crown mr-2 text-accent"></i>管理中心
+                        </button>
+                        <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-light transition-colors">
+                            <i class="fa fa-sign-out mr-2 text-red-500"></i>退出登录
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      `;
-      document.getElementById('totalAnnouncements').textContent = '1';
-    };
-  </script>
+        
+        <!-- 移动端搜索框 -->
+        <div id="mobileSearch" class="md:hidden px-4 pb-3 hidden">
+            <div class="relative">
+                <input type="text" placeholder="搜索好友..." 
+                    class="w-full py-2 pl-10 pr-4 rounded-full border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
+        <!-- 侧边栏 -->
+        <aside class="md:w-64 lg:w-72 shrink-0">
+            <div class="bg-white rounded-2xl shadow-lg p-4 sticky top-24">
+                <nav class="space-y-1">
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 bg-primary/10 text-primary font-medium">
+                        <i class="fa fa-home text-xl w-6 text-center"></i>
+                        <span>首页</span>
+                    </button>
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-users text-xl w-6 text-center"></i>
+                        <span>好友列表</span>
+                        <span class="ml-auto bg-primary text-white text-xs px-2 py-1 rounded-full">0</span>
+                    </button>
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-question-circle text-xl w-6 text-center"></i>
+                        <span>互助问答</span>
+                    </button>
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-calendar text-xl w-6 text-center"></i>
+                        <span>校园活动</span>
+                    </button>
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-bullhorn text-xl w-6 text-center"></i>
+                        <span>通知公告</span>
+                    </button>
+                </nav>
+                
+                <div class="mt-6 pt-6 border-t border-gray-100">
+                    <h3 class="px-4 text-sm font-medium text-gray-500 mb-2">快速链接</h3>
+                    <nav class="space-y-1">
+                        <button class="nav-btn w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-cog text-xl w-6 text-center"></i>
+                            <span>系统设置</span>
+                        </button>
+                        <button class="nav-btn w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-question-circle text-xl w-6 text-center"></i>
+                            <span>帮助中心</span>
+                        </button>
+                    </nav>
+                </div>
+                
+                <!-- 二次元装饰元素 -->
+                <div class="mt-6 relative">
+                    <div class="bg-gradient-to-br from-secondary/20 to-primary/20 rounded-xl p-4">
+                        <p class="text-sm font-medium">今日运势</p>
+                        <p class="text-xs text-gray-600 mt-1">幸运色：<span class="inline-block w-3 h-3 bg-accent rounded-full align-middle"></span> 黄色</p>
+                        <p class="text-xs text-gray-600">幸运物：动漫周边</p>
+                    </div>
+                    <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-accent rounded-full flex items-center justify-center animate-float">
+                        <i class="fa fa-star text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- 主内容 -->
+        <div class="flex-1">
+            <!-- 登录/注册卡片 -->
+            <div id="authCard" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 transform transition-all duration-500 hover:shadow-2xl">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <!-- 左侧装饰 -->
+                    <div class="md:w-1/2 hidden md:flex flex-col justify-center">
+                        <div class="relative">
+                            <img src="https://picsum.photos/600/800?random=10" alt="校园生活" class="rounded-xl shadow-lg">
+                            <div class="absolute -bottom-4 -left-4 bg-primary text-white p-3 rounded-lg shadow-lg">
+                                <p class="font-bold">欢迎来到次元校园</p>
+                                <p class="text-sm">开启你的校园之旅吧</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧表单 -->
+                    <div class="md:w-1/2">
+                        <div class="text-center mb-6">
+                            <h2 class="text-3xl font-bold mb-2">欢迎回来</h2>
+                            <p class="text-gray-500">请登录你的账号</p>
+                        </div>
+                        
+                        <!-- 登录表单 -->
+                        <div id="loginForm">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium mb-1" for="loginUsername">昵称</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                        <i class="fa fa-user"></i>
+                                    </span>
+                                    <input type="text" id="loginUsername" placeholder="请输入昵称" 
+                                        class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium mb-1" for="loginPassword">密码</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                        <i class="fa fa-lock"></i>
+                                    </span>
+                                    <input type="password" id="loginPassword" placeholder="请输入8位密码" 
+                                        class="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                                    <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 toggle-password">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                    <p id="passwordError" class="mt-1 text-xs text-red-500 hidden">密码必须为8位</p>
+                                </div>
+                            </div>
+                            
+                            <button id="loginBtn" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-4">
+                                登录
+                            </button>
+                            
+                            <div class="text-center text-sm">
+                                <p>还没有账号？ <button id="showRegisterBtn" class="text-primary font-medium">立即注册</button></p>
+                            </div>
+                        </div>
+                        
+                        <!-- 注册表单 -->
+                        <div id="registerForm" class="hidden">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium mb-1" for="regUsername">昵称</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                        <i class="fa fa-user"></i>
+                                    </span>
+                                    <input type="text" id="regUsername" placeholder="请设置昵称" 
+                                        class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium mb-1" for="regPassword">密码</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                        <i class="fa fa-lock"></i>
+                                    </span>
+                                    <input type="password" id="regPassword" placeholder="请设置8位密码" 
+                                        class="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                                    <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 toggle-password">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                    <p id="regPasswordError" class="mt-1 text-xs text-red-500 hidden">密码必须为8位</p>
+                                </div>
+                            </div>
+                            
+                            <button id="registerBtn" class="w-full bg-gradient-to-r from-secondary to-primary text-white py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-4">
+                                注册
+                            </button>
+                            
+                            <div class="text-center text-sm">
+                                <p>已有账号？ <button id="showLoginBtn" class="text-primary font-medium">立即登录</button></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 首页内容 -->
+            <div id="homeContent" class="hidden">
+                <!-- 欢迎卡片 -->
+                <div class="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-6 md:p-8 mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-accent/10 rounded-full -mr-20 -mt-20"></div>
+                    <div class="absolute bottom-0 left-0 w-60 h-60 bg-primary/10 rounded-full -ml-30 -mb-30"></div>
+                    
+                    <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-bold mb-2">欢迎回来，<span id="welcomeNickname">用户</span>！</h2>
+                            <p class="text-gray-600" id="welcomeRole">普通用户</p>
+                        </div>
+                        
+                        <div class="mt-4 md:mt-0 flex space-x-3">
+                            <button class="bg-white text-primary px-4 py-2 rounded-lg shadow hover:shadow-md transition-shadow flex items-center">
+                                <i class="fa fa-plus mr-2"></i>发布动态
+                            </button>
+                            <button class="bg-white text-secondary px-4 py-2 rounded-lg shadow hover:shadow-md transition-shadow">
+                                <i class="fa fa-envelope"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 功能卡片区 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow transform hover:-translate-y-1 duration-300">
+                        <div class="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-4">
+                            <i class="fa fa-users text-primary text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">好友管理</h3>
+                        <p class="text-gray-600 text-sm mb-4">查看好友列表，添加新好友，维系校园社交</p>
+                        <button id="toFriendsBtn" class="text-primary font-medium flex items-center">
+                            查看好友 <i class="fa fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow transform hover:-translate-y-1 duration-300">
+                        <div class="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center mb-4">
+                            <i class="fa fa-question-circle text-secondary text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">互助问答</h3>
+                        <p class="text-gray-600 text-sm mb-4">提出你的疑问，解答他人困惑，共同进步</p>
+                        <button class="text-secondary font-medium flex items-center">
+                            进入问答 <i class="fa fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow transform hover:-translate-y-1 duration-300">
+                        <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center mb-4">
+                            <i class="fa fa-calendar text-accent text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">校园活动</h3>
+                        <p class="text-gray-600 text-sm mb-4">浏览最新活动，报名参与，丰富校园生活</p>
+                        <button class="text-accent font-medium flex items-center">
+                            查看活动 <i class="fa fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 动态区域 -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">最新动态</h2>
+                        <button class="text-gray-500 hover:text-primary transition-colors">
+                            查看全部 <i class="fa fa-angle-right ml-1"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- 动态列表 -->
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-100 pb-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                    <img src="https://picsum.photos/200/200?random=2" alt="用户头像" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <p class="font-medium">动漫爱好者</p>
+                                    <p class="text-xs text-gray-500">2小时前</p>
+                                </div>
+                            </div>
+                            <p class="mb-4">今天的校园漫展太精彩了！大家都去看了吗？分享几张现场照片~</p>
+                            <div class="grid grid-cols-3 gap-2 mb-4">
+                                <img src="https://picsum.photos/300/300?random=21" alt="漫展照片" class="rounded-lg w-full h-24 object-cover">
+                                <img src="https://picsum.photos/300/300?random=22" alt="漫展照片" class="rounded-lg w-full h-24 object-cover">
+                                <img src="https://picsum.photos/300/300?random=23" alt="漫展照片" class="rounded-lg w-full h-24 object-cover">
+                            </div>
+                            <div class="flex items-center text-gray-500 text-sm">
+                                <button class="flex items-center hover:text-primary transition-colors mr-4">
+                                    <i class="fa fa-heart-o mr-1"></i> 点赞 (24)
+                                </button>
+                                <button class="flex items-center hover:text-primary transition-colors">
+                                    <i class="fa fa-comment-o mr-1"></i> 评论 (8)
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                    <img src="https://picsum.photos/200/200?random=3" alt="用户头像" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <p class="font-medium">学霸君</p>
+                                    <p class="text-xs text-gray-500">昨天 18:30</p>
+                                </div>
+                            </div>
+                            <p class="mb-4">高等数学期末复习资料已整理完毕，需要的同学可以私信我~ #学习互助#</p>
+                            <div class="bg-gray-100 rounded-lg p-3 mb-4">
+                                <div class="flex items-center">
+                                    <i class="fa fa-file-text-o text-gray-500 mr-2"></i>
+                                    <p class="text-sm">高等数学期末复习要点.pdf</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-gray-500 text-sm">
+                                <button class="flex items-center hover:text-primary transition-colors mr-4">
+                                    <i class="fa fa-heart-o mr-1"></i> 点赞 (56)
+                                </button>
+                                <button class="flex items-center hover:text-primary transition-colors">
+                                    <i class="fa fa-comment-o mr-1"></i> 评论 (12)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 个人中心 -->
+            <div id="profileContent" class="hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6">
+                    <h2 class="text-2xl font-bold mb-6">个人中心</h2>
+                    
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <!-- 头像区域 -->
+                        <div class="md:w-1/3 flex flex-col items-center">
+                            <div class="relative mb-4">
+                                <div id="profileAvatar" class="w-40 h-40 rounded-full overflow-hidden border-4 border-primary/30 shadow-lg">
+                                    <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
+                                </div>
+                                <button id="changeAvatarBtn" class="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-md hover:bg-primary/90 transition-colors">
+                                    <i class="fa fa-camera"></i>
+                                </button>
+                                <input type="file" id="avatarInput" accept="image/*" class="hidden">
+                            </div>
+                            
+                            <h3 id="profileNickname" class="text-xl font-bold mb-1">用户名</h3>
+                            <p id="profileRole" class="text-gray-500 mb-4">普通用户</p>
+                            
+                            <button id="editProfileBtn" class="bg-primary/10 text-primary px-6 py-2 rounded-lg hover:bg-primary/20 transition-colors">
+                                编辑资料
+                            </button>
+                        </div>
+                        
+                        <!-- 信息区域 -->
+                        <div class="md:w-2/3">
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500 mb-2">基本信息</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="bg-gray-50 p-4 rounded-xl">
+                                            <p class="text-sm text-gray-500 mb-1">昵称</p>
+                                            <p id="infoNickname" class="font-medium">用户名</p>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-xl">
+                                            <p class="text-sm text-gray-500 mb-1">角色</p>
+                                            <p id="infoRole" class="font-medium">普通用户</p>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-xl">
+                                            <p class="text-sm text-gray-500 mb-1">注册时间</p>
+                                            <p id="infoRegTime" class="font-medium">--</p>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-xl">
+                                            <p class="text-sm text-gray-500 mb-1">好友数量</p>
+                                            <p id="infoFriendCount" class="font-medium">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500 mb-2">账号安全</h4>
+                                    <div class="bg-gray-50 p-4 rounded-xl">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <p class="font-medium">修改密码</p>
+                                                <p class="text-sm text-gray-500">建议定期更换密码，保障账号安全</p>
+                                            </div>
+                                            <button id="changePwdBtn" class="text-primary hover:text-primary/80 transition-colors">
+                                                更改 <i class="fa fa-angle-right ml-1"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 好友列表 -->
+            <div id="friendsContent" class="hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">好友列表</h2>
+                        <button id="addFriendBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center">
+                            <i class="fa fa-plus mr-2"></i>添加好友
+                        </button>
+                    </div>
+                    
+                    <!-- 好友搜索 -->
+                    <div class="relative mb-6">
+                        <input type="text" placeholder="搜索好友..." 
+                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                        <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    
+                    <!-- 好友列表 -->
+                    <div id="friendsList" class="space-y-4">
+                        <p class="text-center text-gray-500 py-8">暂无好友，快去添加吧~</p>
+                        <!-- 好友项将通过JS动态添加 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 管理中心 -->
+            <div id="adminContent" class="hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                    <h2 class="text-2xl font-bold mb-6">管理中心</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-primary/10 rounded-xl p-6 flex items-center">
+                            <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-users text-primary text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">总用户数</p>
+                                <p id="totalUsers" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-secondary/10 rounded-xl p-6 flex items-center">
+                            <div class="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-question-circle text-secondary text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">问答总数</p>
+                                <p id="totalQuestions" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户管理 -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">用户管理</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th class="text-left py-3 px-4">ID</th>
+                                        <th class="text-left py-3 px-4">昵称</th>
+                                        <th class="text-left py-3 px-4">角色</th>
+                                        <th class="text-left py-3 px-4">注册时间</th>
+                                        <th class="text-left py-3 px-4">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- 用户数据将通过JS动态添加 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-10 mt-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                            <i class="fa fa-graduation-cap text-white text-xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold">次元校园</h2>
+                    </div>
+                    <p class="text-gray-400 max-w-md">二次元风格的校园管理系统，让校园生活更加丰富多彩，连接每一位同学。</p>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">快速链接</h3>
+                        <ul class="space-y-2 text-gray-400">
+                            <li><a href="#" class="hover:text-primary transition-colors">首页</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">互助问答</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">校园活动</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">关于我们</h3>
+                        <ul class="space-y-2 text-gray-400">
+                            <li><a href="#" class="hover:text-primary transition-colors">关于系统</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">使用帮助</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">联系我们</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="col-span-2 md:col-span-1">
+                        <h3 class="text-lg font-bold mb-4">关注我们</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors">
+                                <i class="fa fa-weibo"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors">
+                                <i class="fa fa-wechat"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors">
+                                <i class="fa fa-qq"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-500 text-sm">
+                <p>© 2023 次元校园管理系统 - 版权所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 模态框：添加好友 -->
+    <div id="addFriendModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">添加好友</h3>
+                <button id="closeAddFriendModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1" for="addFriendUsername">好友昵称</label>
+                <input type="text" id="addFriendUsername" placeholder="请输入好友昵称" 
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-1" for="addFriendMessage">验证消息</label>
+                <textarea id="addFriendMessage" rows="3" placeholder="请输入验证消息..." 
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"></textarea>
+            </div>
+            
+            <button id="confirmAddFriendBtn" class="w-full bg-primary text-white py-3 rounded-xl font-medium hover:bg-primary/90 transition-colors">
+                发送请求
+            </button>
+        </div>
+    </div>
+
+    <!-- 模态框：修改密码 -->
+    <div id="changePwdModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">修改密码</h3>
+                <button id="closeChangePwdModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1" for="oldPassword">原密码</label>
+                <input type="password" id="oldPassword" placeholder="请输入原密码" 
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1" for="newPassword">新密码</label>
+                <input type="password" id="newPassword" placeholder="请输入8位新密码" 
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                <p id="newPwdError" class="mt-1 text-xs text-red-500 hidden">密码必须为8位</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-1" for="confirmPassword">确认新密码</label>
+                <input type="password" id="confirmPassword" placeholder="请再次输入新密码" 
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                <p id="confirmPwdError" class="mt-1 text-xs text-red-500 hidden">两次输入的密码不一致</p>
+            </div>
+            
+            <button id="confirmChangePwdBtn" class="w-full bg-primary text-white py-3 rounded-xl font-medium hover:bg-primary/90 transition-colors">
+                确认修改
+            </button>
+        </div>
+    </div>
+
+    <!-- 成功提示 -->
+    <div id="successToast" class="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center">
+        <i class="fa fa-check-circle mr-2"></i>
+        <span id="successMessage">操作成功</span>
+    </div>
+
+    <!-- 错误提示 -->
+    <div id="errorToast" class="fixed bottom-6 right-6 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center">
+        <i class="fa fa-exclamation-circle mr-2"></i>
+        <span id="errorMessage">操作失败</span>
+    </div>
+
+    <script>
+        // 初始化LeanCloud
+        AV.init({
+            appId: "30kUc571qTv0YSCTWVGRbAxk-gzGzoHsz",
+            appKey: "ZfVrHcQ41Hm8rKkF1cCjXlCn",
+            serverURL: "https://30kuc571.lc-cn-n1-shared.com"
+        });
+
+        // 配置
+        const Config = {
+            ROLES: {
+                SUPER_ADMIN: 'super_admin',
+                ADMIN: 'admin',
+                USER: 'user'
+            }
+        };
+
+        // 全局状态
+        const State = {
+            currentUser: null,
+            currentRole: Config.ROLES.USER,
+            isLoggedIn: false
+        };
+
+        // 工具函数
+        const Utils = {
+            // 显示提示
+            showToast: (type, message) => {
+                const toast = document.getElementById(`${type}Toast`);
+                const messageEl = document.getElementById(`${type}Message`);
+                
+                messageEl.textContent = message;
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 3000);
+            },
+            
+            // 显示成功提示
+            showSuccess: (message) => {
+                Utils.showToast('success', message);
+            },
+            
+            // 显示错误提示
+            showError: (message) => {
+                Utils.showToast('error', message);
+            },
+            
+            // 格式化日期
+            formatDate: (dateString) => {
+                const date = new Date(dateString);
+                return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+            }
+        };
+
+        // 认证相关
+        const Auth = {
+            // 初始化
+            init: async () => {
+                // 检查当前登录状态
+                const currentUser = AV.User.current();
+                if (currentUser) {
+                    State.currentUser = currentUser.toJSON();
+                    State.isLoggedIn = true;
+                    await Auth.checkUserRole();
+                    Auth.updateUserInfoDisplay();
+                    UI.showContent('homeContent');
+                } else {
+                    UI.showContent('authCard');
+                }
+                
+                // 确保超级管理员存在
+                await Auth.ensureSuperAdminExists();
+            },
+            
+            // 确保超级管理员存在
+            ensureSuperAdminExists: async () => {
+                try {
+                    // 检查是否存在super_admin角色
+                    const roleQuery = new AV.Query(AV.Role);
+                    roleQuery.equalTo('name', Config.ROLES.SUPER_ADMIN);
+                    const roles = await roleQuery.find();
+                    
+                    let superAdminRole;
+                    if (roles.length === 0) {
+                        // 创建super_admin角色
+                        superAdminRole = new AV.Role(Config.ROLES.SUPER_ADMIN, new AV.ACL());
+                        superAdminRole.getACL().setPublicReadAccess(true);
+                        superAdminRole.getACL().setPublicWriteAccess(false);
+                        await superAdminRole.save();
+                    } else {
+                        superAdminRole = roles[0];
+                    }
+                    
+                    // 检查是否存在lemon用户
+                    const userQuery = new AV.Query(AV.User);
+                    userQuery.equalTo('username', 'lemon');
+                    const users = await userQuery.find();
+                    
+                    if (users.length === 0) {
+                        // 创建lemon用户（密码ning6666）
+                        const user = new AV.User();
+                        user.setUsername('lemon');
+                        user.setPassword('ning6666');
+                        await user.signUp();
+                        
+                        // 将用户添加到超级管理员角色
+                        superAdminRole.getUsers().add(user);
+                        await superAdminRole.save();
+                    } else {
+                        const lemonUser = users[0];
+                        // 检查用户是否已在超级管理员角色中
+                        const roleUsers = await superAdminRole.getUsersQuery().find();
+                        const isInRole = roleUsers.some(u => u.id === lemonUser.id);
+                        
+                        if (!isInRole) {
+                            // 将用户添加到超级管理员角色
+                            superAdminRole.getUsers().add(lemonUser);
+                            await superAdminRole.save();
+                        }
+                    }
+                } catch (err) {
+                    console.error('确保超级管理员存在失败:', err);
+                }
+            },
+            
+            // 检查用户角色
+            checkUserRole: async () => {
+                if (!State.currentUser) return;
+                
+                // 强制清除本地缓存
+                localStorage.removeItem('currentRole');
+                
+                try {
+                    const user = AV.Object.createWithoutData('_User', State.currentUser.objectId);
+                    const query = new AV.Query(AV.Role);
+                    query.equalTo('users', user);
+                    
+                    const roles = await query.find();
+                    console.log('查询到的角色:', roles.map(role => role.get('name')));
+                    
+                    // 优先识别super_admin角色
+                    let newRole = Config.ROLES.USER;
+                    if (roles.length > 0) {
+                        const isSuperAdmin = roles.some(role => role.get('name') === Config.ROLES.SUPER_ADMIN);
+                        const isAdmin = roles.some(role => role.get('name') === Config.ROLES.ADMIN);
+                        
+                        if (isSuperAdmin) {
+                            newRole = Config.ROLES.SUPER_ADMIN;
+                        } else if (isAdmin) {
+                            newRole = Config.ROLES.ADMIN;
+                        }
+                    }
+                    
+                    State.currentRole = newRole;
+                    localStorage.setItem('currentRole', newRole);
+                    console.log('当前用户角色:', newRole);
+                    
+                    return newRole;
+                } catch (err) {
+                    console.error('获取用户角色失败:', err);
+                    State.currentRole = Config.ROLES.USER;
+                    localStorage.setItem('currentRole', Config.ROLES.USER);
+                    return Config.ROLES.USER;
+                }
+            },
+            
+            // 登录
+            login: async (username, password) => {
+                // 验证密码长度
+                if (password.length !== 8) {
+                    document.getElementById('passwordError').classList.remove('hidden');
+                    return false;
+                }
+                
+                try {
+                    const user = await AV.User.logIn(username, password);
+                    State.currentUser = user.toJSON();
+                    State.isLoggedIn = true;
+                    await Auth.checkUserRole();
+                    Auth.updateUserInfoDisplay();
+                    
+                    // 保存到本地存储
+                    localStorage.setItem('currentUser', JSON.stringify(State.currentUser));
+                    localStorage.setItem('currentRole', State.currentRole);
+                    
+                    Utils.showSuccess('登录成功');
+                    return true;
+                } catch (err) {
+                    console.error('登录失败:', err);
+                    Utils.showError('登录失败：用户名或密码错误');
+                    return false;
+                }
+            },
+            
+            // 注册
+            register: async (username, password) => {
+                // 验证密码长度
+                if (password.length !== 8) {
+                    document.getElementById('regPasswordError').classList.remove('hidden');
+                    return false;
+                }
+                
+                try {
+                    // 检查用户名是否已存在
+                    const query = new AV.Query(AV.User);
+                    query.equalTo('username', username);
+                    const users = await query.find();
+                    
+                    if (users.length > 0) {
+                        Utils.showError('用户名已存在');
+                        return false;
+                    }
+                    
+                    // 创建用户
+                    const user = new AV.User();
+                    user.setUsername(username);
+                    user.setPassword(password);
+                    await user.signUp();
+                    
+                    // 设置默认角色为普通用户
+                    const roleQuery = new AV.Query(AV.Role);
+                    roleQuery.equalTo('name', Config.ROLES.USER);
+                    const roles = await roleQuery.find();
+                    
+                    let userRole;
+                    if (roles.length === 0) {
+                        userRole = new AV.Role(Config.ROLES.USER, new AV.ACL());
+                        userRole.getACL().setPublicReadAccess(true);
+                        await userRole.save();
+                    } else {
+                        userRole = roles[0];
+                    }
+                    
+                    userRole.getUsers().add(user);
+                    await userRole.save();
+                    
+                    Utils.showSuccess('注册成功，请登录');
+                    return true;
+                } catch (err) {
+                    console.error('注册失败:', err);
+                    Utils.showError('注册失败，请稍后再试');
+                    return false;
+                }
+            },
+            
+            // 退出登录
+            logout: async () => {
+                try {
+                    await AV.User.logOut();
+                    State.currentUser = null;
+                    State.currentRole = Config.ROLES.USER;
+                    State.isLoggedIn = false;
+                    
+                    // 清除本地存储
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('currentRole');
+                    
+                    Auth.updateUserInfoDisplay();
+                    UI.showContent('authCard');
+                    Utils.showSuccess('已退出登录');
+                } catch (err) {
+                    console.error('退出登录失败:', err);
+                    Utils.showError('退出登录失败，请稍后再试');
+                }
+            },
+            
+            // 更新用户信息显示
+            updateUserInfoDisplay: () => {
+                const userAvatar = document.getElementById('userAvatar');
+                const userNickname = document.getElementById('userNickname');
+                const dropdownNickname = document.getElementById('dropdownNickname');
+                const dropdownRole = document.getElementById('dropdownRole');
+                const adminBtn = document.getElementById('adminBtn');
+                
+                const welcomeNickname = document.getElementById('welcomeNickname');
+                const welcomeRole = document.getElementById('welcomeRole');
+                
+                const profileNickname = document.getElementById('profileNickname');
+                const profileRole = document.getElementById('profileRole');
+                const infoNickname = document.getElementById('infoNickname');
+                const infoRole = document.getElementById('infoRole');
+                const infoRegTime = document.getElementById('infoRegTime');
+                
+                if (State.isLoggedIn) {
+                    // 设置头像
+                    const avatarUrl = State.currentUser.avatar || `https://picsum.photos/200/200?random=${State.currentUser.objectId}`;
+                    userAvatar.innerHTML = `<img src="${avatarUrl}" alt="用户头像" class="w-full h-full object-cover">`;
+                    document.getElementById('profileAvatar').innerHTML = `<img src="${avatarUrl}" alt="用户头像" class="w-full h-full object-cover">`;
+                    
+                    // 设置昵称
+                    userNickname.textContent = State.currentUser.username;
+                    dropdownNickname.textContent = State.currentUser.username;
+                    welcomeNickname.textContent = State.currentUser.username;
+                    profileNickname.textContent = State.currentUser.username;
+                    infoNickname.textContent = State.currentUser.username;
+                    
+                    // 设置角色
+                    let roleText = '普通用户';
+                    if (State.currentRole === Config.ROLES.SUPER_ADMIN) {
+                        roleText = '👑超级管理员';
+                        adminBtn.classList.remove('hidden');
+                    } else if (State.currentRole === Config.ROLES.ADMIN) {
+                        roleText = '🛡️管理员';
+                        adminBtn.classList.remove('hidden');
+                    } else {
+                        adminBtn.classList.add('hidden');
+                    }
+                    
+                    dropdownRole.textContent = roleText;
+                    welcomeRole.textContent = roleText;
+                    profileRole.textContent = roleText;
+                    infoRole.textContent = roleText;
+                    
+                    // 设置注册时间
+                    if (State.currentUser.createdAt) {
+                        infoRegTime.textContent = Utils.formatDate(State.currentUser.createdAt);
+                    }
+                    
+                    // 加载用户管理数据（如果是管理员）
+                    if (State.currentRole === Config.ROLES.SUPER_ADMIN || State.currentRole === Config.ROLES.ADMIN) {
+                        Admin.loadUsers();
+                    }
+                    
+                    // 加载好友列表
+                    Friends.loadFriends();
+                } else {
+                    // 未登录状态
+                    userAvatar.innerHTML = `<img src="https://picsum.photos/200/200?random=1" alt="游客头像" class="w-full h-full object-cover">`;
+                    userNickname.textContent = '游客';
+                    dropdownNickname.textContent = '游客';
+                    dropdownRole.textContent = '未登录';
+                    adminBtn.classList.add('hidden');
+                }
+            },
+            
+            // 修改密码
+            changePassword: async (oldPassword, newPassword) => {
+                if (!State.isLoggedIn) return false;
+                
+                // 验证密码长度
+                if (newPassword.length !== 8) {
+                    document.getElementById('newPwdError').classList.remove('hidden');
+                    return false;
+                }
+                
+                try {
+                    // 先验证旧密码
+                    await AV.User.logIn(State.currentUser.username, oldPassword);
+                    
+                    // 修改密码
+                    const user = AV.User.current();
+                    user.setPassword(newPassword);
+                    await user.save();
+                    
+                    Utils.showSuccess('密码修改成功，请重新登录');
+                    return true;
+                } catch (err) {
+                    console.error('修改密码失败:', err);
+                    
+                    if (err.message.includes('Invalid username/password')) {
+                        Utils.showError('原密码错误');
+                    } else {
+                        Utils.showError('修改密码失败，请稍后再试');
+                    }
+                    
+                    return false;
+                }
+            },
+            
+            // 更换头像
+            changeAvatar: async (file) => {
+                if (!State.isLoggedIn || !file) return false;
+                
+                try {
+                    const user = AV.User.current();
+                    const avFile = new AV.File(file.name, file);
+                    await avFile.save();
+                    
+                    user.set('avatar', avFile.url());
+                    await user.save();
+                    
+                    // 更新本地状态
+                    State.currentUser.avatar = avFile.url();
+                    localStorage.setItem('currentUser', JSON.stringify(State.currentUser));
+                    
+                    Auth.updateUserInfoDisplay();
+                    Utils.showSuccess('头像更换成功');
+                    return true;
+                } catch (err) {
+                    console.error('更换头像失败:', err);
+                    Utils.showError('更换头像失败，请稍后再试');
+                    return false;
+                }
+            }
+        };
+
+        // 好友相关
+        const Friends = {
+            // 加载好友列表
+            loadFriends: async () => {
+                if (!State.isLoggedIn) return;
+                
+                try {
+                    // 在实际应用中，这里应该查询当前用户的好友关系
+                    // 这里使用模拟数据
+                    const friendsList = document.getElementById('friendsList');
+                    
+                    // 模拟没有好友的情况
+                    friendsList.innerHTML = '<p class="text-center text-gray-500 py-8">暂无好友，快去添加吧~</p>';
+                    
+                    // 实际应用中应该从服务器获取数据
+                    /*
+                    const query = new AV.Query('Friend');
+                    query.equalTo('user', AV.User.current());
+                    query.include('friend');
+                    const friends = await query.find();
+                    
+                    if (friends.length === 0) {
+                        friendsList.innerHTML = '<p class="text-center text-gray-500 py-8">暂无好友，快去添加吧~</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    friends.forEach(friendRelation => {
+                        const friend = friendRelation.get('friend').toJSON();
+                        const avatarUrl = friend.avatar || `https://picsum.photos/200/200?random=${friend.objectId}`;
+                        
+                        html += `
+                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                        <img src="${avatarUrl}" alt="${friend.username}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">${friend.username}</p>
+                                        <p class="text-xs text-gray-500">在线</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-gray-400 hover:text-primary transition-colors">
+                                        <i class="fa fa-comment"></i>
+                                    </button>
+                                    <button class="text-gray-400 hover:text-red-500 transition-colors">
+                                        <i class="fa fa-user-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    friendsList.innerHTML = html;
+                    document.getElementById('infoFriendCount').textContent = friends.length;
+                    */
+                } catch (err) {
+                    console.error('加载好友列表失败:', err);
+                    Utils.showError('加载好友列表失败');
+                }
+            },
+            
+            // 搜索用户
+            searchUsers: async (keyword) => {
+                if (!keyword || keyword.trim() === '') {
+                    document.getElementById('searchResults').classList.add('hidden');
+                    return;
+                }
+                
+                try {
+                    const query = new AV.Query(AV.User);
+                    query.contains('username', keyword);
+                    query.limit(5);
+                    const users = await query.find();
+                    
+                    const resultsEl = document.getElementById('searchResults');
+                    
+                    if (users.length === 0) {
+                        resultsEl.innerHTML = '<p class="px-4 py-3 text-gray-500">没有找到相关用户</p>';
+                        resultsEl.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    let html = '';
+                    users.forEach(user => {
+                        const userData = user.toJSON();
+                        if (userData.objectId === State.currentUser.objectId) return;
+                        
+                        const avatarUrl = userData.avatar || `https://picsum.photos/200/200?random=${userData.objectId}`;
+                        
+                        html += `
+                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full overflow-hidden mr-3">
+                                        <img src="${avatarUrl}" alt="${userData.username}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">${userData.username}</p>
+                                    </div>
+                                </div>
+                                <button class="add-friend-btn text-primary text-sm" data-username="${userData.username}">
+                                    添加好友
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    resultsEl.innerHTML = html;
+                    resultsEl.classList.remove('hidden');
+                    
+                    // 添加好友按钮事件
+                    document.querySelectorAll('.add-friend-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const username = btn.getAttribute('data-username');
+                            document.getElementById('addFriendUsername').value = username;
+                            document.getElementById('searchResults').classList.add('hidden');
+                            UI.showModal('addFriendModal');
+                        });
+                    });
+                } catch (err) {
+                    console.error('搜索用户失败:', err);
+                    Utils.showError('搜索失败，请稍后再试');
+                }
+            },
+            
+            // 添加好友
+            addFriend: async (username, message) => {
+                if (!State.isLoggedIn || !username) return false;
+                
+                try {
+                    // 查找用户
+                    const query = new AV.Query(AV.User);
+                    query.equalTo('username', username);
+                    const users = await query.find();
+                    
+                    if (users.length === 0) {
+                        Utils.showError('用户不存在');
+                        return false;
+                    }
+                    
+                    const friendUser = users[0];
+                    
+                    // 检查是否已经是好友
+                    /*
+                    const friendQuery = new AV.Query('Friend');
+                    friendQuery.equalTo('user', AV.User.current());
+                    friendQuery.equalTo('friend', friendUser);
+                    const existing = await friendQuery.first();
+                    
+                    if (existing) {
+                        Utils.showError('你们已经是好友了');
+                        return false;
+                    }
+                    */
+                    
+                    // 创建好友请求
+                    const FriendRequest = AV.Object.extend('FriendRequest');
+                    const request = new FriendRequest();
+                    request.set('from', AV.User.current());
+                    request.set('to', friendUser);
+                    request.set('message', message || '我想加你为好友');
+                    request.set('status', 'pending');
+                    await request.save();
+                    
+                    Utils.showSuccess('好友请求已发送');
+                    return true;
+                } catch (err) {
+                    console.error('添加好友失败:', err);
+                    Utils.showError('添加好友失败，请稍后再试');
+                    return false;
+                }
+            }
+        };
+
+        // 管理员相关
+        const Admin = {
+            // 加载用户列表
+            loadUsers: async () => {
+                if (!State.isLoggedIn || !(State.currentRole === Config.ROLES.SUPER_ADMIN || State.currentRole === Config.ROLES.ADMIN)) {
+                    return;
+                }
+                
+                try {
+                    const query = new AV.Query(AV.User);
+                    query.limit(20);
+                    const users = await query.find();
+                    
+                    const tableBody = document.getElementById('usersTableBody');
+                    let html = '';
+                    
+                    users.forEach(user => {
+                        const userData = user.toJSON();
+                        let roleText = '普通用户';
+                        
+                        // 这里简化处理，实际应用中需要查询用户角色
+                        if (userData.username === 'lemon') {
+                            roleText = '超级管理员';
+                        }
+                        
+                        html += `
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="py-3 px-4">${userData.objectId}</td>
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
+                                            <img src="${userData.avatar || `https://picsum.photos/200/200?random=${userData.objectId}`}" alt="${userData.username}" class="w-full h-full object-cover">
+                                        </div>
+                                        ${userData.username}
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">${roleText}</td>
+                                <td class="py-3 px-4">${Utils.formatDate(userData.createdAt)}</td>
+                                <td class="py-3 px-4">
+                                    <div class="flex space-x-2">
+                                        <button class="text-primary hover:text-primary/80 transition-colors">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-500 hover:text-red-700 transition-colors ${userData.username === 'lemon' ? 'opacity-50 cursor-not-allowed' : ''}" ${userData.username === 'lemon' ? 'disabled' : ''}>
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tableBody.innerHTML = html;
+                    document.getElementById('totalUsers').textContent = users.length;
+                } catch (err) {
+                    console.error('加载用户列表失败:', err);
+                    Utils.showError('加载用户列表失败');
+                }
+            }
+        };
+
+        // UI相关
+        const UI = {
+            // 显示指定内容区域
+            showContent: (contentId) => {
+                // 隐藏所有内容
+                document.getElementById('authCard').classList.add('hidden');
+                document.getElementById('homeContent').classList.add('hidden');
+                document.getElementById('profileContent').classList.add('hidden');
+                document.getElementById('friendsContent').classList.add('hidden');
+                document.getElementById('adminContent').classList.add('hidden');
+                
+                // 显示指定内容
+                document.getElementById(contentId).classList.remove('hidden');
+                
+                // 高亮当前导航
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('bg-primary/10', 'text-primary');
+                    btn.classList.add('hover:bg-gray-100');
+                });
+                
+                // 根据内容设置导航高亮
+                if (contentId === 'homeContent') {
+                    document.querySelectorAll('.nav-btn')[0].classList.add('bg-primary/10', 'text-primary');
+                    document.querySelectorAll('.nav-btn')[0].classList.remove('hover:bg-gray-100');
+                } else if (contentId === 'friendsContent') {
+                    document.querySelectorAll('.nav-btn')[1].classList.add('bg-primary/10', 'text-primary');
+                    document.querySelectorAll('.nav-btn')[1].classList.remove('hover:bg-gray-100');
+                }
+            },
+            
+            // 显示模态框
+            showModal: (modalId) => {
+                document.getElementById(modalId).classList.remove('hidden');
+                // 清空错误提示
+                document.querySelectorAll('.text-red-500').forEach(el => {
+                    el.classList.add('hidden');
+                });
+                // 清空输入框
+                if (modalId === 'addFriendModal') {
+                    document.getElementById('addFriendMessage').value = '';
+                } else if (modalId === 'changePwdModal') {
+                    document.getElementById('oldPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                }
+            },
+            
+            // 隐藏模态框
+            hideModal: (modalId) => {
+                document.getElementById(modalId).classList.add('hidden');
+            }
+        };
+
+        // 事件监听
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化
+            Auth.init();
+            
+            // 登录/注册切换
+            document.getElementById('showRegisterBtn').addEventListener('click', () => {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            });
+            
+            document.getElementById('showLoginBtn').addEventListener('click', () => {
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+            });
+            
+            // 登录按钮
+            document.getElementById('loginBtn').addEventListener('click', async () => {
+                const username = document.getElementById('loginUsername').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                
+                if (!username || !password) {
+                    Utils.showError('请输入用户名和密码');
+                    return;
+                }
+                
+                const success = await Auth.login(username, password);
+                if (success) {
+                    UI.showContent('homeContent');
+                }
+            });
+            
+            // 注册按钮
+            document.getElementById('registerBtn').addEventListener('click', async () => {
+                const username = document.getElementById('regUsername').value.trim();
+                const password = document.getElementById('regPassword').value;
+                
+                if (!username || !password) {
+                    Utils.showError('请输入用户名和密码');
+                    return;
+                }
+                
+                const success = await Auth.register(username, password);
+                if (success) {
+                    document.getElementById('registerForm').classList.add('hidden');
+                    document.getElementById('loginForm').classList.remove('hidden');
+                }
+            });
+            
+            // 退出登录
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                Auth.logout();
+            });
+            
+            // 用户菜单切换
+            document.getElementById('userAvatarBtn').addEventListener('click', () => {
+                document.getElementById('avatarDropdown').classList.toggle('hidden');
+            });
+            
+            // 点击其他地方关闭下拉菜单
+            document.addEventListener('click', (e) => {
+                const userMenu = document.getElementById('userMenu');
+                if (!userMenu.contains(e.target)) {
+                    document.getElementById('avatarDropdown').classList.add('hidden');
+                }
+            });
+            
+            // 导航按钮
+            document.querySelectorAll('.nav-btn')[0].addEventListener('click', () => {
+                if (State.isLoggedIn) {
+                    UI.showContent('homeContent');
+                } else {
+                    UI.showContent('authCard');
+                }
+            });
+            
+            document.querySelectorAll('.nav-btn')[1].addEventListener('click', () => {
+                if (State.isLoggedIn) {
+                    UI.showContent('friendsContent');
+                } else {
+                    Utils.showError('请先登录');
+                }
+            });
+            
+            // 个人中心
+            document.getElementById('profileBtn').addEventListener('click', () => {
+                if (State.isLoggedIn) {
+                    UI.showContent('profileContent');
+                    document.getElementById('avatarDropdown').classList.add('hidden');
+                }
+            });
+            
+            // 管理中心
+            document.getElementById('adminBtn').addEventListener('click', () => {
+                if (State.isLoggedIn && (State.currentRole === Config.ROLES.SUPER_ADMIN || State.currentRole === Config.ROLES.ADMIN)) {
+                    UI.showContent('adminContent');
+                    document.getElementById('avatarDropdown').classList.add('hidden');
+                }
+            });
+            
+            // 好友页面
+            document.getElementById('toFriendsBtn').addEventListener('click', () => {
+                if (State.isLoggedIn) {
+                    UI.showContent('friendsContent');
+                } else {
+                    Utils.showError('请先登录');
+                }
+            });
+            
+            // 添加好友
+            document.getElementById('addFriendBtn').addEventListener('click', () => {
+                UI.showModal('addFriendModal');
+            });
+            
+            document.getElementById('closeAddFriendModal').addEventListener('click', () => {
+                UI.hideModal('addFriendModal');
+            });
+            
+            document.getElementById('confirmAddFriendBtn').addEventListener('click', async () => {
+                const username = document.getElementById('addFriendUsername').value.trim();
+                const message = document.getElementById('addFriendMessage').value.trim();
+                
+                if (!username) {
+                    Utils.showError('请输入好友昵称');
+                    return;
+                }
+                
+                const success = await Friends.addFriend(username, message);
+                if (success) {
+                    UI.hideModal('addFriendModal');
+                }
+            });
+            
+            // 修改密码
+            document.getElementById('changePwdBtn').addEventListener('click', () => {
+                UI.showModal('changePwdModal');
+            });
+            
+            document.getElementById('closeChangePwdModal').addEventListener('click', () => {
+                UI.hideModal('changePwdModal');
+            });
+            
+            document.getElementById('confirmChangePwdBtn').addEventListener('click', async () => {
+                const oldPassword = document.getElementById('oldPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // 验证
+                let isValid = true;
+                
+                if (newPassword.length !== 8) {
+                    document.getElementById('newPwdError').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('newPwdError').classList.add('hidden');
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    document.getElementById('confirmPwdError').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('confirmPwdError').classList.add('hidden');
+                }
+                
+                if (!isValid) return;
+                
+                const success = await Auth.changePassword(oldPassword, newPassword);
+                if (success) {
+                    UI.hideModal('changePwdModal');
+                    Auth.logout();
+                }
+            });
+            
+            // 更换头像
+            document.getElementById('changeAvatarBtn').addEventListener('click', () => {
+            document.getElementById('changeAvatarBtn').addEventListener('click', () => {
+                document.getElementById('avatarInput').click();
+            });
+            
+            document.getElementById('avatarInput').addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    await Auth.changeAvatar(file);
+                    // 重置input，允许重复选择同一文件
+                    e.target.value = '';
+                }
+            });
+            
+            // 密码长度验证
+            document.getElementById('loginPassword').addEventListener('input', (e) => {
+                if (e.target.value.length !== 8) {
+                    document.getElementById('passwordError').classList.remove('hidden');
+                } else {
+                    document.getElementById('passwordError').classList.add('hidden');
+                }
+            });
+            
+            document.getElementById('regPassword').addEventListener('input', (e) => {
+                if (e.target.value.length !== 8) {
+                    document.getElementById('regPasswordError').classList.remove('hidden');
+                } else {
+                    document.getElementById('regPasswordError').classList.add('hidden');
+                }
+            });
+            
+            document.getElementById('newPassword').addEventListener('input', (e) => {
+                if (e.target.value.length !== 8) {
+                    document.getElementById('newPwdError').classList.remove('hidden');
+                } else {
+                    document.getElementById('newPwdError').classList.add('hidden');
+                }
+                
+                // 检查两次输入是否一致
+                if (e.target.value !== document.getElementById('confirmPassword').value) {
+                    document.getElementById('confirmPwdError').classList.remove('hidden');
+                } else {
+                    document.getElementById('confirmPwdError').classList.add('hidden');
+                }
+            });
+            
+            document.getElementById('confirmPassword').addEventListener('input', (e) => {
+                if (e.target.value !== document.getElementById('newPassword').value) {
+                    document.getElementById('confirmPwdError').classList.remove('hidden');
+                } else {
+                    document.getElementById('confirmPwdError').classList.add('hidden');
+                }
+            });
+            
+            // 密码显示/隐藏切换
+            document.querySelectorAll('.toggle-password').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    const input = this.parentElement.querySelector('input');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+            
+            // 移动端搜索切换
+            document.getElementById('mobileSearchBtn').addEventListener('click', () => {
+                document.getElementById('mobileSearch').classList.toggle('hidden');
+            });
+            
+            // 好友搜索
+            document.getElementById('friendSearch').addEventListener('input', (e) => {
+                Friends.searchUsers(e.target.value.trim());
+            });
+            
+            // 点击其他地方关闭搜索结果
+            document.addEventListener('click', (e) => {
+                const searchContainer = document.querySelector('#friendSearch').parentElement;
+                if (!searchContainer.contains(e.target)) {
+                    document.getElementById('searchResults').classList.add('hidden');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
