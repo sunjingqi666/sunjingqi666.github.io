@@ -410,7 +410,7 @@
     </div>
 
     <script>
-        // 关键修复1：正确初始化LeanCloud（使用你提供的有效密钥）
+        // 关键修复1：正确初始化LeanCloud
         AV.init({
             appId: "30kUc571qTv0YSCTWVGRbAxk-gzGzoHsz",
             appKey: "LxFqgqjRZ3SaRGYUGznRiWAr",
@@ -496,7 +496,7 @@
             Utils.showToast('success', `已切换到${theme === 'theme1' ? '清新蓝' : theme === 'theme2' ? '活力橙' : '森系绿'}主题`);
         }
 
-        // 关键修复2：登录功能（确保事件绑定和逻辑完整）
+        // 关键修复2：改进角色检查逻辑，确保能正确识别超级管理员
         const Auth = {
             init: async () => {
                 try {
@@ -519,7 +519,7 @@
                 }
             },
             
-            // 确保管理员账号可用（测试用：账号lemon，密码ning6666）
+            // 确保管理员账号可用
             ensureSuperAdminExists: async () => {
                 try {
                     // 检查管理员角色
@@ -531,23 +531,12 @@
                         role.getACL().setPublicReadAccess(true);
                         await role.save();
                     }
-                    
-                    // 检查测试账号是否存在
-                    let userQuery = new AV.Query(AV.User);
-                    userQuery.equalTo('username', 'lemon');
-                    let users = await userQuery.find();
-                    if (users.length === 0) {
-                        let user = new AV.User();
-                        user.setUsername('lemon');
-                        user.setPassword('ning6666'); // 8位密码，符合要求
-                        await user.signUp();
-                    }
                 } catch (err) {
-                    console.error('管理员账号检查失败:', err);
+                    console.error('管理员角色检查失败:', err);
                 }
             },
             
-            // 登录核心逻辑（修复无响应问题）
+            // 登录核心逻辑
             login: async (username, password) => {
                 if (password.length !== 8) {
                     document.getElementById('passwordError').classList.remove('hidden');
@@ -559,7 +548,7 @@
                     const user = await AV.User.logIn(username, password);
                     State.currentUser = user.toJSON();
                     State.isLoggedIn = true;
-                    await Auth.checkUserRole();
+                    await Auth.checkUserRole(); // 登录后检查角色
                     Auth.updateUserDisplay();
                     Utils.showToast('success', '登录成功！');
                     return true;
@@ -617,6 +606,7 @@
                 const dropdownRole = document.getElementById('dropdownRole');
                 const adminBtn = document.getElementById('adminBtn');
                 const welcomeNick = document.getElementById('welcomeNickname');
+                const welcomeRole = document.getElementById('welcomeRole');
                 
                 if (State.isLoggedIn) {
                     const avatarUrl = State.currentUser.avatar || `https://picsum.photos/200/200?random=${State.currentUser.objectId}`;
@@ -636,6 +626,7 @@
                         adminBtn.classList.add('hidden');
                     }
                     dropdownRole.textContent = roleText;
+                    welcomeRole.textContent = roleText; // 更新欢迎信息中的角色
                 } else {
                     avatar.innerHTML = `<img src="https://picsum.photos/200/200?random=1" alt="游客头像">`;
                     nickname.textContent = '游客';
@@ -645,19 +636,41 @@
                 }
             },
             
+            // 关键修复3：改进角色查询逻辑，确保能正确获取用户所属角色
             checkUserRole: async () => {
                 if (!State.currentUser) return;
                 try {
+                    // 创建用户对象引用
                     const user = AV.Object.createWithoutData('_User', State.currentUser.objectId);
-                    const query = new AV.Query(AV.Role);
-                    query.equalTo('users', user);
-                    const roles = await query.find();
                     
-                    State.currentRole = roles.some(r => r.get('name') === Config.ROLES.SUPER_ADMIN) 
-                        ? Config.ROLES.SUPER_ADMIN 
-                        : roles.some(r => r.get('name') === Config.ROLES.ADMIN)
-                            ? Config.ROLES.ADMIN
-                            : Config.ROLES.USER;
+                    // 先查询超级管理员角色
+                    let superAdminQuery = new AV.Query(AV.Role);
+                    superAdminQuery.equalTo('name', Config.ROLES.SUPER_ADMIN);
+                    superAdminQuery.equalTo('users', user);
+                    let superAdminResult = await superAdminQuery.find();
+                    
+                    if (superAdminResult.length > 0) {
+                        State.currentRole = Config.ROLES.SUPER_ADMIN;
+                        console.log('用户是超级管理员');
+                        return;
+                    }
+                    
+                    // 再查询普通管理员角色
+                    let adminQuery = new AV.Query(AV.Role);
+                    adminQuery.equalTo('name', Config.ROLES.ADMIN);
+                    adminQuery.equalTo('users', user);
+                    let adminResult = await adminQuery.find();
+                    
+                    if (adminResult.length > 0) {
+                        State.currentRole = Config.ROLES.ADMIN;
+                        console.log('用户是管理员');
+                        return;
+                    }
+                    
+                    // 默认是普通用户
+                    State.currentRole = Config.ROLES.USER;
+                    console.log('用户是普通用户');
+                    
                 } catch (err) {
                     console.error('获取角色失败:', err);
                     State.currentRole = Config.ROLES.USER;
@@ -675,13 +688,13 @@
             }
         };
 
-        // 关键修复3：确保登录按钮事件正确绑定（DOM加载完成后执行）
+        // 事件绑定
         document.addEventListener('DOMContentLoaded', () => {
             // 初始化功能
             Auth.init();
             Lottery.init();
             
-            // 登录按钮点击事件（核心修复：确保能触发登录逻辑）
+            // 登录按钮点击事件
             document.getElementById('loginBtn').addEventListener('click', async () => {
                 const username = document.getElementById('loginUsername').value.trim();
                 const password = document.getElementById('loginPassword').value;
@@ -759,4 +772,3 @@
     </script>
 </body>
 </html>
-    
