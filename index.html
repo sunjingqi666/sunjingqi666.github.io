@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>次元校园 - 管理系统</title>
+    <title>Lemon - 管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
     
-    <!-- 配置Tailwind自定义主题 -->
+    <!-- 配置Tailwind自定义主题 - 调整配色，移除粉色系 -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#FF6B9B',
-                        secondary: '#7B66FF',
-                        accent: '#FFD166',
-                        dark: '#2A2A4A',
-                        light: '#FFF5F8',
+                        primary: '#4F86F7',      // 主色调：清新蓝
+                        secondary: '#6B5CA5',    // 辅助色：淡紫
+                        accent: '#FFB344',       // 强调色：暖黄
+                        dark: '#2C3E50',         // 深色
+                        light: '#F8FAFC',        // 浅色背景
                     },
                     fontFamily: {
-                        anime: ['"Comic Sans MS"', '"Bubblegum Sans"', 'cursive'],
+                        main: ['"Nunito"', '"Segoe UI"', 'system-ui', 'sans-serif'],
                     },
                     animation: {
                         'float': 'float 3s ease-in-out infinite',
@@ -44,27 +44,28 @@
                 content-visibility: auto;
             }
             .text-shadow {
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
             }
-            .border-anime {
-                border-image: linear-gradient(to right, #FF6B9B, #7B66FF) 1;
+            .border-accent {
+                border-image: linear-gradient(to right, #4F86F7, #6B5CA5) 1;
             }
-            .bg-anime-pattern {
-                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff6b9b' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            .bg-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234f86f7' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-light bg-anime-pattern min-h-screen font-anime text-dark">
+<body class="bg-light bg-pattern min-h-screen font-main text-dark">
     <!-- 顶部导航栏 -->
-    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-md transition-all duration-300">
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-md transition-all duration-300">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
             <!-- Logo -->
             <div class="flex items-center space-x-2">
                 <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
-                    <i class="fa fa-graduation-cap text-white text-xl"></i>
+                    <i class="fa fa-lemon-o text-white text-xl"></i>
                 </div>
-                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">次元校园</h1>
+                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Lemon</h1>
             </div>
             
             <!-- 搜索框 -->
@@ -138,7 +139,7 @@
                     </button>
                     <button class="nav-btn w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 transition-colors">
                         <i class="fa fa-calendar text-xl w-6 text-center"></i>
-                        <span>校园活动</span>
+                        <span>活动中心</span>
                     </button>
                     <button class="nav-btn w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 transition-colors">
                         <i class="fa fa-bullhorn text-xl w-6 text-center"></i>
@@ -160,12 +161,12 @@
                     </nav>
                 </div>
                 
-                <!-- 二次元装饰元素 -->
+                <!-- 装饰元素 -->
                 <div class="mt-6 relative">
                     <div class="bg-gradient-to-br from-secondary/20 to-primary/20 rounded-xl p-4">
-                        <p class="text-sm font-medium">今日运势</p>
-                        <p class="text-xs text-gray-600 mt-1">幸运色：<span class="inline-block w-3 h-3 bg-accent rounded-full align-middle"></span> 黄色</p>
-                        <p class="text-xs text-gray-600">幸运物：动漫周边</p>
+                        <p class="text-sm font-medium">今日状态</p>
+                        <p class="text-xs text-gray-600 mt-1">幸运色：<span class="inline-block w-3 h-3 bg-accent rounded-full align-middle"></span> 暖黄</p>
+                        <p class="text-xs text-gray-600">状态：一切顺利</p>
                     </div>
                     <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-accent rounded-full flex items-center justify-center animate-float">
                         <i class="fa fa-star text-white"></i>
@@ -182,10 +183,10 @@
                     <!-- 左侧装饰 -->
                     <div class="md:w-1/2 hidden md:flex flex-col justify-center">
                         <div class="relative">
-                            <img src="https://picsum.photos/600/800?random=10" alt="校园生活" class="rounded-xl shadow-lg">
+                            <img src="https://picsum.photos/600/800?random=10" alt="系统封面" class="rounded-xl shadow-lg">
                             <div class="absolute -bottom-4 -left-4 bg-primary text-white p-3 rounded-lg shadow-lg">
-                                <p class="font-bold">欢迎来到次元校园</p>
-                                <p class="text-sm">开启你的校园之旅吧</p>
+                                <p class="font-bold">欢迎使用</p>
+                                <p class="text-sm">开启你的旅程吧</p>
                             </div>
                         </div>
                     </div>
@@ -305,7 +306,7 @@
                             <i class="fa fa-users text-primary text-xl"></i>
                         </div>
                         <h3 class="text-xl font-bold mb-2">好友管理</h3>
-                        <p class="text-gray-600 text-sm mb-4">查看好友列表，添加新好友，维系校园社交</p>
+                        <p class="text-gray-600 text-sm mb-4">查看好友列表，添加新好友，维系社交关系</p>
                         <button id="toFriendsBtn" class="text-primary font-medium flex items-center">
                             查看好友 <i class="fa fa-arrow-right ml-2"></i>
                         </button>
@@ -326,8 +327,8 @@
                         <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center mb-4">
                             <i class="fa fa-calendar text-accent text-xl"></i>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">校园活动</h3>
-                        <p class="text-gray-600 text-sm mb-4">浏览最新活动，报名参与，丰富校园生活</p>
+                        <h3 class="text-xl font-bold mb-2">活动中心</h3>
+                        <p class="text-gray-600 text-sm mb-4">浏览最新活动，报名参与，丰富生活</p>
                         <button class="text-accent font-medium flex items-center">
                             查看活动 <i class="fa fa-arrow-right ml-2"></i>
                         </button>
@@ -351,15 +352,15 @@
                                     <img src="https://picsum.photos/200/200?random=2" alt="用户头像" class="w-full h-full object-cover">
                                 </div>
                                 <div>
-                                    <p class="font-medium">动漫爱好者</p>
+                                    <p class="font-medium">用户A</p>
                                     <p class="text-xs text-gray-500">2小时前</p>
                                 </div>
                             </div>
-                            <p class="mb-4">今天的校园漫展太精彩了！大家都去看了吗？分享几张现场照片~</p>
+                            <p class="mb-4">今天的活动太精彩了！大家都去看了吗？分享几张现场照片~</p>
                             <div class="grid grid-cols-3 gap-2 mb-4">
-                                <img src="https://picsum.photos/300/300?random=21" alt="漫展照片" class="rounded-lg w-full h-24 object-cover">
-                                <img src="https://picsum.photos/300/300?random=22" alt="漫展照片" class="rounded-lg w-full h-24 object-cover">
-                                <img src="https://picsum.photos/300/300?random=23" alt="漫展照片" class="rounded-lg w-full h-24 object-cover">
+                                <img src="https://picsum.photos/300/300?random=21" alt="活动照片" class="rounded-lg w-full h-24 object-cover">
+                                <img src="https://picsum.photos/300/300?random=22" alt="活动照片" class="rounded-lg w-full h-24 object-cover">
+                                <img src="https://picsum.photos/300/300?random=23" alt="活动照片" class="rounded-lg w-full h-24 object-cover">
                             </div>
                             <div class="flex items-center text-gray-500 text-sm">
                                 <button class="flex items-center hover:text-primary transition-colors mr-4">
@@ -377,15 +378,15 @@
                                     <img src="https://picsum.photos/200/200?random=3" alt="用户头像" class="w-full h-full object-cover">
                                 </div>
                                 <div>
-                                    <p class="font-medium">学霸君</p>
+                                    <p class="font-medium">用户B</p>
                                     <p class="text-xs text-gray-500">昨天 18:30</p>
                                 </div>
                             </div>
-                            <p class="mb-4">高等数学期末复习资料已整理完毕，需要的同学可以私信我~ #学习互助#</p>
+                            <p class="mb-4">整理了一些学习资料，需要的朋友可以私信我~ #学习互助#</p>
                             <div class="bg-gray-100 rounded-lg p-3 mb-4">
                                 <div class="flex items-center">
                                     <i class="fa fa-file-text-o text-gray-500 mr-2"></i>
-                                    <p class="text-sm">高等数学期末复习要点.pdf</p>
+                                    <p class="text-sm">学习资料汇总.pdf</p>
                                 </div>
                             </div>
                             <div class="flex items-center text-gray-500 text-sm">
@@ -556,11 +557,11 @@
                 <div class="mb-6 md:mb-0">
                     <div class="flex items-center space-x-2 mb-4">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
-                            <i class="fa fa-graduation-cap text-white text-xl"></i>
+                            <i class="fa fa-lemon-o text-white text-xl"></i>
                         </div>
-                        <h2 class="text-2xl font-bold">次元校园</h2>
+                        <h2 class="text-2xl font-bold">Lemon</h2>
                     </div>
-                    <p class="text-gray-400 max-w-md">二次元风格的校园管理系统，让校园生活更加丰富多彩，连接每一位同学。</p>
+                    <p class="text-gray-400 max-w-md">简洁高效的管理系统，连接每一位用户，提供优质体验。</p>
                 </div>
                 
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
@@ -569,7 +570,7 @@
                         <ul class="space-y-2 text-gray-400">
                             <li><a href="#" class="hover:text-primary transition-colors">首页</a></li>
                             <li><a href="#" class="hover:text-primary transition-colors">互助问答</a></li>
-                            <li><a href="#" class="hover:text-primary transition-colors">校园活动</a></li>
+                            <li><a href="#" class="hover:text-primary transition-colors">活动中心</a></li>
                         </ul>
                     </div>
                     
@@ -600,7 +601,7 @@
             </div>
             
             <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-500 text-sm">
-                <p>© 2023 次元校园管理系统 - 版权所有</p>
+                <p>© 2025 lemon版权所有</p>
             </div>
         </div>
     </footer>
@@ -670,13 +671,13 @@
     </div>
 
     <!-- 成功提示 -->
-    <div id="successToast" class="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center">
+    <div id="successToast" class="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
         <i class="fa fa-check-circle mr-2"></i>
         <span id="successMessage">操作成功</span>
     </div>
 
     <!-- 错误提示 -->
-    <div id="errorToast" class="fixed bottom-6 right-6 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center">
+    <div id="errorToast" class="fixed bottom-6 right-6 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
         <i class="fa fa-exclamation-circle mr-2"></i>
         <span id="errorMessage">操作失败</span>
     </div>
@@ -741,20 +742,25 @@
         const Auth = {
             // 初始化
             init: async () => {
-                // 检查当前登录状态
-                const currentUser = AV.User.current();
-                if (currentUser) {
-                    State.currentUser = currentUser.toJSON();
-                    State.isLoggedIn = true;
-                    await Auth.checkUserRole();
-                    Auth.updateUserInfoDisplay();
-                    UI.showContent('homeContent');
-                } else {
-                    UI.showContent('authCard');
+                try {
+                    // 检查当前登录状态
+                    const currentUser = AV.User.current();
+                    if (currentUser) {
+                        State.currentUser = currentUser.toJSON();
+                        State.isLoggedIn = true;
+                        await Auth.checkUserRole();
+                        Auth.updateUserInfoDisplay();
+                        UI.showContent('homeContent');
+                    } else {
+                        UI.showContent('authCard');
+                    }
+                    
+                    // 确保超级管理员存在
+                    await Auth.ensureSuperAdminExists();
+                } catch (err) {
+                    console.error('初始化失败:', err);
+                    Utils.showError('系统初始化失败，请刷新页面重试');
                 }
-                
-                // 确保超级管理员存在
-                await Auth.ensureSuperAdminExists();
             },
             
             // 确保超级管理员存在
@@ -812,9 +818,6 @@
             checkUserRole: async () => {
                 if (!State.currentUser) return;
                 
-                // 强制清除本地缓存
-                localStorage.removeItem('currentRole');
-                
                 try {
                     const user = AV.Object.createWithoutData('_User', State.currentUser.objectId);
                     const query = new AV.Query(AV.Role);
@@ -837,14 +840,11 @@
                     }
                     
                     State.currentRole = newRole;
-                    localStorage.setItem('currentRole', newRole);
                     console.log('当前用户角色:', newRole);
-                    
                     return newRole;
                 } catch (err) {
                     console.error('获取用户角色失败:', err);
                     State.currentRole = Config.ROLES.USER;
-                    localStorage.setItem('currentRole', Config.ROLES.USER);
                     return Config.ROLES.USER;
                 }
             },
@@ -863,10 +863,6 @@
                     State.isLoggedIn = true;
                     await Auth.checkUserRole();
                     Auth.updateUserInfoDisplay();
-                    
-                    // 保存到本地存储
-                    localStorage.setItem('currentUser', JSON.stringify(State.currentUser));
-                    localStorage.setItem('currentRole', State.currentRole);
                     
                     Utils.showSuccess('登录成功');
                     return true;
@@ -935,10 +931,6 @@
                     State.currentUser = null;
                     State.currentRole = Config.ROLES.USER;
                     State.isLoggedIn = false;
-                    
-                    // 清除本地存储
-                    localStorage.removeItem('currentUser');
-                    localStorage.removeItem('currentRole');
                     
                     Auth.updateUserInfoDisplay();
                     UI.showContent('authCard');
@@ -1066,7 +1058,6 @@
                     
                     // 更新本地状态
                     State.currentUser.avatar = avFile.url();
-                    localStorage.setItem('currentUser', JSON.stringify(State.currentUser));
                     
                     Auth.updateUserInfoDisplay();
                     Utils.showSuccess('头像更换成功');
@@ -1086,56 +1077,9 @@
                 if (!State.isLoggedIn) return;
                 
                 try {
-                    // 在实际应用中，这里应该查询当前用户的好友关系
-                    // 这里使用模拟数据
+                    // 模拟好友列表
                     const friendsList = document.getElementById('friendsList');
-                    
-                    // 模拟没有好友的情况
                     friendsList.innerHTML = '<p class="text-center text-gray-500 py-8">暂无好友，快去添加吧~</p>';
-                    
-                    // 实际应用中应该从服务器获取数据
-                    /*
-                    const query = new AV.Query('Friend');
-                    query.equalTo('user', AV.User.current());
-                    query.include('friend');
-                    const friends = await query.find();
-                    
-                    if (friends.length === 0) {
-                        friendsList.innerHTML = '<p class="text-center text-gray-500 py-8">暂无好友，快去添加吧~</p>';
-                        return;
-                    }
-                    
-                    let html = '';
-                    friends.forEach(friendRelation => {
-                        const friend = friendRelation.get('friend').toJSON();
-                        const avatarUrl = friend.avatar || `https://picsum.photos/200/200?random=${friend.objectId}`;
-                        
-                        html += `
-                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
-                                        <img src="${avatarUrl}" alt="${friend.username}" class="w-full h-full object-cover">
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">${friend.username}</p>
-                                        <p class="text-xs text-gray-500">在线</p>
-                                    </div>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <button class="text-gray-400 hover:text-primary transition-colors">
-                                        <i class="fa fa-comment"></i>
-                                    </button>
-                                    <button class="text-gray-400 hover:text-red-500 transition-colors">
-                                        <i class="fa fa-user-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    friendsList.innerHTML = html;
-                    document.getElementById('infoFriendCount').textContent = friends.length;
-                    */
                 } catch (err) {
                     console.error('加载好友列表失败:', err);
                     Utils.showError('加载好友列表失败');
@@ -1220,26 +1164,11 @@
                         return false;
                     }
                     
-                    const friendUser = users[0];
-                    
-                    // 检查是否已经是好友
-                    /*
-                    const friendQuery = new AV.Query('Friend');
-                    friendQuery.equalTo('user', AV.User.current());
-                    friendQuery.equalTo('friend', friendUser);
-                    const existing = await friendQuery.first();
-                    
-                    if (existing) {
-                        Utils.showError('你们已经是好友了');
-                        return false;
-                    }
-                    */
-                    
                     // 创建好友请求
                     const FriendRequest = AV.Object.extend('FriendRequest');
                     const request = new FriendRequest();
                     request.set('from', AV.User.current());
-                    request.set('to', friendUser);
+                    request.set('to', users[0]);
                     request.set('message', message || '我想加你为好友');
                     request.set('status', 'pending');
                     await request.save();
@@ -1274,7 +1203,6 @@
                         const userData = user.toJSON();
                         let roleText = '普通用户';
                         
-                        // 这里简化处理，实际应用中需要查询用户角色
                         if (userData.username === 'lemon') {
                             roleText = '超级管理员';
                         }
@@ -1368,7 +1296,7 @@
             }
         };
 
-        // 事件监听
+        // 事件监听 - 优化响应速度，确保所有交互正常
         document.addEventListener('DOMContentLoaded', () => {
             // 初始化
             Auth.init();
@@ -1543,7 +1471,6 @@
             
             // 更换头像
             document.getElementById('changeAvatarBtn').addEventListener('click', () => {
-            document.getElementById('changeAvatarBtn').addEventListener('click', () => {
                 document.getElementById('avatarInput').click();
             });
             
@@ -1551,8 +1478,7 @@
                 const file = e.target.files[0];
                 if (file) {
                     await Auth.changeAvatar(file);
-                    // 重置input，允许重复选择同一文件
-                    e.target.value = '';
+                    e.target.value = ''; // 重置input
                 }
             });
             
@@ -1635,3 +1561,4 @@
     </script>
 </body>
 </html>
+    
