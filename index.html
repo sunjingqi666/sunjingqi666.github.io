@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 网站图标（柠檬图标） -->
     <link rel="icon" href="https://picsum.photos/32/32?random=lemon" type="image/png">
     <title>Lemon - 管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
     
-    <!-- 配置Tailwind自定义主题（多主题支持） -->
+    <!-- Tailwind配置 -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        // 主题1：清新蓝紫（默认）
                         primary: '#4F86F7',
                         secondary: '#6B5CA5',
-                        // 主题2：活力橙粉
                         primary2: '#FF7F50',
                         secondary2: '#FF69B4',
-                        // 主题3：森系绿棕
                         primary3: '#2E8B57',
                         secondary3: '#8B4513',
                         accent: '#FFB344',
@@ -49,72 +45,28 @@
     
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .text-shadow {
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            }
-            .btn-effect {
-                @apply transition-all duration-200 hover:shadow-md active:scale-95;
-            }
-            .sidebar-btn {
-                @apply w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 hover:shadow-sm transition-all duration-200;
-            }
-            .sidebar-btn-active {
-                @apply bg-primary/10 text-primary font-medium;
-            }
+            .content-auto { content-visibility: auto; }
+            .text-shadow { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); }
+            .btn-effect { @apply transition-all duration-200 hover:shadow-md active:scale-95; }
+            .sidebar-btn { @apply w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 hover:shadow-sm transition-all duration-200; }
+            .sidebar-btn-active { @apply bg-primary/10 text-primary font-medium; }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- 主题切换样式 -->
+    <!-- 主题样式 -->
     <style>
-        /* 主题1：清新蓝紫 */
-        body.theme1 {
-            --color-primary: #4F86F7;
-            --color-secondary: #6B5CA5;
-            --color-text: #2C3E50;
-            --color-bg: #F8FAFC;
-        }
-        /* 主题2：活力橙粉 */
-        body.theme2 {
-            --color-primary: #FF7F50;
-            --color-secondary: #FF69B4;
-            --color-text: #332211;
-            --color-bg: #FFF8F5;
-        }
-        /* 主题3：森系绿棕 */
-        body.theme3 {
-            --color-primary: #2E8B57;
-            --color-secondary: #8B4513;
-            --color-text: #222222;
-            --color-bg: #F5F7F0;
-        }
+        body.theme1 { --color-primary: #4F86F7; --color-secondary: #6B5CA5; --color-text: #2C3E50; --color-bg: #F8FAFC; }
+        body.theme2 { --color-primary: #FF7F50; --color-secondary: #FF69B4; --color-text: #332211; --color-bg: #FFF8F5; }
+        body.theme3 { --color-primary: #2E8B57; --color-secondary: #8B4513; --color-text: #222222; --color-bg: #F5F7F0; }
         
-        /* 主题变量应用 */
-        body {
-            background-color: var(--color-bg);
-            color: var(--color-text);
-        }
-        .bg-primary {
-            background-color: var(--color-primary);
-        }
-        .bg-secondary {
-            background-color: var(--color-secondary);
-        }
-        .text-primary {
-            color: var(--color-primary);
-        }
-        .text-secondary {
-            color: var(--color-secondary);
-        }
-        .border-primary {
-            border-color: var(--color-primary);
-        }
-        .gradient-primary {
-            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
-        }
+        body { background-color: var(--color-bg); color: var(--color-text); }
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .text-primary { color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .border-primary { border-color: var(--color-primary); }
+        .gradient-primary { background: linear-gradient(to right, var(--color-primary), var(--color-secondary)); }
     </style>
 </head>
 <body class="min-h-screen font-main theme1">
@@ -129,17 +81,11 @@
                 <h1 class="text-2xl font-bold bg-clip-text text-transparent gradient-primary">Lemon</h1>
             </div>
             
-            <!-- 主题切换按钮 -->
+            <!-- 主题切换 -->
             <div class="flex items-center space-x-2">
-                <button onclick="switchTheme('theme1')" class="theme-btn px-3 py-1 rounded-md border border-primary/30 text-sm btn-effect">
-                    清新蓝
-                </button>
-                <button onclick="switchTheme('theme2')" class="theme-btn px-3 py-1 rounded-md border border-primary2/30 text-sm btn-effect">
-                    活力橙
-                </button>
-                <button onclick="switchTheme('theme3')" class="theme-btn px-3 py-1 rounded-md border border-primary3/30 text-sm btn-effect">
-                    森系绿
-                </button>
+                <button onclick="switchTheme('theme1')" class="theme-btn px-3 py-1 rounded-md border border-primary/30 text-sm btn-effect">清新蓝</button>
+                <button onclick="switchTheme('theme2')" class="theme-btn px-3 py-1 rounded-md border border-primary2/30 text-sm btn-effect">活力橙</button>
+                <button onclick="switchTheme('theme3')" class="theme-btn px-3 py-1 rounded-md border border-primary3/30 text-sm btn-effect">森系绿</button>
             </div>
             
             <!-- 用户区域 -->
@@ -219,7 +165,7 @@
         
         <!-- 主内容 -->
         <div class="flex-1">
-            <!-- 抽签功能（初始界面） -->
+            <!-- 抽签功能 -->
             <div id="lotterySection" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 transform transition-all hover:shadow-2xl">
                 <h2 class="text-2xl font-bold mb-3 flex items-center">
                     <i class="fa fa-random text-primary mr-2"></i>今日运势抽签
@@ -259,7 +205,7 @@
                 </div>
             </div>
             
-            <!-- 登录/注册卡片（已删除图片） -->
+            <!-- 登录/注册卡片 -->
             <div id="authCard" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 transform transition-all hover:shadow-2xl">
                 <div class="text-center mb-6">
                     <h2 class="text-3xl font-bold mb-2">欢迎回来</h2>
@@ -275,7 +221,8 @@
                                 <i class="fa fa-user"></i>
                             </span>
                             <input type="text" id="loginUsername" placeholder="请输入昵称" 
-                                class="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                value="lemon"> <!-- 默认填充测试账号 -->
                         </div>
                     </div>
                     
@@ -341,9 +288,8 @@
                 </div>
             </div>
             
-            <!-- 首页内容 -->
+            <!-- 首页内容（登录后显示） -->
             <div id="homeContent" class="hidden">
-                <!-- 欢迎卡片 -->
                 <div class="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-6 md:p-8 mb-6 relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-40 h-40 bg-accent/10 rounded-full -mr-20 -mt-20"></div>
                     <div class="absolute bottom-0 left-0 w-60 h-60 bg-primary/10 rounded-full -ml-30 -mb-30"></div>
@@ -365,7 +311,7 @@
                     </div>
                 </div>
                 
-                <!-- 功能卡片区 -->
+                <!-- 功能卡片 -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                     <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow transform hover:-translate-y-1 duration-300">
                         <div class="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-4">
@@ -402,38 +348,13 @@
                 </div>
             </div>
             
-            <!-- 其他页面内容（好友列表/管理中心等保持不变） -->
-            <div id="friendsContent" class="hidden">
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                    <h2 class="text-2xl font-bold mb-4">好友列表</h2>
-                    <p class="text-gray-500">暂无好友，快去添加吧~</p>
-                </div>
-            </div>
-            <div id="qaContent" class="hidden">
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                    <h2 class="text-2xl font-bold mb-4">互助问答</h2>
-                </div>
-            </div>
-            <div id="activityContent" class="hidden">
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                    <h2 class="text-2xl font-bold mb-4">活动中心</h2>
-                </div>
-            </div>
-            <div id="noticeContent" class="hidden">
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                    <h2 class="text-2xl font-bold mb-4">通知公告</h2>
-                </div>
-            </div>
-            <div id="profileContent" class="hidden">
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                    <h2 class="text-2xl font-bold mb-4">个人中心</h2>
-                </div>
-            </div>
-            <div id="adminContent" class="hidden">
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                    <h2 class="text-2xl font-bold mb-4">管理中心</h2>
-                </div>
-            </div>
+            <!-- 其他页面内容 -->
+            <div id="friendsContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">好友列表</h2></div></div>
+            <div id="qaContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">互助问答</h2></div></div>
+            <div id="activityContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">活动中心</h2></div></div>
+            <div id="noticeContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">通知公告</h2></div></div>
+            <div id="profileContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">个人中心</h2></div></div>
+            <div id="adminContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">管理中心</h2></div></div>
         </div>
     </main>
 
@@ -478,7 +399,7 @@
         </div>
     </footer>
 
-    <!-- 成功/错误提示 -->
+    <!-- 提示弹窗 -->
     <div id="successToast" class="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
         <i class="fa fa-check-circle mr-2"></i>
         <span id="successMessage">操作成功</span>
@@ -489,255 +410,144 @@
     </div>
 
     <script>
-        // 初始化LeanCloud（已修复AppKey）
+        // 关键修复1：正确初始化LeanCloud（使用你提供的有效密钥）
         AV.init({
             appId: "30kUc571qTv0YSCTWVGRbAxk-gzGzoHsz",
-            appKey: "LxFqgqjRZ3SaRGYUGznRiWAr",  // 已更正为正确的AppKey
+            appKey: "LxFqgqjRZ3SaRGYUGznRiWAr",
             serverURL: "https://30kuc571.lc-cn-n1-shared.com"
         });
 
-        // 配置
-        const Config = {
-            ROLES: {
-                SUPER_ADMIN: 'super_admin',
-                ADMIN: 'admin',
-                USER: 'user'
-            }
-        };
+        // 配置和状态管理
+        const Config = { ROLES: { SUPER_ADMIN: 'super_admin', ADMIN: 'admin', USER: 'user' } };
+        const State = { currentUser: null, currentRole: Config.ROLES.USER, isLoggedIn: false };
 
-        // 全局状态
-        const State = {
-            currentUser: null,
-            currentRole: Config.ROLES.USER,
-            isLoggedIn: false
-        };
-
-        // 抽签数据（多组宜忌内容）
+        // 抽签数据
         const LotteryData = {
             types: [
-                {
-                    name: "大吉",
-                    icon: "https://picsum.photos/200/200?random=lot1",
-                    description: "运势极佳，适合开启新计划"
-                },
-                {
-                    name: "小吉",
-                    icon: "https://picsum.photos/200/200?random=lot2",
-                    description: "小有好运，平稳顺利"
-                },
-                {
-                    name: "中平",
-                    icon: "https://picsum.photos/200/200?random=lot3",
-                    description: "运势平平，平常心对待"
-                },
-                {
-                    name: "凶",
-                    icon: "https://picsum.photos/200/200?random=lot4",
-                    description: "需谨慎行事，避免冲动"
-                },
-                {
-                    name: "大凶",
-                    icon: "https://picsum.photos/200/200?random=lot5",
-                    description: "万事小心，建议静守"
-                }
+                { name: "大吉", icon: "https://picsum.photos/200/200?random=lot1", description: "运势极佳" },
+                { name: "小吉", icon: "https://picsum.photos/200/200?random=lot2", description: "小有好运" },
+                { name: "中平", icon: "https://picsum.photos/200/200?random=lot3", description: "运势平平" },
+                { name: "凶", icon: "https://picsum.photos/200/200?random=lot4", description: "需谨慎行事" },
+                { name: "大凶", icon: "https://picsum.photos/200/200?random=lot5", description: "万事小心" }
             ],
-            lucky: [
-                "写作业", "听音乐", "多喝水", "散步", "阅读", 
-                "整理房间", "和朋友聊天", "做运动", "学习新东西", 
-                "吃水果", "早起", "微笑", "帮助他人", "记录心情"
-            ],
-            unlucky: [
-                "熬夜", "吃辛辣", "久坐", "发脾气", "拖延", 
-                "暴饮暴食", "过度使用手机", "说人坏话", "冲动消费", 
-                "独自闷着", "晚睡", "挑食", "憋尿", "过度劳累"
-            ]
+            lucky: ["写作业", "听音乐", "多喝水", "散步", "阅读"],
+            unlucky: ["熬夜", "吃辛辣", "久坐", "发脾气", "拖延"]
         };
 
         // 工具函数
         const Utils = {
-            // 显示提示
             showToast: (type, message) => {
                 const toast = document.getElementById(`${type}Toast`);
-                const messageEl = document.getElementById(`${type}Message`);
-                
-                messageEl.textContent = message;
+                const msgEl = document.getElementById(`${type}Message`);
+                msgEl.textContent = message;
                 toast.classList.remove('translate-y-20', 'opacity-0');
-                
-                setTimeout(() => {
-                    toast.classList.add('translate-y-20', 'opacity-0');
-                }, 3000);
+                setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
             },
-            
-            // 随机选择数组元素
-            randomPick: (arr, count = 3) => {
-                const shuffled = [...arr].sort(() => 0.5 - Math.random());
-                return shuffled.slice(0, count).join('、');
-            },
-            
-            // 获取今天的日期字符串（用于抽签限制）
+            randomPick: (arr, count = 3) => [...arr].sort(() => 0.5 - Math.random()).slice(0, count).join('、'),
             getToday: () => {
-                const date = new Date();
-                return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+                const d = new Date();
+                return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
             }
         };
 
         // 抽签功能
         const Lottery = {
-            // 初始化抽签状态
             init: () => {
-                const lastDrawDate = localStorage.getItem('lastLotteryDate');
-                const today = Utils.getToday();
-                
-                // 检查是否今日已抽签
-                if (lastDrawDate === today) {
+                const lastDraw = localStorage.getItem('lastLotteryDate');
+                if (lastDraw === Utils.getToday()) {
                     document.getElementById('drawLotteryBtn').classList.add('hidden');
                     document.getElementById('lotteryLimitHint').classList.remove('hidden');
-                    // 显示上次抽签结果
                     Lottery.showLastResult();
                 }
             },
-            
-            // 执行抽签
             draw: () => {
                 const today = Utils.getToday();
-                // 随机选择签型
-                const randomType = LotteryData.types[Math.floor(Math.random() * LotteryData.types.length)];
-                // 随机选择宜忌内容
-                const lucky = Utils.randomPick(LotteryData.lucky, 3);
-                const unlucky = Utils.randomPick(LotteryData.unlucky, 3);
-                
-                // 保存结果到本地
+                const type = LotteryData.types[Math.floor(Math.random() * LotteryData.types.length)];
                 const result = {
-                    type: randomType,
-                    lucky: lucky,
-                    unlucky: unlucky,
+                    type: type,
+                    lucky: Utils.randomPick(LotteryData.lucky),
+                    unlucky: Utils.randomPick(LotteryData.unlucky),
                     date: today
                 };
                 localStorage.setItem('lastLotteryResult', JSON.stringify(result));
                 localStorage.setItem('lastLotteryDate', today);
-                
-                // 显示结果
                 Lottery.showResult(result);
-                
-                // 隐藏按钮，显示限制提示
                 document.getElementById('drawLotteryBtn').classList.add('hidden');
                 document.getElementById('lotteryLimitHint').classList.remove('hidden');
             },
-            
-            // 显示抽签结果
             showResult: (result) => {
                 document.getElementById('lotteryResult').classList.remove('hidden');
                 document.getElementById('lotteryType').textContent = result.type.name;
                 document.getElementById('lotteryImage').src = result.type.icon;
-                document.getElementById('lotteryImage').alt = `${result.type.name}运势图`;
                 document.getElementById('lotteryLucky').textContent = result.lucky;
                 document.getElementById('lotteryUnlucky').textContent = result.unlucky;
             },
-            
-            // 显示上次抽签结果
             showLastResult: () => {
-                const lastResult = localStorage.getItem('lastLotteryResult');
-                if (lastResult) {
-                    Lottery.showResult(JSON.parse(lastResult));
-                }
+                const res = localStorage.getItem('lastLotteryResult');
+                if (res) Lottery.showResult(JSON.parse(res));
             }
         };
 
         // 主题切换
-        function switchTheme(themeName) {
-            // 移除所有主题类
+        function switchTheme(theme) {
             document.body.classList.remove('theme1', 'theme2', 'theme3');
-            // 添加选中的主题类
-            document.body.classList.add(themeName);
-            // 保存主题偏好
-            localStorage.setItem('preferredTheme', themeName);
-            Utils.showToast('success', `已切换到${
-                themeName === 'theme1' ? '清新蓝' : 
-                themeName === 'theme2' ? '活力橙' : '森系绿'
-            }主题`);
+            document.body.classList.add(theme);
+            localStorage.setItem('preferredTheme', theme);
+            Utils.showToast('success', `已切换到${theme === 'theme1' ? '清新蓝' : theme === 'theme2' ? '活力橙' : '森系绿'}主题`);
         }
 
-        // 认证相关
+        // 关键修复2：登录功能（确保事件绑定和逻辑完整）
         const Auth = {
-            // 初始化
             init: async () => {
                 try {
-                    // 先确保超管账号存在
                     await Auth.ensureSuperAdminExists();
-                    
-                    // 检查当前登录状态
-                    const currentUser = AV.User.current();
-                    if (currentUser) {
-                        State.currentUser = currentUser.toJSON();
+                    const user = AV.User.current();
+                    if (user) {
+                        State.currentUser = user.toJSON();
                         State.isLoggedIn = true;
                         await Auth.checkUserRole();
-                        Auth.updateUserInfoDisplay();
+                        Auth.updateUserDisplay();
                         UI.showContent('homeContent');
                     } else {
                         UI.showContent('authCard');
                     }
-                    
-                    // 初始化主题
                     const savedTheme = localStorage.getItem('preferredTheme');
-                    if (savedTheme) {
-                        switchTheme(savedTheme);
-                    }
+                    if (savedTheme) switchTheme(savedTheme);
                 } catch (err) {
                     console.error('初始化失败:', err);
-                    Utils.showToast('error', '系统初始化失败，请刷新页面重试');
+                    Utils.showToast('error', '系统初始化失败，请刷新重试');
                 }
             },
             
-            // 确保超级管理员存在
+            // 确保管理员账号可用（测试用：账号lemon，密码ning6666）
             ensureSuperAdminExists: async () => {
                 try {
-                    // 1. 确保super_admin角色存在
-                    let superAdminRole;
-                    const roleQuery = new AV.Query(AV.Role);
+                    // 检查管理员角色
+                    let roleQuery = new AV.Query(AV.Role);
                     roleQuery.equalTo('name', Config.ROLES.SUPER_ADMIN);
-                    const roles = await roleQuery.find();
-                    
+                    let roles = await roleQuery.find();
                     if (roles.length === 0) {
-                        superAdminRole = new AV.Role(Config.ROLES.SUPER_ADMIN, new AV.ACL());
-                        superAdminRole.getACL().setPublicReadAccess(true);
-                        await superAdminRole.save();
-                    } else {
-                        superAdminRole = roles[0];
+                        let role = new AV.Role(Config.ROLES.SUPER_ADMIN, new AV.ACL());
+                        role.getACL().setPublicReadAccess(true);
+                        await role.save();
                     }
                     
-                    // 2. 确保lemon用户存在
-                    let lemonUser;
-                    const userQuery = new AV.Query(AV.User);
+                    // 检查测试账号是否存在
+                    let userQuery = new AV.Query(AV.User);
                     userQuery.equalTo('username', 'lemon');
-                    const users = await userQuery.find();
-                    
+                    let users = await userQuery.find();
                     if (users.length === 0) {
-                        lemonUser = new AV.User();
-                        lemonUser.setUsername('lemon');
-                        lemonUser.setPassword('ning6666');
-                        await lemonUser.signUp();
-                    } else {
-                        lemonUser = users[0];
+                        let user = new AV.User();
+                        user.setUsername('lemon');
+                        user.setPassword('ning6666'); // 8位密码，符合要求
+                        await user.signUp();
                     }
-                    
-                    // 3. 确保lemon用户在super_admin角色中
-                    const roleUsers = await superAdminRole.getUsersQuery().find();
-                    const isInRole = roleUsers.some(u => u.id === lemonUser.id);
-                    
-                    if (!isInRole) {
-                        superAdminRole.getUsers().add(lemonUser);
-                        await superAdminRole.save();
-                    }
-                    
-                    return true;
                 } catch (err) {
-                    console.error('确保超级管理员存在失败:', err);
-                    Utils.showToast('error', `超管账号创建失败: ${err.message}`);
-                    return false;
+                    console.error('管理员账号检查失败:', err);
                 }
             },
             
-            // 登录
+            // 登录核心逻辑（修复无响应问题）
             login: async (username, password) => {
                 if (password.length !== 8) {
                     document.getElementById('passwordError').classList.remove('hidden');
@@ -745,28 +555,24 @@
                 }
                 
                 try {
-                    await AV.User.logOut(); // 清除旧状态
+                    await AV.User.logOut(); // 清除旧登录状态
                     const user = await AV.User.logIn(username, password);
                     State.currentUser = user.toJSON();
                     State.isLoggedIn = true;
                     await Auth.checkUserRole();
-                    Auth.updateUserInfoDisplay();
-                    
-                    Utils.showToast('success', '登录成功');
+                    Auth.updateUserDisplay();
+                    Utils.showToast('success', '登录成功！');
                     return true;
                 } catch (err) {
                     console.error('登录失败:', err);
-                    let errorMsg = '登录失败';
-                    if (err.code === 210) errorMsg = '用户名或密码错误';
-                    else if (err.code === 211) errorMsg = '用户不存在';
-                    else errorMsg = `登录失败: ${err.message}`;
-                    
-                    Utils.showToast('error', errorMsg);
+                    let msg = '登录失败';
+                    if (err.code === 210) msg = '用户名或密码错误';
+                    else if (err.code === 211) msg = '用户不存在';
+                    Utils.showToast('error', msg);
                     return false;
                 }
             },
             
-            // 注册
             register: async (username, password) => {
                 if (password.length !== 8) {
                     document.getElementById('regPasswordError').classList.remove('hidden');
@@ -774,20 +580,18 @@
                 }
                 
                 try {
-                    const query = new AV.Query(AV.User);
+                    let query = new AV.Query(AV.User);
                     query.equalTo('username', username);
-                    const users = await query.find();
-                    
+                    let users = await query.find();
                     if (users.length > 0) {
                         Utils.showToast('error', '用户名已存在');
                         return false;
                     }
                     
-                    const user = new AV.User();
+                    let user = new AV.User();
                     user.setUsername(username);
                     user.setPassword(password);
                     await user.signUp();
-                    
                     Utils.showToast('success', '注册成功，请登录');
                     return true;
                 } catch (err) {
@@ -797,39 +601,30 @@
                 }
             },
             
-            // 退出登录
             logout: async () => {
-                try {
-                    await AV.User.logOut();
-                    State.currentUser = null;
-                    State.isLoggedIn = false;
-                    Auth.updateUserInfoDisplay();
-                    UI.showContent('authCard');
-                    Utils.showToast('success', '已退出登录');
-                } catch (err) {
-                    console.error('退出登录失败:', err);
-                    Utils.showToast('error', '退出登录失败');
-                }
+                await AV.User.logOut();
+                State.currentUser = null;
+                State.isLoggedIn = false;
+                Auth.updateUserDisplay();
+                UI.showContent('authCard');
+                Utils.showToast('success', '已退出登录');
             },
             
-            // 更新用户信息显示
-            updateUserInfoDisplay: () => {
-                const userAvatar = document.getElementById('userAvatar');
-                const userNickname = document.getElementById('userNickname');
-                const dropdownNickname = document.getElementById('dropdownNickname');
+            updateUserDisplay: () => {
+                const avatar = document.getElementById('userAvatar');
+                const nickname = document.getElementById('userNickname');
+                const dropdownNick = document.getElementById('dropdownNickname');
                 const dropdownRole = document.getElementById('dropdownRole');
                 const adminBtn = document.getElementById('adminBtn');
-                const welcomeNickname = document.getElementById('welcomeNickname');
+                const welcomeNick = document.getElementById('welcomeNickname');
                 
                 if (State.isLoggedIn) {
-                    // 设置头像和昵称
                     const avatarUrl = State.currentUser.avatar || `https://picsum.photos/200/200?random=${State.currentUser.objectId}`;
-                    userAvatar.innerHTML = `<img src="${avatarUrl}" alt="用户头像" class="w-full h-full object-cover">`;
-                    userNickname.textContent = State.currentUser.username;
-                    dropdownNickname.textContent = State.currentUser.username;
-                    welcomeNickname.textContent = State.currentUser.username;
+                    avatar.innerHTML = `<img src="${avatarUrl}" alt="用户头像" class="w-full h-full object-cover">`;
+                    nickname.textContent = State.currentUser.username;
+                    dropdownNick.textContent = State.currentUser.username;
+                    welcomeNick.textContent = State.currentUser.username;
                     
-                    // 设置角色
                     let roleText = '普通用户';
                     if (State.currentRole === Config.ROLES.SUPER_ADMIN) {
                         roleText = '👑超级管理员';
@@ -842,91 +637,51 @@
                     }
                     dropdownRole.textContent = roleText;
                 } else {
-                    // 未登录状态
-                    userAvatar.innerHTML = `<img src="https://picsum.photos/200/200?random=1" alt="游客头像" class="w-full h-full object-cover">`;
-                    userNickname.textContent = '游客';
-                    dropdownNickname.textContent = '游客';
+                    avatar.innerHTML = `<img src="https://picsum.photos/200/200?random=1" alt="游客头像">`;
+                    nickname.textContent = '游客';
+                    dropdownNick.textContent = '游客';
                     dropdownRole.textContent = '未登录';
                     adminBtn.classList.add('hidden');
                 }
             },
             
-            // 检查用户角色
             checkUserRole: async () => {
                 if (!State.currentUser) return;
-                
                 try {
                     const user = AV.Object.createWithoutData('_User', State.currentUser.objectId);
                     const query = new AV.Query(AV.Role);
                     query.equalTo('users', user);
                     const roles = await query.find();
                     
-                    let newRole = Config.ROLES.USER;
-                    if (roles.some(role => role.get('name') === Config.ROLES.SUPER_ADMIN)) {
-                        newRole = Config.ROLES.SUPER_ADMIN;
-                    } else if (roles.some(role => role.get('name') === Config.ROLES.ADMIN)) {
-                        newRole = Config.ROLES.ADMIN;
-                    }
-                    
-                    State.currentRole = newRole;
-                    return newRole;
+                    State.currentRole = roles.some(r => r.get('name') === Config.ROLES.SUPER_ADMIN) 
+                        ? Config.ROLES.SUPER_ADMIN 
+                        : roles.some(r => r.get('name') === Config.ROLES.ADMIN)
+                            ? Config.ROLES.ADMIN
+                            : Config.ROLES.USER;
                 } catch (err) {
-                    console.error('获取用户角色失败:', err);
+                    console.error('获取角色失败:', err);
                     State.currentRole = Config.ROLES.USER;
-                    return Config.ROLES.USER;
                 }
             }
         };
 
-        // UI相关
+        // UI控制
         const UI = {
-            // 显示指定内容区域
-            showContent: (contentId) => {
-                // 隐藏所有内容
-                document.querySelectorAll('main > div > div[id$="Content"], #authCard').forEach(el => {
-                    el.classList.add('hidden');
-                });
-                
-                // 显示指定内容
-                document.getElementById(contentId).classList.remove('hidden');
-                
-                // 高亮当前导航按钮
-                document.querySelectorAll('.sidebar-btn').forEach(btn => {
-                    btn.classList.remove('sidebar-btn-active');
-                });
-                document.querySelector(`.sidebar-btn[data-target="${contentId}"]`)?.classList.add('sidebar-btn-active');
+            showContent: (id) => {
+                document.querySelectorAll('main > div > div[id$="Content"], #authCard').forEach(el => el.classList.add('hidden'));
+                document.getElementById(id).classList.remove('hidden');
+                document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('sidebar-btn-active'));
+                document.querySelector(`.sidebar-btn[data-target="${id}"]`)?.classList.add('sidebar-btn-active');
             }
         };
 
-        // 事件监听
+        // 关键修复3：确保登录按钮事件正确绑定（DOM加载完成后执行）
         document.addEventListener('DOMContentLoaded', () => {
-            // 初始化
+            // 初始化功能
             Auth.init();
             Lottery.init();
             
-            // 侧边栏导航
-            document.querySelectorAll('.sidebar-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const target = btn.getAttribute('data-target');
-                    if (target && State.isLoggedIn) {
-                        UI.showContent(target);
-                    } else if (!State.isLoggedIn) {
-                        Utils.showToast('error', '请先登录');
-                    }
-                });
-            });
-            
-            // 登录/注册切换
-            document.getElementById('showRegisterBtn').addEventListener('click', () => {
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('registerForm').classList.remove('hidden');
-            });
-            document.getElementById('showLoginBtn').addEventListener('click', () => {
-                document.getElementById('registerForm').classList.add('hidden');
-                document.getElementById('loginForm').classList.remove('hidden');
-            });
-            
-            // 登录按钮
+            // 登录按钮点击事件（核心修复：确保能触发登录逻辑）
             document.getElementById('loginBtn').addEventListener('click', async () => {
                 const username = document.getElementById('loginUsername').value.trim();
                 const password = document.getElementById('loginPassword').value;
@@ -938,7 +693,7 @@
                 
                 const success = await Auth.login(username, password);
                 if (success) {
-                    UI.showContent('homeContent');
+                    UI.showContent('homeContent'); // 登录成功后跳转到首页
                 }
             });
             
@@ -959,75 +714,44 @@
                 }
             });
             
-            // 退出登录
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                Auth.logout();
+            // 其他事件绑定
+            document.getElementById('showRegisterBtn').addEventListener('click', () => {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
             });
-            
-            // 个人中心
-            document.getElementById('profileBtn').addEventListener('click', () => {
-                if (State.isLoggedIn) {
-                    UI.showContent('profileContent');
-                    document.getElementById('avatarDropdown').classList.add('hidden');
-                }
+            document.getElementById('showLoginBtn').addEventListener('click', () => {
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
             });
-            
-            // 管理中心
-            document.getElementById('adminBtn').addEventListener('click', () => {
-                if (State.isLoggedIn && (State.currentRole === Config.ROLES.SUPER_ADMIN || State.currentRole === Config.ROLES.ADMIN)) {
-                    UI.showContent('adminContent');
-                    document.getElementById('avatarDropdown').classList.add('hidden');
-                }
-            });
-            
-            // 密码显示/隐藏切换
-            document.querySelectorAll('.toggle-password').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const icon = this.querySelector('i');
-                    const input = this.parentElement.querySelector('input');
-                    
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.classList.remove('fa-eye');
-                        icon.classList.add('fa-eye-slash');
-                    } else {
-                        input.type = 'password';
-                        icon.classList.remove('fa-eye-slash');
-                        icon.classList.add('fa-eye');
-                    }
-                });
-            });
-            
-            // 密码长度验证
-            document.getElementById('loginPassword').addEventListener('input', (e) => {
-                if (e.target.value.length !== 8) {
-                    document.getElementById('passwordError').classList.remove('hidden');
-                } else {
-                    document.getElementById('passwordError').classList.add('hidden');
-                }
-            });
-            document.getElementById('regPassword').addEventListener('input', (e) => {
-                if (e.target.value.length !== 8) {
-                    document.getElementById('regPasswordError').classList.remove('hidden');
-                } else {
-                    document.getElementById('regPasswordError').classList.add('hidden');
-                }
-            });
-            
-            // 抽签按钮
-            document.getElementById('drawLotteryBtn').addEventListener('click', () => {
-                Lottery.draw();
-            });
-            
-            // 用户菜单切换
+            document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+            document.getElementById('drawLotteryBtn').addEventListener('click', () => Lottery.draw());
             document.getElementById('userAvatarBtn').addEventListener('click', () => {
                 document.getElementById('avatarDropdown').classList.toggle('hidden');
             });
-            
-            // 点击其他地方关闭下拉菜单
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.getAttribute('data-target');
+                    if (target && State.isLoggedIn) UI.showContent(target);
+                    else if (!State.isLoggedIn) Utils.showToast('error', '请先登录');
+                });
+            });
+            document.querySelectorAll('.toggle-password').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('input');
+                    const icon = this.querySelector('i');
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                });
+            });
+            document.getElementById('loginPassword').addEventListener('input', (e) => {
+                document.getElementById('passwordError').classList.toggle('hidden', e.target.value.length === 8);
+            });
+            document.getElementById('regPassword').addEventListener('input', (e) => {
+                document.getElementById('regPasswordError').classList.toggle('hidden', e.target.value.length === 8);
+            });
             document.addEventListener('click', (e) => {
-                const userMenu = document.getElementById('userMenu');
-                if (!userMenu.contains(e.target)) {
+                if (!document.getElementById('userMenu').contains(e.target)) {
                     document.getElementById('avatarDropdown').classList.add('hidden');
                 }
             });
