@@ -410,7 +410,7 @@
     </div>
 
     <script>
-        // 关键修复1：正确初始化LeanCloud
+        // 初始化LeanCloud
         AV.init({
             appId: "30kUc571qTv0YSCTWVGRbAxk-gzGzoHsz",
             appKey: "LxFqgqjRZ3SaRGYUGznRiWAr",
@@ -418,7 +418,11 @@
         });
 
         // 配置和状态管理
-        const Config = { ROLES: { SUPER_ADMIN: 'super_admin', ADMIN: 'admin', USER: 'user' } };
+        const Config = { 
+            ROLES: { SUPER_ADMIN: 'super_admin', ADMIN: 'admin', USER: 'user' },
+            // 增加超级管理员用户名列表作为备选识别方式
+            SUPER_ADMIN_USERNAMES: ['lemon']
+        };
         const State = { currentUser: null, currentRole: Config.ROLES.USER, isLoggedIn: false };
 
         // 抽签数据
@@ -496,21 +500,26 @@
             Utils.showToast('success', `已切换到${theme === 'theme1' ? '清新蓝' : theme === 'theme2' ? '活力橙' : '森系绿'}主题`);
         }
 
-        // 关键修复2：改进角色检查逻辑，确保能正确识别超级管理员
+        // 增强版角色识别逻辑
         const Auth = {
             init: async () => {
                 try {
-                    await Auth.ensureSuperAdminExists();
+                    console.log('开始初始化认证系统');
+                    await Auth.ensureSuperAdminRoleExists();
+                    
                     const user = AV.User.current();
                     if (user) {
+                        console.log('检测到已登录用户', user.toJSON().username);
                         State.currentUser = user.toJSON();
                         State.isLoggedIn = true;
                         await Auth.checkUserRole();
                         Auth.updateUserDisplay();
                         UI.showContent('homeContent');
                     } else {
+                        console.log('未检测到登录用户');
                         UI.showContent('authCard');
                     }
+                    
                     const savedTheme = localStorage.getItem('preferredTheme');
                     if (savedTheme) switchTheme(savedTheme);
                 } catch (err) {
@@ -519,20 +528,25 @@
                 }
             },
             
-            // 确保管理员账号可用
-            ensureSuperAdminExists: async () => {
+            // 确保超级管理员角色存在
+            ensureSuperAdminRoleExists: async () => {
                 try {
-                    // 检查管理员角色
+                    console.log('检查超级管理员角色是否存在');
                     let roleQuery = new AV.Query(AV.Role);
                     roleQuery.equalTo('name', Config.ROLES.SUPER_ADMIN);
                     let roles = await roleQuery.find();
+                    
                     if (roles.length === 0) {
+                        console.log('超级管理员角色不存在，创建新角色');
                         let role = new AV.Role(Config.ROLES.SUPER_ADMIN, new AV.ACL());
                         role.getACL().setPublicReadAccess(true);
                         await role.save();
+                        console.log('超级管理员角色创建成功');
+                    } else {
+                        console.log('超级管理员角色已存在');
                     }
                 } catch (err) {
-                    console.error('管理员角色检查失败:', err);
+                    console.error('检查/创建超级管理员角色失败:', err);
                 }
             },
             
@@ -544,10 +558,13 @@
                 }
                 
                 try {
+                    console.log(`尝试登录用户: ${username}`);
                     await AV.User.logOut(); // 清除旧登录状态
                     const user = await AV.User.logIn(username, password);
                     State.currentUser = user.toJSON();
                     State.isLoggedIn = true;
+                    console.log(`用户 ${username} 登录成功，ID: ${State.currentUser.objectId}`);
+                    
                     await Auth.checkUserRole(); // 登录后检查角色
                     Auth.updateUserDisplay();
                     Utils.showToast('success', '登录成功！');
@@ -609,6 +626,7 @@
                 const welcomeRole = document.getElementById('welcomeRole');
                 
                 if (State.isLoggedIn) {
+                    console.log(`更新用户显示，角色: ${State.currentRole}`);
                     const avatarUrl = State.currentUser.avatar || `https://picsum.photos/200/200?random=${State.currentUser.objectId}`;
                     avatar.innerHTML = `<img src="${avatarUrl}" alt="用户头像" class="w-full h-full object-cover">`;
                     nickname.textContent = State.currentUser.username;
@@ -626,7 +644,7 @@
                         adminBtn.classList.add('hidden');
                     }
                     dropdownRole.textContent = roleText;
-                    welcomeRole.textContent = roleText; // 更新欢迎信息中的角色
+                    welcomeRole.textContent = roleText;
                 } else {
                     avatar.innerHTML = `<img src="https://picsum.photos/200/200?random=1" alt="游客头像">`;
                     nickname.textContent = '游客';
@@ -636,44 +654,75 @@
                 }
             },
             
-            // 关键修复3：改进角色查询逻辑，确保能正确获取用户所属角色
+            // 增强版角色检查逻辑
             checkUserRole: async () => {
                 if (!State.currentUser) return;
+                
                 try {
-                    // 创建用户对象引用
+                    console.log(`开始检查用户 ${State.currentUser.username} 的角色`);
+                    
+                    // 方法1: 用户名白名单检查 (备选方案)
+                    if (Config.SUPER_ADMIN_USERNAMES.includes(State.currentUser.username)) {
+                        console.log(`用户 ${State.currentUser.username} 在超级管理员白名单中`);
+                        State.currentRole = Config.ROLES.SUPER_ADMIN;
+                        return;
+                    }
+                    
+                    // 方法2: 通过LeanCloud角色查询 (主要方案)
                     const user = AV.Object.createWithoutData('_User', State.currentUser.objectId);
                     
-                    // 先查询超级管理员角色
+                    // 查询超级管理员角色
                     let superAdminQuery = new AV.Query(AV.Role);
                     superAdminQuery.equalTo('name', Config.ROLES.SUPER_ADMIN);
                     superAdminQuery.equalTo('users', user);
+                    
+                    console.log(`查询超级管理员角色关联: 用户ID=${State.currentUser.objectId}`);
                     let superAdminResult = await superAdminQuery.find();
                     
                     if (superAdminResult.length > 0) {
+                        console.log(`用户 ${State.currentUser.username} 是超级管理员`);
                         State.currentRole = Config.ROLES.SUPER_ADMIN;
-                        console.log('用户是超级管理员');
                         return;
                     }
                     
-                    // 再查询普通管理员角色
+                    // 查询普通管理员角色
                     let adminQuery = new AV.Query(AV.Role);
                     adminQuery.equalTo('name', Config.ROLES.ADMIN);
                     adminQuery.equalTo('users', user);
+                    
+                    console.log(`查询管理员角色关联: 用户ID=${State.currentUser.objectId}`);
                     let adminResult = await adminQuery.find();
                     
                     if (adminResult.length > 0) {
+                        console.log(`用户 ${State.currentUser.username} 是管理员`);
                         State.currentRole = Config.ROLES.ADMIN;
-                        console.log('用户是管理员');
                         return;
                     }
                     
+                    // 查询所有角色，用于调试
+                    let allRolesQuery = new AV.Query(AV.Role);
+                    let allRoles = await allRolesQuery.find();
+                    console.log(`系统中存在的角色: ${allRoles.map(r => r.get('name')).join(', ')}`);
+                    
+                    // 如果用户有其他角色，也列出来
+                    let userRolesQuery = new AV.Query(AV.Role);
+                    userRolesQuery.equalTo('users', user);
+                    let userRoles = await userRolesQuery.find();
+                    console.log(`用户 ${State.currentUser.username} 拥有的角色: ${userRoles.map(r => r.get('name')).join(', ')}`);
+                    
                     // 默认是普通用户
+                    console.log(`用户 ${State.currentUser.username} 是普通用户`);
                     State.currentRole = Config.ROLES.USER;
-                    console.log('用户是普通用户');
                     
                 } catch (err) {
                     console.error('获取角色失败:', err);
-                    State.currentRole = Config.ROLES.USER;
+                    // 出错时也尝试使用用户名白名单
+                    if (Config.SUPER_ADMIN_USERNAMES.includes(State.currentUser.username)) {
+                        console.log(`角色查询出错，但用户 ${State.currentUser.username} 在超级管理员白名单中`);
+                        State.currentRole = Config.ROLES.SUPER_ADMIN;
+                    } else {
+                        State.currentRole = Config.ROLES.USER;
+                    }
                 }
             }
         };
@@ -706,7 +755,7 @@
                 
                 const success = await Auth.login(username, password);
                 if (success) {
-                    UI.showContent('homeContent'); // 登录成功后跳转到首页
+                    UI.showContent('homeContent');
                 }
             });
             
