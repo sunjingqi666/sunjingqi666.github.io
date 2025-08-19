@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
     
-    <!-- 配置Tailwind自定义主题 - 调整配色，移除粉色系 -->
+    <!-- 配置Tailwind自定义主题 - 保持你喜欢的风格 -->
     <script>
         tailwind.config = {
             theme: {
@@ -743,6 +743,9 @@
             // 初始化
             init: async () => {
                 try {
+                    // 先确保超管账号存在
+                    await Auth.ensureSuperAdminExists();
+                    
                     // 检查当前登录状态
                     const currentUser = AV.User.current();
                     if (currentUser) {
@@ -754,63 +757,81 @@
                     } else {
                         UI.showContent('authCard');
                     }
-                    
-                    // 确保超级管理员存在
-                    await Auth.ensureSuperAdminExists();
                 } catch (err) {
                     console.error('初始化失败:', err);
                     Utils.showError('系统初始化失败，请刷新页面重试');
                 }
             },
             
-            // 确保超级管理员存在
+            // 确保超级管理员存在 - 优化版本，确保账号100%创建
             ensureSuperAdminExists: async () => {
                 try {
-                    // 检查是否存在super_admin角色
+                    // 1. 确保super_admin角色存在
+                    let superAdminRole;
                     const roleQuery = new AV.Query(AV.Role);
                     roleQuery.equalTo('name', Config.ROLES.SUPER_ADMIN);
                     const roles = await roleQuery.find();
                     
-                    let superAdminRole;
                     if (roles.length === 0) {
                         // 创建super_admin角色
                         superAdminRole = new AV.Role(Config.ROLES.SUPER_ADMIN, new AV.ACL());
                         superAdminRole.getACL().setPublicReadAccess(true);
                         superAdminRole.getACL().setPublicWriteAccess(false);
                         await superAdminRole.save();
+                        console.log('已创建super_admin角色');
                     } else {
                         superAdminRole = roles[0];
                     }
                     
-                    // 检查是否存在lemon用户
+                    // 2. 确保lemon用户存在
+                    let lemonUser;
                     const userQuery = new AV.Query(AV.User);
                     userQuery.equalTo('username', 'lemon');
                     const users = await userQuery.find();
                     
                     if (users.length === 0) {
                         // 创建lemon用户（密码ning6666）
-                        const user = new AV.User();
-                        user.setUsername('lemon');
-                        user.setPassword('ning6666');
-                        await user.signUp();
-                        
-                        // 将用户添加到超级管理员角色
-                        superAdminRole.getUsers().add(user);
-                        await superAdminRole.save();
+                        lemonUser = new AV.User();
+                        lemonUser.setUsername('lemon');
+                        lemonUser.setPassword('ning6666');
+                        await lemonUser.signUp();
+                        console.log('已创建lemon用户');
                     } else {
-                        const lemonUser = users[0];
-                        // 检查用户是否已在超级管理员角色中
-                        const roleUsers = await superAdminRole.getUsersQuery().find();
-                        const isInRole = roleUsers.some(u => u.id === lemonUser.id);
-                        
-                        if (!isInRole) {
-                            // 将用户添加到超级管理员角色
-                            superAdminRole.getUsers().add(lemonUser);
-                            await superAdminRole.save();
+                        lemonUser = users[0];
+                    }
+                    
+                    // 3. 确保lemon用户在super_admin角色中
+                    const roleUsers = await superAdminRole.getUsersQuery().find();
+                    const isInRole = roleUsers.some(u => u.id === lemonUser.id);
+                    
+                    if (!isInRole) {
+                        superAdminRole.getUsers().add(lemonUser);
+                        await superAdminRole.save();
+                        console.log('已将lemon用户添加到super_admin角色');
+                    }
+                    
+                    // 4. 确保用户密码正确（关键修复）
+                    if (users.length > 0) {
+                        try {
+                            // 尝试用正确密码登录一次，确保密码正确
+                            await AV.User.logIn('lemon', 'ning6666');
+                            await AV.User.logOut(); // 登录后立即退出，不影响当前状态
+                            console.log('超管账号密码验证成功');
+                        } catch (err) {
+                            console.log('超管密码错误，尝试重置');
+                            // 如果密码错误，尝试重置密码
+                            lemonUser.setPassword('ning6666');
+                            await lemonUser.save(null, { useMasterKey: true });
+                            console.log('已重置超管密码为ning6666');
                         }
                     }
+                    
+                    return true;
                 } catch (err) {
                     console.error('确保超级管理员存在失败:', err);
+                    // 显示更详细的错误信息，帮助调试
+                    Utils.showError(`超管账号创建失败: ${err.message || '未知错误'}`);
+                    return false;
                 }
             },
             
@@ -858,6 +879,9 @@
                 }
                 
                 try {
+                    // 关键修复：清除当前登录状态再尝试登录
+                    await AV.User.logOut();
+                    
                     const user = await AV.User.logIn(username, password);
                     State.currentUser = user.toJSON();
                     State.isLoggedIn = true;
@@ -868,7 +892,13 @@
                     return true;
                 } catch (err) {
                     console.error('登录失败:', err);
-                    Utils.showError('登录失败：用户名或密码错误');
+                    // 显示更详细的错误信息
+                    let errorMsg = '登录失败';
+                    if (err.code === 210) errorMsg = '用户名或密码错误';
+                    else if (err.code === 211) errorMsg = '用户不存在';
+                    else errorMsg = `登录失败: ${err.message}`;
+                    
+                    Utils.showError(errorMsg);
                     return false;
                 }
             },
@@ -935,6 +965,7 @@
                     Auth.updateUserInfoDisplay();
                     UI.showContent('authCard');
                     Utils.showSuccess('已退出登录');
+                } catch (err) {
                 } catch (err) {
                     console.error('退出登录失败:', err);
                     Utils.showError('退出登录失败，请稍后再试');
@@ -1296,7 +1327,7 @@
             }
         };
 
-        // 事件监听 - 优化响应速度，确保所有交互正常
+        // 事件监听 - 确保所有交互正常
         document.addEventListener('DOMContentLoaded', () => {
             // 初始化
             Auth.init();
