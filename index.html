@@ -3,819 +3,1098 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="https://picsum.photos/32/32?random=lemon" type="image/png">
-    <title>Lemon - 管理系统</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
-    
-    <!-- Tailwind配置 -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#4F86F7',
-                        secondary: '#6B5CA5',
-                        primary2: '#FF7F50',
-                        secondary2: '#FF69B4',
-                        primary3: '#2E8B57',
-                        secondary3: '#8B4513',
-                        accent: '#FFB344',
-                        dark: '#2C3E50',
-                        light: '#F8FAFC',
-                    },
-                    fontFamily: {
-                        main: ['"Nunito"', '"Segoe UI"', 'system-ui', 'sans-serif'],
-                    },
-                    animation: {
-                        'float': 'float 3s ease-in-out infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
-                    }
-                }
+    <title>神秘塔罗牌运势占卜</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #ffd700;
+            --secondary-gold: #daa520;
+            --dark-bg: #0a0a1a;
+            --card-bg: #1a0630;
+            --text-light: #e6e6e6;
+            --accent-color: #c9a83e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #0c0c2a 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        /* Lemon Logo 设计 */
+        .lemon-logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .lemon-logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #fff200 0%, #c4b000 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5a4b00;
+            font-weight: bold;
+            font-size: 22px;
+            box-shadow: 0 0 15px rgba(255, 242, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-icon::before {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            width: 8px;
+            height: 8px;
+            background: rgba(90, 75, 0, 0.3);
+            border-radius: 50%;
+        }
+        
+        .logo-text {
+            margin-left: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff200 0%, #c4b000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(255, 242, 0, 0.3);
+            letter-spacing: 1px;
+            font-family: 'ZCOOL QingKe HuangYou', cursive;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        /* 美化标题 */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-gold);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            letter-spacing: 3px;
+            position: relative;
+            display: inline-block;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-weight: 400;
+        }
+        
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-gold), transparent);
+            border-radius: 2px;
+        }
+        
+        h1 i {
+            margin: 0 15px;
+            font-size: 2.8rem;
+            vertical-align: middle;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+        
+        /* 美化副标题 */
+        .subtitle {
+            font-size: 1.4rem;
+            color: #d4c17a;
+            max-width: 600px;
+            margin: 25px auto 0;
+            text-shadow: 0 0 10px rgba(212, 193, 122, 0.4);
+            line-height: 1.6;
+            font-weight: 300;
+            letter-spacing: 1.5px;
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        /* 美化说明文字 */
+      
+.instructions {
+    background: rgba(20, 20, 40, 0.7);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    -webkit-backdrop-filter: blur(5px); /* 添加WebKit前缀以支持Safari */
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+}
+        
+        .instructions p {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #e6d6b8;
+            text-shadow: 0 0 5px rgba(230, 214, 184, 0.3);
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        .instructions p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .instructions::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            animation: shimmer 8s infinite linear;
+        }
+        
+        @keyframes shimmer {
+            100% {
+                left: 100%;
             }
         }
-    </script>
-    
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto { content-visibility: auto; }
-            .text-shadow { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); }
-            .btn-effect { @apply transition-all duration-200 hover:shadow-md active:scale-95; }
-            .sidebar-btn { @apply w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gray-100 hover:shadow-sm transition-all duration-200; }
-            .sidebar-btn-active { @apply bg-primary/10 text-primary font-medium; }
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 主题样式 -->
-    <style>
-        body.theme1 { --color-primary: #4F86F7; --color-secondary: #6B5CA5; --color-text: #2C3E50; --color-bg: #F8FAFC; }
-        body.theme2 { --color-primary: #FF7F50; --color-secondary: #FF69B4; --color-text: #332211; --color-bg: #FFF8F5; }
-        body.theme3 { --color-primary: #2E8B57; --color-secondary: #8B4513; --color-text: #222222; --color-bg: #F5F7F0; }
         
-        body { background-color: var(--color-bg); color: var(--color-text); }
-        .bg-primary { background-color: var(--color-primary); }
-        .bg-secondary { background-color: var(--color-secondary); }
-        .text-primary { color: var(--color-primary); }
-        .text-secondary { color: var(--color-secondary); }
-        .border-primary { border-color: var(--color-primary); }
-        .gradient-primary { background: linear-gradient(to right, var(--color-primary), var(--color-secondary)); }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .tarot-card {
+            width: 100%;
+            aspect-ratio: 2/3;
+            perspective: 1200px;
+            cursor: pointer;
+            margin: 0 auto;
+            max-width: 160px;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .tarot-card:hover {
+            transform: translateY(-5px) scale(1.03);
+        }
+        
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            will-change: transform;
+        }
+        
+        .tarot-card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, #6b2c0b 0%, #8b4513 100%);
+            border: 2px solid var(--primary-gold);
+        }
+        
+        /* 塔罗牌背面特效 - 升级版 */
+        .card-front::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 70% 70%, rgba(255, 215, 0, 0.15) 0%, transparent 30%),
+                repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255, 215, 0, 0.08) 5px, rgba(255, 215, 0, 0.08) 10px),
+                repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(255, 215, 0, 0.08) 5px, rgba(255, 215, 0, 0.08) 10px);
+            border-radius: 12px;
+            z-index: 1;
+            animation: mysticPulse 6s ease-in-out infinite alternate;
+        }
+        
+        @keyframes mysticPulse {
+            0% {
+                opacity: 0.6;
+            }
+            100% {
+                opacity: 0.9;
+            }
+        }
+        
+        .card-front::after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            border-radius: 9px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            z-index: 1;
+        }
+        
+        .card-icon {
+            font-size: 3.2rem;
+            color: rgba(255, 215, 0, 0.8);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            z-index: 2;
+            animation: iconGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes iconGlow {
+            0% {
+                text-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+                transform: scale(1) rotate(0deg);
+            }
+            100% {
+                text-shadow: 0 0 25px rgba(255, 215, 0, 0.9), 0 0 35px rgba(255, 215, 0, 0.7);
+                transform: scale(1.15) rotate(5deg);
+            }
+        }
+        
+        /* 中心神秘符号 - 升级版 */
+        .center-symbol {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50);
+            width: 70%;
+            height: 70%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,15 L60,40 L85,40 L65,55 L75,85 L50,70 L25,85 L35,55 L15,40 L40,40 Z' fill='none' stroke='%23ffd700' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='%23ffd700' stroke-width='0.5'/%3E%3Cpath d='M50,30 L55,45 L70,45 L58,55 L63,70 L50,60 L37,70 L42,55 L30,45 L45,45 Z' fill='none' stroke='%23ffd700' stroke-width='0.7'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.9;
+            z-index: 1;
+            animation: rotateSlowly 30s linear infinite;
+            filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.7));
+        }
+        
+        @keyframes rotateSlowly {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+        
+        /* 四角装饰 - 升级版 */
+        .corner-decoration {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            z-index: 2;
+            animation: twinkle 4s ease-in-out infinite;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .corner-top-left {
+            top: 8px;
+            left: 8px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M0,6 L6,0 L24,0 L24,18 L18,24 L0,24 Z' fill='none' stroke='%23ffd700' stroke-width='0.7'/%3E%3Cpath d='M3,3 L9,9 M9,3 L3,9' stroke='%23ffd700' stroke-width='0.5'/%3E%3C/svg%3E");
+        }
+        
+        .corner-top-right {
+            top: 8px;
+            right: 8px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M24,6 L18,0 L0,0 L0,18 L6,24 L24,24 Z' fill='none' stroke='%23ffd700' stroke-width='0.7'/%3E%3Cpath d='M21,3 L15,9 M15,3 L21,9' stroke='%23ffd700' stroke-width='0.5'/%3E%3C/svg%3E");
+        }
+        
+        .corner-bottom-left {
+            bottom: 8px;
+            left: 8px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M0,18 L6,24 L24,24 L24,6 L18,0 L0,0 Z' fill='none' stroke='%23ffd700' stroke-width='0.7'/%3E%3Cpath d='M3,21 L9,15 M9,21 L3,15' stroke='%23ffd700' stroke-width='0.5'/%3E%3C/svg%3E");
+        }
+        
+        .corner-bottom-right {
+            bottom: 8px;
+            right: 8px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M24,18 L18,24 L0,24 L0,6 L6,0 L24,0 Z' fill='none' stroke='%23ffd700' stroke-width='0.7'/%3E%3Cpath d='M21,21 L15,15 M15,21 L21,15' stroke='%23ffd700' stroke-width='0.5'/%3E%3C/svg%3E");
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        /* 卡片背面 - 全新设计 */
+        .card-back {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #2a0c50 100%);
+            transform: rotateY(180deg);
+            text-align: center;
+            color: #e6d6b8;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #c9a83e;
+            box-shadow: 0 0 20px rgba(201, 168, 62, 0.5);
+            padding: 10px;
+        }
+        
+        /* 背面神秘图案背景 - 升级版 */
+        .card-back::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(201, 168, 62, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 80% 70%, rgba(201, 168, 62, 0.15) 0%, transparent 25%),
+                repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(201, 168, 62, 0.1) 2px, rgba(201, 168, 62, 0.1) 4px),
+                repeating-linear-gradient(-45deg, transparent, transparent 2px, rgba(201, 168, 62, 0.1) 2px, rgba(201, 168, 62, 0.1) 4px);
+            border-radius: 12px;
+            z-index: 1;
+        }
+        
+        /* 背面装饰性边框 - 升级版 */
+        .card-back::after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px solid rgba(201, 168, 62, 0.5);
+            border-radius: 9px;
+            box-shadow: 
+                0 0 8px rgba(201, 168, 62, 0.4),
+                inset 0 0 8px rgba(201, 168, 62, 0.3);
+            z-index: 1;
+        }
+        
+        /* 背面中心神秘符号 - 升级版 */
+        .mystic-symbol {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 65%;
+            height: 65%;
+            background: 
+                radial-gradient(circle, rgba(201, 168, 62, 0.25) 0%, transparent 70%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,15 L60,40 L85,40 L65,55 L75,85 L50,70 L25,85 L35,55 L15,40 L40,40 Z' fill='none' stroke='%23c9a83e' stroke-width='1.2'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='%23c9a83e' stroke-width='0.6'/%3E%3Cpath d='M50,30 L55,45 L70,45 L58,55 L63,70 L50,60 L37,70 L42,55 L30,45 L45,45 Z' fill='none' stroke='%23c9a83e' stroke-width='0.8'/%3E%3Cpath d='M50,40 A10,10 0 1,1 49.9,40' fill='none' stroke='%23c9a83e' stroke-width='0.5'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.8;
+            z-index: 1;
+            animation: pulse 6s infinite ease-in-out;
+            filter: drop-shadow(0 0 5px rgba(201, 168, 62, 0.7));
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.05); }
+        }
+        
+        /* 背面流光效果 */
+        .shine-effect {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 6s infinite linear;
+            z-index: 2;
+        }
+        
+        @keyframes shine {
+            0% {
+                top: -50%;
+                left: -50%;
+            }
+            100% {
+                top: 150%;
+                left: 150%;
+            }
+        }
+        
+        /* 背面符文装饰 */
+        .rune-decoration {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            z-index: 2;
+            animation: runeGlow 5s infinite alternate;
+        }
+        
+        .rune-1 {
+            top: 15%;
+            left: 15%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10,3 L10,17 M3,10 L17,10' stroke='%23c9a83e' stroke-width='1.5'/%3E%3C/svg%3E");
+        }
+        
+        .rune-2 {
+            top: 15%;
+            right: 15%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='7' fill='none' stroke='%23c9a83e' stroke-width='1.5'/%3E%3C/svg%3E");
+        }
+        
+        .rune-3 {
+            bottom: 15%;
+            left: 15%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3,3 L17,17 M17,3 L3,17' stroke='%23c9a83e' stroke-width='1.5'/%3E%3C/svg%3E");
+        }
+        
+        .rune-4 {
+            bottom: 15%;
+            right: 15%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10,3 L3,17 L17,17 Z' fill='none' stroke='%23c9a83e' stroke-width='1.5'/%3E%3C/svg%3E");
+        }
+        
+        @keyframes runeGlow {
+            0% {
+                opacity: 0.5;
+                filter: drop-shadow(0 0 2px rgba(201, 168, 62, 0.5));
+            }
+            100% {
+                opacity: 0.9;
+                filter: drop-shadow(0 0 5px rgba(201, 168, 62, 0.8));
+            }
+        }
+        
+        .fortune-text {
+            font-size: 1.9rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary-gold);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9), 0 0 12px rgba(255, 215, 0, 0.7);
+            position: relative;
+            z-index: 3;
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 2px;
+        }
+        
+        .wisdom-quote {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 3;
+            color: #e6d6b8;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            line-height: 1.4;
+            font-style: italic;
+        }
+        
+        .quote-author {
+            font-size: 0.8rem;
+            font-style: italic;
+            margin-top: auto;
+            color: #c9a83e;
+            position: relative;
+            z-index: 3;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* 美化按钮 */
+        .reset-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--primary-gold) 0%, var(--secondary-gold) 100%);
+            border: none;
+            border-radius: 50px;
+            color: #1a1a2e;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Ma Shan Zheng', cursive;
+            letter-spacing: 2px;
+        }
+        
+        .reset-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            letter-spacing: 3px;
+        }
+        
+        .reset-btn:hover::before {
+            left: 100%;
+        }
+        
+        .reset-btn:active {
+            transform: translateY(1px);
+        }
+        
+        /* 美化页脚 */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 25px;
+            color: #b8b8b8;
+            font-size: 1rem;
+            opacity: 0.9;
+            font-family: 'Noto Serif SC', serif;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            width: 80%;
+            max-width: 600px;
+        }
+        
+        footer p {
+            margin-bottom: 10px;
+            letter-spacing: 0.8px;
+            line-height: 1.6;
+        }
+        
+        footer p:last-child {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 600px) {
+            .lemon-logo {
+                top: 10px;
+                left: 10px;
+            }
+            
+            .logo-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 18px;
+            }
+            
+            .logo-text {
+                font-size: 18px;
+            }
+            
+            .cards-grid {
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            h1 i {
+                font-size: 2rem;
+                margin: 0 10px;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .instructions p {
+                font-size: 1rem;
+            }
+            
+            .tarot-card {
+                max-width: 110px;
+            }
+            
+            .fortune-text {
+                font-size: 1.6rem;
+            }
+            
+            .wisdom-quote {
+                font-size: 0.8rem;
+            }
+            
+            .reset-btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
+            }
+            
+            footer {
+                font-size: 0.9rem;
+                padding: 15px;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen font-main theme1">
-    <!-- 顶部导航栏 -->
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-md transition-all duration-300">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <!-- Logo -->
-            <div class="flex items-center space-x-2">
-                <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
-                    <i class="fa fa-lemon-o text-white text-xl"></i>
-                </div>
-                <h1 class="text-2xl font-bold bg-clip-text text-transparent gradient-primary">Lemon</h1>
-            </div>
-            
-            <!-- 主题切换 -->
-            <div class="flex items-center space-x-2">
-                <button onclick="switchTheme('theme1')" class="theme-btn px-3 py-1 rounded-md border border-primary/30 text-sm btn-effect">清新蓝</button>
-                <button onclick="switchTheme('theme2')" class="theme-btn px-3 py-1 rounded-md border border-primary2/30 text-sm btn-effect">活力橙</button>
-                <button onclick="switchTheme('theme3')" class="theme-btn px-3 py-1 rounded-md border border-primary3/30 text-sm btn-effect">森系绿</button>
-            </div>
-            
-            <!-- 用户区域 -->
-            <div class="flex items-center space-x-4">
-                <div id="userMenu" class="relative">
-                    <button id="userAvatarBtn" class="flex items-center space-x-2 focus:outline-none btn-effect">
-                        <div id="userAvatar" class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border-2 border-primary/50 transition-transform hover:scale-110">
-                            <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-full h-full object-cover">
-                        </div>
-                        <span id="userNickname" class="hidden md:inline font-medium">游客</span>
-                        <i class="fa fa-angle-down text-gray-500"></i>
-                    </button>
-                    <div id="avatarDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl overflow-hidden hidden z-50">
-                        <div class="p-3 border-b">
-                            <p id="dropdownNickname" class="font-bold">游客</p>
-                            <p id="dropdownRole" class="text-sm text-gray-500">未登录</p>
-                        </div>
-                        <button id="profileBtn" class="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors">
-                            <i class="fa fa-user-circle mr-2 text-primary"></i>个人中心
-                        </button>
-                        <button id="adminBtn" class="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors hidden">
-                            <i class="fa fa-crown mr-2 text-accent"></i>管理中心
-                        </button>
-                        <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors">
-                            <i class="fa fa-sign-out mr-2 text-red-500"></i>退出登录
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- 主内容区 -->
-    <main class="container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
-        <!-- 侧边栏 -->
-        <aside class="md:w-64 lg:w-72 shrink-0">
-            <div class="bg-white rounded-2xl shadow-lg p-4 sticky top-24">
-                <nav class="space-y-1">
-                    <button class="sidebar-btn sidebar-btn-active" data-target="homeContent">
-                        <i class="fa fa-home text-xl w-6 text-center"></i>
-                        <span>首页</span>
-                    </button>
-                    <button class="sidebar-btn" data-target="friendsContent">
-                        <i class="fa fa-users text-xl w-6 text-center"></i>
-                        <span>好友列表</span>
-                        <span class="ml-auto bg-primary text-white text-xs px-2 py-1 rounded-full">0</span>
-                    </button>
-                    <button class="sidebar-btn" data-target="qaContent">
-                        <i class="fa fa-question-circle text-xl w-6 text-center"></i>
-                        <span>互助问答</span>
-                    </button>
-                    <button class="sidebar-btn" data-target="activityContent">
-                        <i class="fa fa-calendar text-xl w-6 text-center"></i>
-                        <span>活动中心</span>
-                    </button>
-                    <button class="sidebar-btn" data-target="noticeContent">
-                        <i class="fa fa-bullhorn text-xl w-6 text-center"></i>
-                        <span>通知公告</span>
-                    </button>
-                </nav>
-                
-                <div class="mt-6 pt-6 border-t border-gray-100">
-                    <h3 class="px-4 text-sm font-medium text-gray-500 mb-2">快速链接</h3>
-                    <nav class="space-y-1">
-                        <button class="sidebar-btn">
-                            <i class="fa fa-cog text-xl w-6 text-center"></i>
-                            <span>系统设置</span>
-                        </button>
-                        <button class="sidebar-btn">
-                            <i class="fa fa-question-circle text-xl w-6 text-center"></i>
-                            <span>帮助中心</span>
-                        </button>
-                    </nav>
-                </div>
-            </div>
-        </aside>
-        
-        <!-- 主内容 -->
-        <div class="flex-1">
-            <!-- 抽签功能 -->
-            <div id="lotterySection" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 transform transition-all hover:shadow-2xl">
-                <h2 class="text-2xl font-bold mb-3 flex items-center">
-                    <i class="fa fa-random text-primary mr-2"></i>今日运势抽签
-                </h2>
-                <p class="text-gray-500 mb-4">每日限抽1次，纯属娱乐~ 看看今天的小幸运吧 🍀</p>
-                
-                <div class="flex flex-col md:flex-row gap-6 items-center">
-                    <div class="flex-1">
-                        <button id="drawLotteryBtn" class="w-full gradient-primary text-white py-3 rounded-xl font-medium btn-effect flex items-center justify-center">
-                            <i class="fa fa-magic mr-2"></i>点击抽签
-                        </button>
-                        <p id="lotteryLimitHint" class="text-center text-sm text-gray-500 mt-2 hidden">
-                            今日已抽过签，明天再来吧~
-                        </p>
-                    </div>
-                    
-                    <!-- 抽签结果展示区 -->
-                    <div id="lotteryResult" class="w-full md:w-2/3 hidden">
-                        <div class="border-2 dashed border-primary rounded-xl p-4 bg-gray-50">
-                            <div class="flex flex-col items-center">
-                                <h3 id="lotteryType" class="text-xl font-bold mb-2 text-primary">大吉</h3>
-                                <img id="lotteryImage" src="https://picsum.photos/200/200?random=lot1" alt="签运图片" class="w-32 h-32 object-cover rounded-lg mb-3 shadow-md">
-                                
-                                <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                                    <div>
-                                        <p class="text-sm font-medium text-green-600 mb-1"><i class="fa fa-check-circle mr-1"></i>宜</p>
-                                        <p id="lotteryLucky" class="text-sm text-gray-600">写作业、听音乐、多喝水</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-red-600 mb-1"><i class="fa fa-times-circle mr-1"></i>忌</p>
-                                        <p id="lotteryUnlucky" class="text-sm text-gray-600">熬夜、吃辛辣、久坐</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 登录/注册卡片 -->
-            <div id="authCard" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 transform transition-all hover:shadow-2xl">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl font-bold mb-2">欢迎回来</h2>
-                    <p class="text-gray-500">请登录你的账号</p>
-                </div>
-                
-                <!-- 登录表单 -->
-                <div id="loginForm">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1" for="loginUsername">昵称</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <i class="fa fa-user"></i>
-                            </span>
-                            <input type="text" id="loginUsername" placeholder="请输入昵称" 
-                                class="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                                value="lemon"> <!-- 默认填充测试账号 -->
-                        </div>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-1" for="loginPassword">密码</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <i class="fa fa-lock"></i>
-                            </span>
-                            <input type="password" id="loginPassword" placeholder="请输入8位密码" 
-                                class="w-full pl-10 pr-10 py-3 rounded-xl border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
-                            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 toggle-password">
-                                <i class="fa fa-eye"></i>
-                            </button>
-                            <p id="passwordError" class="mt-1 text-xs text-red-500 hidden">密码必须为8位</p>
-                        </div>
-                    </div>
-                    
-                    <button id="loginBtn" class="w-full gradient-primary text-white py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-4 btn-effect">
-                        登录
-                    </button>
-                    
-                    <div class="text-center text-sm">
-                        <p>还没有账号？ <button id="showRegisterBtn" class="text-primary font-medium btn-effect">立即注册</button></p>
-                    </div>
-                </div>
-                
-                <!-- 注册表单 -->
-                <div id="registerForm" class="hidden">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1" for="regUsername">昵称</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <i class="fa fa-user"></i>
-                            </span>
-                            <input type="text" id="regUsername" placeholder="请设置昵称" 
-                                class="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
-                        </div>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-1" for="regPassword">密码</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <i class="fa fa-lock"></i>
-                            </span>
-                            <input type="password" id="regPassword" placeholder="请设置8位密码" 
-                                class="w-full pl-10 pr-10 py-3 rounded-xl border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
-                            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 toggle-password">
-                                <i class="fa fa-eye"></i>
-                            </button>
-                            <p id="regPasswordError" class="mt-1 text-xs text-red-500 hidden">密码必须为8位</p>
-                        </div>
-                    </div>
-                    
-                    <button id="registerBtn" class="w-full gradient-primary text-white py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-4 btn-effect">
-                        注册
-                    </button>
-                    
-                    <div class="text-center text-sm">
-                        <p>已有账号？ <button id="showLoginBtn" class="text-primary font-medium btn-effect">立即登录</button></p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 首页内容（登录后显示） -->
-            <div id="homeContent" class="hidden">
-                <div class="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-6 md:p-8 mb-6 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-accent/10 rounded-full -mr-20 -mt-20"></div>
-                    <div class="absolute bottom-0 left-0 w-60 h-60 bg-primary/10 rounded-full -ml-30 -mb-30"></div>
-                    
-                    <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between">
-                        <div>
-                            <h2 class="text-2xl md:text-3xl font-bold mb-2">欢迎回来，<span id="welcomeNickname">用户</span>！</h2>
-                            <p class="text-gray-600" id="welcomeRole">普通用户</p>
-                        </div>
-                        
-                        <div class="mt-4 md:mt-0 flex space-x-3">
-                            <button class="bg-white text-primary px-4 py-2 rounded-lg shadow hover:shadow-md transition-shadow flex items-center btn-effect">
-                                <i class="fa fa-plus mr-2"></i>发布动态
-                            </button>
-                            <button class="bg-white text-secondary px-4 py-2 rounded-lg shadow hover:shadow-md transition-shadow btn-effect">
-                                <i class="fa fa-envelope"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 功能卡片 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow transform hover:-translate-y-1 duration-300">
-                        <div class="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-4">
-                            <i class="fa fa-users text-primary text-xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">好友管理</h3>
-                        <p class="text-gray-600 text-sm mb-4">查看好友列表，添加新好友，维系社交关系</p>
-                        <button id="toFriendsBtn" class="text-primary font-medium flex items-center btn-effect">
-                            查看好友 <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow transform hover:-translate-y-1 duration-300">
-                        <div class="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center mb-4">
-                            <i class="fa fa-question-circle text-secondary text-xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">互助问答</h3>
-                        <p class="text-gray-600 text-sm mb-4">提出你的疑问，解答他人困惑，共同进步</p>
-                        <button class="text-secondary font-medium flex items-center btn-effect">
-                            进入问答 <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow transform hover:-translate-y-1 duration-300">
-                        <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center mb-4">
-                            <i class="fa fa-calendar text-accent text-xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">活动中心</h3>
-                        <p class="text-gray-600 text-sm mb-4">浏览最新活动，报名参与，丰富生活</p>
-                        <button class="text-accent font-medium flex items-center btn-effect">
-                            查看活动 <i class="fa fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 其他页面内容 -->
-            <div id="friendsContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">好友列表</h2></div></div>
-            <div id="qaContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">互助问答</h2></div></div>
-            <div id="activityContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">活动中心</h2></div></div>
-            <div id="noticeContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">通知公告</h2></div></div>
-            <div id="profileContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">个人中心</h2></div></div>
-            <div id="adminContent" class="hidden"><div class="bg-white rounded-2xl shadow-lg p-6 mb-6"><h2 class="text-2xl font-bold mb-4">管理中心</h2></div></div>
-        </div>
-    </main>
-
-    <!-- 页脚 -->
-    <footer class="bg-dark text-white py-10 mt-10">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between">
-                <div class="mb-6 md:mb-0">
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
-                            <i class="fa fa-lemon-o text-white text-xl"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold">Lemon</h2>
-                    </div>
-                    <p class="text-gray-400 max-w-md">简洁高效的管理系统，连接每一位用户，提供优质体验。</p>
-                </div>
-                
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
-                    <div>
-                        <h3 class="text-lg font-bold mb-4">快速链接</h3>
-                        <ul class="space-y-2 text-gray-400">
-                            <li><a href="#" class="hover:text-primary transition-colors">首页</a></li>
-                            <li><a href="#" class="hover:text-primary transition-colors">互助问答</a></li>
-                            <li><a href="#" class="hover:text-primary transition-colors">活动中心</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div>
-                        <h3 class="text-lg font-bold mb-4">关于我们</h3>
-                        <ul class="space-y-2 text-gray-400">
-                            <li><a href="#" class="hover:text-primary transition-colors">关于系统</a></li>
-                            <li><a href="#" class="hover:text-primary transition-colors">使用帮助</a></li>
-                            <li><a href="#" class="hover:text-primary transition-colors">联系我们</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-500 text-sm">
-                <p>© 2025 lemon版权所有</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- 提示弹窗 -->
-    <div id="successToast" class="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
-        <i class="fa fa-check-circle mr-2"></i>
-        <span id="successMessage">操作成功</span>
+<body>
+    <!-- Lemon Logo -->
+    <div class="lemon-logo">
+        <div class="logo-icon">L</div>
+        <div class="logo-text">Lemon</div>
     </div>
-    <div id="errorToast" class="fixed bottom-6 right-6 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
-        <i class="fa fa-exclamation-circle mr-2"></i>
-        <span id="errorMessage">操作失败</span>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-moon"></i> 神秘塔罗牌占卜 <i class="fas fa-star"></i></h1>
+            <p class="subtitle">从九张神秘塔罗牌中选择一张，揭示你今日的运势与智慧箴言</p>
+        </header>
+        
+        <div class="instructions">
+            <p>集中精神，默想你的问题，然后选择一张牌</p>
+            <p>你只能选择一张牌，选择后将显示你的运势和智慧箴言</p>
+        </div>
+        
+        <div class="cards-grid">
+            <!-- 9张塔罗牌 -->
+            <div class="tarot-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="center-symbol"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="shine-effect"></div>
+                        <div class="mystic-symbol"></div>
+                        <div class="rune-decoration rune-1"></div>
+                        <div class="rune-decoration rune-2"></div>
+                        <div class="rune-decoration rune-3"></div>
+                        <div class="rune-decoration rune-4"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="fortune-text">大吉</div>
+                        <div class="wisdom-quote">人不是为失败而生的，一个人可以被毁灭，但不能被打败。</div>
+                        <div class="quote-author">——海明威</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tarot-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="center-symbol"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="shine-effect"></div>
+                        <div class="mystic-symbol"></div>
+                        <div class="rune-decoration rune-1"></div>
+                        <div class="rune-decoration rune-2"></div>
+                        <div class="rune-decoration rune-3"></div>
+                        <div class="rune-decoration rune-4"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="fortune-text">中吉</div>
+                        <div class="wisdom-quote">黑夜无论怎样悠长，白昼总会到来。</div>
+                        <div class="quote-author">——莎士比亚</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tarot-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="center-symbol"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="shine-effect"></div>
+                        <div class="mystic-symbol"></div>
+                        <div class="rune-decoration rune-1"></div>
+                        <div class="rune-decoration rune-2"></div>
+                        <div class="rune-decoration rune-3"></div>
+                        <div class="rune-decoration rune-4"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="fortune-text">小吉</div>
+                        <div class="wisdom-quote">世界上只有一种英雄主义，那就是认清生活的真相后依然热爱生活。</div>
+                        <div class="quote-author">——罗曼·罗兰</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tarot-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="center-symbol"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="shine-effect"></div>
+                        <div class="mystic-symbol"></div>
+                        <div class="rune-decoration rune-1"></div>
+                        <div class="rune-decoration rune-2"></div>
+                        <div class="rune-decoration rune-3"></div>
+                        <div class="rune-decoration rune-4"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="fortune-text">中平</div>
+                        <div class="wisdom-quote">如果你因错过太阳而流泪，那么你也将错过群星。</div>
+                        <div class="quote-author">——泰戈尔</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tarot-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="center-symbol"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="shine-effect"></div>
+                        <div class="mystic-symbol"></div>
+                        <div class="rune-decoration rune-1"></div>
+                        <div class="rune-decoration rune-2"></div>
+                        <div class="rune-decoration rune-3"></div>
+                        <div class="rune-decoration rune-4"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="fortune-text">中平</div>
+                        <div class="wisdom-quote">希望是一个好东西，也许是最好的，好东西是不会消亡的。</div>
+                        <div class="quote-author">——斯蒂芬·金《肖申克的救赎》</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tarot-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="center-symbol"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="shine-effect"></div>
+                        <div class="mystic-symbol"></div>
+                        <div class="rune-decoration rune-1"></div>
+                        <div class="rune-decoration rune-2"></div>
+                        <div class="rune-decoration rune-3"></div>
+                        <div class="rune-decoration rune-4"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="fortune-text">小凶</div>
+                        <div class="wisdom-quote">不是每一种鸟都叫鹰，认清自己你才能活下去。</div>
+                        <div class="quote-author">——民间寓言</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tarot-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="center-symbol"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="shine-effect"></div>
+                        <div class="mystic-symbol"></div>
+                        <div class="rune-decoration rune-1"></div>
+                        <div class="rune-decoration rune-2"></div>
+                        <div class="rune-decoration rune-3"></div>
+                        <div class="rune-decoration rune-4"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="fortune-text">小凶</div>
+                        <div class="wisdom-quote">命运总是不如人愿，但往往是在无数的痛苦中，在重重的矛盾和艰辛中，才使人成熟起来。</div>
+                        <div class="quote-author">——路遥</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tarot-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="center-symbol"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="shine-effect"></div>
+                        <div class="mystic-symbol"></div>
+                        <div class="rune-decoration rune-1"></div>
+                        <div class="rune-decoration rune-2"></div>
+                        <div class="rune-decoration rune-3"></div>
+                        <div class="rune-decoration rune-4"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="fortune-text">大凶</div>
+                        <div class="wisdom-quote">我们若已接受最坏的，就再没有什么损失。</div>
+                        <div class="quote-author">——卡耐基</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tarot-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="center-symbol"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-question"></i>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="shine-effect"></div>
+                        <div class="mystic-symbol"></div>
+                        <div class="rune-decoration rune-1"></div>
+                        <div class="rune-decoration rune-2"></div>
+                        <div class="rune-decoration rune-3"></div>
+                        <div class="rune-decoration rune-4"></div>
+                        <div class="corner-decoration corner-top-left"></div>
+                        <div class="corner-decoration corner-top-right"></div>
+                        <div class="corner-decoration corner-bottom-left"></div>
+                        <div class="corner-decoration corner-bottom-right"></div>
+                        <div class="fortune-text">中平</div>
+                        <div class="wisdom-quote">永远不要认为我们可以逃避，我们的每一步都决定着最后的结局。</div>
+                        <div class="quote-author">——米兰·昆德拉</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="reset-btn">重新选择</button>
+        
+        <footer>
+            <p>塔罗牌占卜仅供参考，命运掌握在自己手中</p>
+            <p>© 2023 神秘塔罗牌运势占卜 | 仅供娱乐</p>
+        </footer>
     </div>
 
     <script>
-        // 初始化LeanCloud
-        AV.init({
-            appId: "30kUc571qTv0YSCTWVGRbAxk-gzGzoHsz",
-            appKey: "LxFqgqjRZ3SaRGYUGznRiWAr",
-            serverURL: "https://30kuc571.lc-cn-n1-shared.com"
-        });
-
-        // 配置和状态管理
-        const Config = { 
-            ROLES: { SUPER_ADMIN: 'super_admin', ADMIN: 'admin', USER: 'user' },
-            // 增加超级管理员用户名列表作为备选识别方式
-            SUPER_ADMIN_USERNAMES: ['lemon']
-        };
-        const State = { currentUser: null, currentRole: Config.ROLES.USER, isLoggedIn: false };
-
-        // 抽签数据
-        const LotteryData = {
-            types: [
-                { name: "大吉", icon: "https://picsum.photos/200/200?random=lot1", description: "运势极佳" },
-                { name: "小吉", icon: "https://picsum.photos/200/200?random=lot2", description: "小有好运" },
-                { name: "中平", icon: "https://picsum.photos/200/200?random=lot3", description: "运势平平" },
-                { name: "凶", icon: "https://picsum.photos/200/200?random=lot4", description: "需谨慎行事" },
-                { name: "大凶", icon: "https://picsum.photos/200/200?random=lot5", description: "万事小心" }
-            ],
-            lucky: ["写作业", "听音乐", "多喝水", "散步", "阅读"],
-            unlucky: ["熬夜", "吃辛辣", "久坐", "发脾气", "拖延"]
-        };
-
-        // 工具函数
-        const Utils = {
-            showToast: (type, message) => {
-                const toast = document.getElementById(`${type}Toast`);
-                const msgEl = document.getElementById(`${type}Message`);
-                msgEl.textContent = message;
-                toast.classList.remove('translate-y-20', 'opacity-0');
-                setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
-            },
-            randomPick: (arr, count = 3) => [...arr].sort(() => 0.5 - Math.random()).slice(0, count).join('、'),
-            getToday: () => {
-                const d = new Date();
-                return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.tarot-card');
+            const resetBtn = document.querySelector('.reset-btn');
+            let selectedCard = null;
+            
+            // 运势类型
+            const fortuneTypes = [
+                { text: "大吉", desc: "万事如意，好运相伴" },
+                { text: "中吉", desc: "顺利平稳，小有收获" },
+                { text: "小吉", desc: "略有好事，保持乐观" },
+                { text: "中平", desc: "平平淡淡，顺其自然" },
+                { text: "中平", desc: "平稳无波，常规行事" },
+                { text: "小凶", desc: "稍有阻碍，谨慎行事" },
+                { text: "小凶", desc: "小有麻烦，注意细节" },
+                { text: "大凶", desc: "诸事不顺，保持耐心" },
+                { text: "中平", desc: "无风无浪，平常心待" }
+            ];
+            
+            // 哲理金句库
+            const wisdomQuotes = [
+                { quote: "人不是为失败而生的，一个人可以被毁灭，但不能被打败。", author: "海明威" },
+                { quote: "黑夜无论怎样悠长，白昼总会到来。", author: "莎士比亚" },
+                { quote: "世界上只有一种英雄主义，那就是认清生活的真相后依然热爱生活。", author: "罗曼·罗兰" },
+                { quote: "如果你因错过太阳而流泪，那么你也将错过群星。", author: "泰戈尔" },
+                { quote: "希望是一个好东西，也许是最好的，好东西是不会消亡的。", author: "斯蒂芬·金《肖申克的救赎》" },
+                { quote: "不是每一种鸟都叫鹰，认清自己你才能活下去。", author: "民间寓言" },
+                { quote: "命运总是不如人愿，但往往是在无数的痛苦中，在重重的矛盾和艰辛中，才使人成熟起来。", author: "路遥" },
+                { quote: "我们若已接受最坏的，就再没有什么损失。", author: "卡耐基" },
+                { quote: "永远不要认为我们可以逃避，我们的每一步都决定着最后的结局。", author: "米兰·昆德拉" },
+                { quote: "生活中真正的勇士向来默默无闻，喧哗不止的永远是自视高贵的一群。", author: "路遥" },
+                { quote: "人和社会，一切斗争的总结局也许都是中庸而已。与其认真，不如随便。", author: "路遥" },
+                { quote: "钱当然很重要，但我又觉得，人活这一辈子，还应该有些另外的什么才对。", author: "路遥" },
+                { quote: "这世界上没有任何一句话，可以让你醍醐灌顶，真正叫你醍醐灌顶的，只是一段经历。", author: "刘震云" },
+                { quote: "人有很多事是说不清道不明的，或许这就是书上说的，人与人交往也是有气味的。", author: "贾平凹" },
+                { quote: "记忆是时间停留在过去的影子。为了未来的记忆，请着手你现在的画。", author: "冰心" },
+                { quote: "言论的花儿，开得愈大，行为的果实，结得愈小。", author: "冰心" },
+                { quote: "俗话说是笨鸟先飞，我还得笨鸟多飞。", author: "余华" },
+                { quote: "社会在变化，生活在变化，人在变化，没有什么是一成不变的。", author: "路遥" },
+                { quote: "你认为有多少光阴供你用的？其实都是一眨眼的工夫。", author: "王安忆" },
+                { quote: "我时常回到童年，用一片童心来思考问题，很多烦恼就变得易解。", author: "王小波" },
+                { quote: "奋斗不是突然发光，是像磨剑那样，每天磨一点，钝铁终会露出锋芒。", author: "励志格言" },
+                { quote: "种子在土里熬的时候，从没想过会不会发芽，只知道往下扎根。", author: "励志格言" },
+                { quote: "痛苦是不可避免的，但受苦与否却可以选择。", author: "陀思妥耶夫斯基《罪与罚》" },
+                { quote: "你不可能真正了解一个人，除非你穿上他的鞋子走来走去。", author: "哈珀·李《杀死一只知更鸟》" },
+                { quote: "世界不会在意你的自尊，人们看到的只是你的成就。", author: "菲茨杰拉德《了不起的盖茨比》" }
+            ];
+            
+            // 随机分配运势和金句到卡片
+            function assignRandomContents() {
+                // 复制数组并打乱顺序
+                const shuffledFortunes = [...fortuneTypes].sort(() => Math.random() - 0.5);
+                const shuffledQuotes = [...wisdomQuotes].sort(() => Math.random() - 0.5);
+                
+                // 为每张卡分配随机运势和金句
+                cards.forEach((card, index) => {
+                    const fortuneText = card.querySelector('.fortune-text');
+                    const wisdomQuote = card.querySelector('.wisdom-quote');
+                    const quoteAuthor = card.querySelector('.quote-author');
+                    
+                    // 分配运势
+                    fortuneText.textContent = shuffledFortunes[index % shuffledFortunes.length].text;
+                    
+                    // 分配金句
+                    const quoteIndex = index % shuffledQuotes.length;
+                    wisdomQuote.textContent = shuffledQuotes[quoteIndex].quote;
+                    quoteAuthor.textContent = "——" + shuffledQuotes[quoteIndex].author;
+                });
             }
-        };
-
-        // 抽签功能
-        const Lottery = {
-            init: () => {
-                const lastDraw = localStorage.getItem('lastLotteryDate');
-                if (lastDraw === Utils.getToday()) {
-                    document.getElementById('drawLotteryBtn').classList.add('hidden');
-                    document.getElementById('lotteryLimitHint').classList.remove('hidden');
-                    Lottery.showLastResult();
-                }
-            },
-            draw: () => {
-                const today = Utils.getToday();
-                const type = LotteryData.types[Math.floor(Math.random() * LotteryData.types.length)];
-                const result = {
-                    type: type,
-                    lucky: Utils.randomPick(LotteryData.lucky),
-                    unlucky: Utils.randomPick(LotteryData.unlucky),
-                    date: today
-                };
-                localStorage.setItem('lastLotteryResult', JSON.stringify(result));
-                localStorage.setItem('lastLotteryDate', today);
-                Lottery.showResult(result);
-                document.getElementById('drawLotteryBtn').classList.add('hidden');
-                document.getElementById('lotteryLimitHint').classList.remove('hidden');
-            },
-            showResult: (result) => {
-                document.getElementById('lotteryResult').classList.remove('hidden');
-                document.getElementById('lotteryType').textContent = result.type.name;
-                document.getElementById('lotteryImage').src = result.type.icon;
-                document.getElementById('lotteryLucky').textContent = result.lucky;
-                document.getElementById('lotteryUnlucky').textContent = result.unlucky;
-            },
-            showLastResult: () => {
-                const res = localStorage.getItem('lastLotteryResult');
-                if (res) Lottery.showResult(JSON.parse(res));
-            }
-        };
-
-        // 主题切换
-        function switchTheme(theme) {
-            document.body.classList.remove('theme1', 'theme2', 'theme3');
-            document.body.classList.add(theme);
-            localStorage.setItem('preferredTheme', theme);
-            Utils.showToast('success', `已切换到${theme === 'theme1' ? '清新蓝' : theme === 'theme2' ? '活力橙' : '森系绿'}主题`);
-        }
-
-        // 增强版角色识别逻辑
-        const Auth = {
-            init: async () => {
-                try {
-                    console.log('开始初始化认证系统');
-                    await Auth.ensureSuperAdminRoleExists();
-                    
-                    const user = AV.User.current();
-                    if (user) {
-                        console.log('检测到已登录用户', user.toJSON().username);
-                        State.currentUser = user.toJSON();
-                        State.isLoggedIn = true;
-                        await Auth.checkUserRole();
-                        Auth.updateUserDisplay();
-                        UI.showContent('homeContent');
-                    } else {
-                        console.log('未检测到登录用户');
-                        UI.showContent('authCard');
-                    }
-                    
-                    const savedTheme = localStorage.getItem('preferredTheme');
-                    if (savedTheme) switchTheme(savedTheme);
-                } catch (err) {
-                    console.error('初始化失败:', err);
-                    Utils.showToast('error', '系统初始化失败，请刷新重试');
-                }
-            },
             
-            // 确保超级管理员角色存在
-            ensureSuperAdminRoleExists: async () => {
-                try {
-                    console.log('检查超级管理员角色是否存在');
-                    let roleQuery = new AV.Query(AV.Role);
-                    roleQuery.equalTo('name', Config.ROLES.SUPER_ADMIN);
-                    let roles = await roleQuery.find();
-                    
-                    if (roles.length === 0) {
-                        console.log('超级管理员角色不存在，创建新角色');
-                        let role = new AV.Role(Config.ROLES.SUPER_ADMIN, new AV.ACL());
-                        role.getACL().setPublicReadAccess(true);
-                        await role.save();
-                        console.log('超级管理员角色创建成功');
-                    } else {
-                        console.log('超级管理员角色已存在');
-                    }
-                } catch (err) {
-                    console.error('检查/创建超级管理员角色失败:', err);
-                }
-            },
+            // 初始化随机内容
+            assignRandomContents();
             
-            // 登录核心逻辑
-            login: async (username, password) => {
-                if (password.length !== 8) {
-                    document.getElementById('passwordError').classList.remove('hidden');
-                    return false;
-                }
-                
-                try {
-                    console.log(`尝试登录用户: ${username}`);
-                    await AV.User.logOut(); // 清除旧登录状态
-                    const user = await AV.User.logIn(username, password);
-                    State.currentUser = user.toJSON();
-                    State.isLoggedIn = true;
-                    console.log(`用户 ${username} 登录成功，ID: ${State.currentUser.objectId}`);
+            // 卡片点击事件
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // 如果已经有选中的卡片，则不再处理点击
+                    if (selectedCard) return;
                     
-                    await Auth.checkUserRole(); // 登录后检查角色
-                    Auth.updateUserDisplay();
-                    Utils.showToast('success', '登录成功！');
-                    return true;
-                } catch (err) {
-                    console.error('登录失败:', err);
-                    let msg = '登录失败';
-                    if (err.code === 210) msg = '用户名或密码错误';
-                    else if (err.code === 211) msg = '用户不存在';
-                    Utils.showToast('error', msg);
-                    return false;
-                }
-            },
-            
-            register: async (username, password) => {
-                if (password.length !== 8) {
-                    document.getElementById('regPasswordError').classList.remove('hidden');
-                    return false;
-                }
-                
-                try {
-                    let query = new AV.Query(AV.User);
-                    query.equalTo('username', username);
-                    let users = await query.find();
-                    if (users.length > 0) {
-                        Utils.showToast('error', '用户名已存在');
-                        return false;
-                    }
+                    // 标记当前选中的卡片
+                    selectedCard = card;
                     
-                    let user = new AV.User();
-                    user.setUsername(username);
-                    user.setPassword(password);
-                    await user.signUp();
-                    Utils.showToast('success', '注册成功，请登录');
-                    return true;
-                } catch (err) {
-                    console.error('注册失败:', err);
-                    Utils.showToast('error', '注册失败，请稍后再试');
-                    return false;
-                }
-            },
-            
-            logout: async () => {
-                await AV.User.logOut();
-                State.currentUser = null;
-                State.isLoggedIn = false;
-                Auth.updateUserDisplay();
-                UI.showContent('authCard');
-                Utils.showToast('success', '已退出登录');
-            },
-            
-            updateUserDisplay: () => {
-                const avatar = document.getElementById('userAvatar');
-                const nickname = document.getElementById('userNickname');
-                const dropdownNick = document.getElementById('dropdownNickname');
-                const dropdownRole = document.getElementById('dropdownRole');
-                const adminBtn = document.getElementById('adminBtn');
-                const welcomeNick = document.getElementById('welcomeNickname');
-                const welcomeRole = document.getElementById('welcomeRole');
-                
-                if (State.isLoggedIn) {
-                    console.log(`更新用户显示，角色: ${State.currentRole}`);
-                    const avatarUrl = State.currentUser.avatar || `https://picsum.photos/200/200?random=${State.currentUser.objectId}`;
-                    avatar.innerHTML = `<img src="${avatarUrl}" alt="用户头像" class="w-full h-full object-cover">`;
-                    nickname.textContent = State.currentUser.username;
-                    dropdownNick.textContent = State.currentUser.username;
-                    welcomeNick.textContent = State.currentUser.username;
+                    // 翻转选中的卡片
+                    card.classList.add('flipped');
                     
-                    let roleText = '普通用户';
-                    if (State.currentRole === Config.ROLES.SUPER_ADMIN) {
-                        roleText = '👑超级管理员';
-                        adminBtn.classList.remove('hidden');
-                    } else if (State.currentRole === Config.ROLES.ADMIN) {
-                        roleText = '🛡️管理员';
-                        adminBtn.classList.remove('hidden');
-                    } else {
-                        adminBtn.classList.add('hidden');
-                    }
-                    dropdownRole.textContent = roleText;
-                    welcomeRole.textContent = roleText;
-                } else {
-                    avatar.innerHTML = `<img src="https://picsum.photos/200/200?random=1" alt="游客头像">`;
-                    nickname.textContent = '游客';
-                    dropdownNick.textContent = '游客';
-                    dropdownRole.textContent = '未登录';
-                    adminBtn.classList.add('hidden');
-                }
-            },
-            
-            // 增强版角色检查逻辑
-            checkUserRole: async () => {
-                if (!State.currentUser) return;
-                
-                try {
-                    console.log(`开始检查用户 ${State.currentUser.username} 的角色`);
-                    
-                    // 方法1: 用户名白名单检查 (备选方案)
-                    if (Config.SUPER_ADMIN_USERNAMES.includes(State.currentUser.username)) {
-                        console.log(`用户 ${State.currentUser.username} 在超级管理员白名单中`);
-                        State.currentRole = Config.ROLES.SUPER_ADMIN;
-                        return;
-                    }
-                    
-                    // 方法2: 通过LeanCloud角色查询 (主要方案)
-                    const user = AV.Object.createWithoutData('_User', State.currentUser.objectId);
-                    
-                    // 查询超级管理员角色
-                    let superAdminQuery = new AV.Query(AV.Role);
-                    superAdminQuery.equalTo('name', Config.ROLES.SUPER_ADMIN);
-                    superAdminQuery.equalTo('users', user);
-                    
-                    console.log(`查询超级管理员角色关联: 用户ID=${State.currentUser.objectId}`);
-                    let superAdminResult = await superAdminQuery.find();
-                    
-                    if (superAdminResult.length > 0) {
-                        console.log(`用户 ${State.currentUser.username} 是超级管理员`);
-                        State.currentRole = Config.ROLES.SUPER_ADMIN;
-                        return;
-                    }
-                    
-                    // 查询普通管理员角色
-                    let adminQuery = new AV.Query(AV.Role);
-                    adminQuery.equalTo('name', Config.ROLES.ADMIN);
-                    adminQuery.equalTo('users', user);
-                    
-                    console.log(`查询管理员角色关联: 用户ID=${State.currentUser.objectId}`);
-                    let adminResult = await adminQuery.find();
-                    
-                    if (adminResult.length > 0) {
-                        console.log(`用户 ${State.currentUser.username} 是管理员`);
-                        State.currentRole = Config.ROLES.ADMIN;
-                        return;
-                    }
-                    
-                    // 查询所有角色，用于调试
-                    let allRolesQuery = new AV.Query(AV.Role);
-                    let allRoles = await allRolesQuery.find();
-                    console.log(`系统中存在的角色: ${allRoles.map(r => r.get('name')).join(', ')}`);
-                    
-                    // 如果用户有其他角色，也列出来
-                    let userRolesQuery = new AV.Query(AV.Role);
-                    userRolesQuery.equalTo('users', user);
-                    let userRoles = await userRolesQuery.find();
-                    console.log(`用户 ${State.currentUser.username} 拥有的角色: ${userRoles.map(r => r.get('name')).join(', ')}`);
-                    
-                    // 默认是普通用户
-                    console.log(`用户 ${State.currentUser.username} 是普通用户`);
-                    State.currentRole = Config.ROLES.USER;
-                    
-                } catch (err) {
-                    console.error('获取角色失败:', err);
-                    // 出错时也尝试使用用户名白名单
-                    if (Config.SUPER_ADMIN_USERNAMES.includes(State.currentUser.username)) {
-                        console.log(`角色查询出错，但用户 ${State.currentUser.username} 在超级管理员白名单中`);
-                        State.currentRole = Config.ROLES.SUPER_ADMIN;
-                    } else {
-                        State.currentRole = Config.ROLES.USER;
-                    }
-                }
-            }
-        };
-
-        // UI控制
-        const UI = {
-            showContent: (id) => {
-                document.querySelectorAll('main > div > div[id$="Content"], #authCard').forEach(el => el.classList.add('hidden'));
-                document.getElementById(id).classList.remove('hidden');
-                document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('sidebar-btn-active'));
-                document.querySelector(`.sidebar-btn[data-target="${id}"]`)?.classList.add('sidebar-btn-active');
-            }
-        };
-
-        // 事件绑定
-        document.addEventListener('DOMContentLoaded', () => {
-            // 初始化功能
-            Auth.init();
-            Lottery.init();
-            
-            // 登录按钮点击事件
-            document.getElementById('loginBtn').addEventListener('click', async () => {
-                const username = document.getElementById('loginUsername').value.trim();
-                const password = document.getElementById('loginPassword').value;
-                
-                if (!username || !password) {
-                    Utils.showToast('error', '请输入用户名和密码');
-                    return;
-                }
-                
-                const success = await Auth.login(username, password);
-                if (success) {
-                    UI.showContent('homeContent');
-                }
-            });
-            
-            // 注册按钮
-            document.getElementById('registerBtn').addEventListener('click', async () => {
-                const username = document.getElementById('regUsername').value.trim();
-                const password = document.getElementById('regPassword').value;
-                
-                if (!username || !password) {
-                    Utils.showToast('error', '请输入用户名和密码');
-                    return;
-                }
-                
-                const success = await Auth.register(username, password);
-                if (success) {
-                    document.getElementById('registerForm').classList.add('hidden');
-                    document.getElementById('loginForm').classList.remove('hidden');
-                }
-            });
-            
-            // 其他事件绑定
-            document.getElementById('showRegisterBtn').addEventListener('click', () => {
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('registerForm').classList.remove('hidden');
-            });
-            document.getElementById('showLoginBtn').addEventListener('click', () => {
-                document.getElementById('registerForm').classList.add('hidden');
-                document.getElementById('loginForm').classList.remove('hidden');
-            });
-            document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
-            document.getElementById('drawLotteryBtn').addEventListener('click', () => Lottery.draw());
-            document.getElementById('userAvatarBtn').addEventListener('click', () => {
-                document.getElementById('avatarDropdown').classList.toggle('hidden');
-            });
-            document.querySelectorAll('.sidebar-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const target = btn.getAttribute('data-target');
-                    if (target && State.isLoggedIn) UI.showContent(target);
-                    else if (!State.isLoggedIn) Utils.showToast('error', '请先登录');
+                    // 禁用所有卡片的点击
+                    cards.forEach(c => {
+                        if (c !== card) {
+                            c.style.cursor = 'default';
+                            c.style.opacity = '0.7';
+                        }
+                    });
                 });
             });
-            document.querySelectorAll('.toggle-password').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const input = this.parentElement.querySelector('input');
-                    const icon = this.querySelector('i');
-                    input.type = input.type === 'password' ? 'text' : 'password';
-                    icon.classList.toggle('fa-eye');
-                    icon.classList.toggle('fa-eye-slash');
+            
+            // 重置按钮点击事件
+            resetBtn.addEventListener('click', () => {
+                // 重置所有卡片
+                cards.forEach(card => {
+                    card.classList.remove('flipped');
+                    card.style.cursor = 'pointer';
+                    card.style.opacity = '1';
                 });
-            });
-            document.getElementById('loginPassword').addEventListener('input', (e) => {
-                document.getElementById('passwordError').classList.toggle('hidden', e.target.value.length === 8);
-            });
-            document.getElementById('regPassword').addEventListener('input', (e) => {
-                document.getElementById('regPasswordError').classList.toggle('hidden', e.target.value.length === 8);
-            });
-            document.addEventListener('click', (e) => {
-                if (!document.getElementById('userMenu').contains(e.target)) {
-                    document.getElementById('avatarDropdown').classList.add('hidden');
-                }
+                
+                // 重新分配随机内容
+                assignRandomContents();
+                
+                // 清除选中状态
+                selectedCard = null;
             });
         });
     </script>
