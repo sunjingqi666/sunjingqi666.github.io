@@ -33,6 +33,41 @@
             justify-content: center;
             overflow-x: hidden;
             font-family: 'Noto Serif SC', serif;
+            position: relative;
+        }
+        
+        /* 添加星空背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(41, 16, 94, 0.7) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(94, 16, 82, 0.7) 0%, transparent 40%),
+                linear-gradient(135deg, #0a0a1a 0%, #0c0c2a 100%);
+            background-blend-mode: overlay;
+            z-index: -2;
+        }
+        
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 5px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            opacity: 0.4;
+            z-index: -1;
+            pointer-events: none;
         }
         
         /* Lemon Logo 设计 */
@@ -94,6 +129,9 @@
             width: 100%;
             padding: 20px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         /* 美化标题 */
@@ -102,6 +140,7 @@
             margin-bottom: 30px;
             padding: 20px;
             position: relative;
+            width: 100%;
         }
         
         h1 {
@@ -149,23 +188,20 @@
         }
         
         /* 美化说明文字 */
-      
-.instructions {
-    background: rgba(20, 20, 40, 0.7);
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    position: relative;
-    overflow: hidden;
-    -webkit-backdrop-filter: blur(5px); /* 添加WebKit前缀以支持Safari */
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(5px);
-}
+        .instructions {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            width: 100%;
+            max-width: 800px;
+        }
         
         .instructions p {
             font-size: 1.2rem;
@@ -198,11 +234,20 @@
             }
         }
         
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 25px;
-            margin-bottom: 30px;
+            justify-content: center;
+            align-items: center;
+            max-width: 600px;
         }
         
         .tarot-card {
@@ -319,7 +364,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50);
+            transform: translate(-50%, -50%);
             width: 70%;
             height: 70%;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,15 L60,40 L85,40 L65,55 L75,85 L50,70 L25,85 L35,55 L15,40 L40,40 Z' fill='none' stroke='%23ffd700' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='%23ffd700' stroke-width='0.5'/%3E%3Cpath d='M50,30 L55,45 L70,45 L58,55 L63,70 L50,60 L37,70 L42,55 L30,45 L45,45 Z' fill='none' stroke='%23ffd700' stroke-width='0.7'/%3E%3C/svg%3E");
@@ -603,14 +648,14 @@
         /* 美化页脚 */
         footer {
             text-align: center;
-            margin-top: 50px;
+            margin: 50px auto 0;
             padding: 25px;
             color: #b8b8b8;
             font-size: 1rem;
             opacity: 0.9;
             font-family: 'Noto Serif SC', serif;
             border-top: 1px solid rgba(255, 215, 0, 0.2);
-            width: 80%;
+            width: 100%;
             max-width: 600px;
         }
         
@@ -624,6 +669,132 @@
             margin-bottom: 0;
             font-size: 0.9rem;
             opacity: 0.7;
+        }
+        
+        /* 加载动画样式 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 26, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .loading-spinner::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top: 4px solid var(--primary-gold);
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
+        
+        .loading-spinner::after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: calc(100% - 10px);
+            height: calc(100% - 10px);
+            border: 4px solid transparent;
+            border-bottom: 4px solid var(--secondary-gold);
+            border-radius: 50%;
+            animation: spinReverse 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes spinReverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+        
+        .loading-text {
+            color: var(--primary-gold);
+            font-size: 1.4rem;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+            margin-bottom: 10px;
+        }
+        
+        .loading-subtext {
+            color: #d4c17a;
+            font-size: 1rem;
+            text-align: center;
+            max-width: 300px;
+        }
+        
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: var(--primary-gold);
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: dotPulse 1.5s infinite ease-in-out;
+        }
+        
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+        }
+        
+        .progress-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 3px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary-gold), var(--secondary-gold));
+            border-radius: 3px;
+            transition: width 0.3s ease;
         }
         
         @media (max-width: 600px) {
@@ -644,6 +815,8 @@
             
             .cards-grid {
                 gap: 15px;
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 100%;
             }
             
             h1 {
@@ -684,6 +857,18 @@
                 font-size: 0.9rem;
                 padding: 15px;
             }
+            
+            .loading-text {
+                font-size: 1.2rem;
+            }
+            
+            .loading-subtext {
+                font-size: 0.9rem;
+            }
+            
+            .progress-bar {
+                width: 250px;
+            }
         }
     </style>
 </head>
@@ -705,274 +890,276 @@
             <p>你只能选择一张牌，选择后将显示你的运势和智慧箴言</p>
         </div>
         
-        <div class="cards-grid">
-            <!-- 9张塔罗牌 -->
-            <div class="tarot-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="center-symbol"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="card-icon">
-                            <i class="fas fa-question"></i>
+        <div class="cards-container">
+            <div class="cards-grid">
+                <!-- 9张塔罗牌 -->
+                <div class="tarot-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="center-symbol"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="card-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-back">
-                        <div class="shine-effect"></div>
-                        <div class="mystic-symbol"></div>
-                        <div class="rune-decoration rune-1"></div>
-                        <div class="rune-decoration rune-2"></div>
-                        <div class="rune-decoration rune-3"></div>
-                        <div class="rune-decoration rune-4"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="fortune-text">大吉</div>
-                        <div class="wisdom-quote">人不是为失败而生的，一个人可以被毁灭，但不能被打败。</div>
-                        <div class="quote-author">——海明威</div>
+                        <div class="card-back">
+                            <div class="shine-effect"></div>
+                            <div class="mystic-symbol"></div>
+                            <div class="rune-decoration rune-1"></div>
+                            <div class="rune-decoration rune-2"></div>
+                            <div class="rune-decoration rune-3"></div>
+                            <div class="rune-decoration rune-4"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="fortune-text">大吉</div>
+                            <div class="wisdom-quote">人不是为失败而生的，一个人可以被毁灭，但不能被打败。</div>
+                            <div class="quote-author">——海明威</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="tarot-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="center-symbol"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="card-icon">
-                            <i class="fas fa-question"></i>
+                
+                <div class="tarot-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="center-symbol"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="card-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-back">
-                        <div class="shine-effect"></div>
-                        <div class="mystic-symbol"></div>
-                        <div class="rune-decoration rune-1"></div>
-                        <div class="rune-decoration rune-2"></div>
-                        <div class="rune-decoration rune-3"></div>
-                        <div class="rune-decoration rune-4"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="fortune-text">中吉</div>
-                        <div class="wisdom-quote">黑夜无论怎样悠长，白昼总会到来。</div>
-                        <div class="quote-author">——莎士比亚</div>
+                        <div class="card-back">
+                            <div class="shine-effect"></div>
+                            <div class="mystic-symbol"></div>
+                            <div class="rune-decoration rune-1"></div>
+                            <div class="rune-decoration rune-2"></div>
+                            <div class="rune-decoration rune-3"></div>
+                            <div class="rune-decoration rune-4"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="fortune-text">中吉</div>
+                            <div class="wisdom-quote">黑夜无论怎样悠长，白昼总会到来。</div>
+                            <div class="quote-author">——莎士比亚</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="tarot-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="center-symbol"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="card-icon">
-                            <i class="fas fa-question"></i>
+                
+                <div class="tarot-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="center-symbol"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="card-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-back">
-                        <div class="shine-effect"></div>
-                        <div class="mystic-symbol"></div>
-                        <div class="rune-decoration rune-1"></div>
-                        <div class="rune-decoration rune-2"></div>
-                        <div class="rune-decoration rune-3"></div>
-                        <div class="rune-decoration rune-4"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="fortune-text">小吉</div>
-                        <div class="wisdom-quote">世界上只有一种英雄主义，那就是认清生活的真相后依然热爱生活。</div>
-                        <div class="quote-author">——罗曼·罗兰</div>
+                        <div class="card-back">
+                            <div class="shine-effect"></div>
+                            <div class="mystic-symbol"></div>
+                            <div class="rune-decoration rune-1"></div>
+                            <div class="rune-decoration rune-2"></div>
+                            <div class="rune-decoration rune-3"></div>
+                            <div class="rune-decoration rune-4"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="fortune-text">小吉</div>
+                            <div class="wisdom-quote">世界上只有一种英雄主义，那就是认清生活的真相后依然热爱生活。</div>
+                            <div class="quote-author">——罗曼·罗兰</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="tarot-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="center-symbol"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="card-icon">
-                            <i class="fas fa-question"></i>
+                
+                <div class="tarot-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="center-symbol"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="card-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-back">
-                        <div class="shine-effect"></div>
-                        <div class="mystic-symbol"></div>
-                        <div class="rune-decoration rune-1"></div>
-                        <div class="rune-decoration rune-2"></div>
-                        <div class="rune-decoration rune-3"></div>
-                        <div class="rune-decoration rune-4"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="fortune-text">中平</div>
-                        <div class="wisdom-quote">如果你因错过太阳而流泪，那么你也将错过群星。</div>
-                        <div class="quote-author">——泰戈尔</div>
+                        <div class="card-back">
+                            <div class="shine-effect"></div>
+                            <div class="mystic-symbol"></div>
+                            <div class="rune-decoration rune-1"></div>
+                            <div class="rune-decoration rune-2"></div>
+                            <div class="rune-decoration rune-3"></div>
+                            <div class="rune-decoration rune-4"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="fortune-text">中平</div>
+                            <div class="wisdom-quote">如果你因错过太阳而流泪，那么你也将错过群星。</div>
+                            <div class="quote-author">——泰戈尔</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="tarot-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="center-symbol"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="card-icon">
-                            <i class="fas fa-question"></i>
+                
+                <div class="tarot-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="center-symbol"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="card-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-back">
-                        <div class="shine-effect"></div>
-                        <div class="mystic-symbol"></div>
-                        <div class="rune-decoration rune-1"></div>
-                        <div class="rune-decoration rune-2"></div>
-                        <div class="rune-decoration rune-3"></div>
-                        <div class="rune-decoration rune-4"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="fortune-text">中平</div>
-                        <div class="wisdom-quote">希望是一个好东西，也许是最好的，好东西是不会消亡的。</div>
-                        <div class="quote-author">——斯蒂芬·金《肖申克的救赎》</div>
+                        <div class="card-back">
+                            <div class="shine-effect"></div>
+                            <div class="mystic-symbol"></div>
+                            <div class="rune-decoration rune-1"></div>
+                            <div class="rune-decoration rune-2"></div>
+                            <div class="rune-decoration rune-3"></div>
+                            <div class="rune-decoration rune-4"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="fortune-text">中平</div>
+                            <div class="wisdom-quote">希望是一个好东西，也许是最好的，好东西是不会消亡的。</div>
+                            <div class="quote-author">——斯蒂芬·金《肖申克的救赎》</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="tarot-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="center-symbol"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="card-icon">
-                            <i class="fas fa-question"></i>
+                
+                <div class="tarot-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="center-symbol"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="card-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-back">
-                        <div class="shine-effect"></div>
-                        <div class="mystic-symbol"></div>
-                        <div class="rune-decoration rune-1"></div>
-                        <div class="rune-decoration rune-2"></div>
-                        <div class="rune-decoration rune-3"></div>
-                        <div class="rune-decoration rune-4"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="fortune-text">小凶</div>
-                        <div class="wisdom-quote">不是每一种鸟都叫鹰，认清自己你才能活下去。</div>
-                        <div class="quote-author">——民间寓言</div>
+                        <div class="card-back">
+                            <div class="shine-effect"></div>
+                            <div class="mystic-symbol"></div>
+                            <div class="rune-decoration rune-1"></div>
+                            <div class="rune-decoration rune-2"></div>
+                            <div class="rune-decoration rune-3"></div>
+                            <div class="rune-decoration rune-4"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="fortune-text">小凶</div>
+                            <div class="wisdom-quote">不是每一种鸟都叫鹰，认清自己你才能活下去。</div>
+                            <div class="quote-author">——民间寓言</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="tarot-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="center-symbol"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="card-icon">
-                            <i class="fas fa-question"></i>
+                
+                <div class="tarot-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="center-symbol"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="card-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-back">
-                        <div class="shine-effect"></div>
-                        <div class="mystic-symbol"></div>
-                        <div class="rune-decoration rune-1"></div>
-                        <div class="rune-decoration rune-2"></div>
-                        <div class="rune-decoration rune-3"></div>
-                        <div class="rune-decoration rune-4"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="fortune-text">小凶</div>
-                        <div class="wisdom-quote">命运总是不如人愿，但往往是在无数的痛苦中，在重重的矛盾和艰辛中，才使人成熟起来。</div>
-                        <div class="quote-author">——路遥</div>
+                        <div class="card-back">
+                            <div class="shine-effect"></div>
+                            <div class="mystic-symbol"></div>
+                            <div class="rune-decoration rune-1"></div>
+                            <div class="rune-decoration rune-2"></div>
+                            <div class="rune-decoration rune-3"></div>
+                            <div class="rune-decoration rune-4"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="fortune-text">小凶</div>
+                            <div class="wisdom-quote">命运总是不如人愿，但往往是在无数的痛苦中，在重重的矛盾和艰辛中，才使人成熟起来。</div>
+                            <div class="quote-author">——路遥</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="tarot-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="center-symbol"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="card-icon">
-                            <i class="fas fa-question"></i>
+                
+                <div class="tarot-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="center-symbol"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="card-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-back">
-                        <div class="shine-effect"></div>
-                        <div class="mystic-symbol"></div>
-                        <div class="rune-decoration rune-1"></div>
-                        <div class="rune-decoration rune-2"></div>
-                        <div class="rune-decoration rune-3"></div>
-                        <div class="rune-decoration rune-4"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="fortune-text">大凶</div>
-                        <div class="wisdom-quote">我们若已接受最坏的，就再没有什么损失。</div>
-                        <div class="quote-author">——卡耐基</div>
+                        <div class="card-back">
+                            <div class="shine-effect"></div>
+                            <div class="mystic-symbol"></div>
+                            <div class="rune-decoration rune-1"></div>
+                            <div class="rune-decoration rune-2"></div>
+                            <div class="rune-decoration rune-3"></div>
+                            <div class="rune-decoration rune-4"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="fortune-text">大凶</div>
+                            <div class="wisdom-quote">我们若已接受最坏的，就再没有什么损失。</div>
+                            <div class="quote-author">——卡耐基</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="tarot-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="center-symbol"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="card-icon">
-                            <i class="fas fa-question"></i>
+                
+                <div class="tarot-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="center-symbol"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="card-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-back">
-                        <div class="shine-effect"></div>
-                        <div class="mystic-symbol"></div>
-                        <div class="rune-decoration rune-1"></div>
-                        <div class="rune-decoration rune-2"></div>
-                        <div class="rune-decoration rune-3"></div>
-                        <div class="rune-decoration rune-4"></div>
-                        <div class="corner-decoration corner-top-left"></div>
-                        <div class="corner-decoration corner-top-right"></div>
-                        <div class="corner-decoration corner-bottom-left"></div>
-                        <div class="corner-decoration corner-bottom-right"></div>
-                        <div class="fortune-text">中平</div>
-                        <div class="wisdom-quote">永远不要认为我们可以逃避，我们的每一步都决定着最后的结局。</div>
-                        <div class="quote-author">——米兰·昆德拉</div>
+                        <div class="card-back">
+                            <div class="shine-effect"></div>
+                            <div class="mystic-symbol"></div>
+                            <div class="rune-decoration rune-1"></div>
+                            <div class="rune-decoration rune-2"></div>
+                            <div class="rune-decoration rune-3"></div>
+                            <div class="rune-decoration rune-4"></div>
+                            <div class="corner-decoration corner-top-left"></div>
+                            <div class="corner-decoration corner-top-right"></div>
+                            <div class="corner-decoration corner-bottom-left"></div>
+                            <div class="corner-decoration corner-bottom-right"></div>
+                            <div class="fortune-text">中平</div>
+                            <div class="wisdom-quote">永远不要认为我们可以逃避，我们的每一步都决定着最后的结局。</div>
+                            <div class="quote-author">——米兰·昆德拉</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -982,14 +1169,31 @@
         
         <footer>
             <p>塔罗牌占卜仅供参考，命运掌握在自己手中</p>
-            <p>© 2023 神秘塔罗牌运势占卜 | 仅供娱乐</p>
+            <p>© 2025 神秘塔罗牌运势占卜 | 仅供娱乐</p>
         </footer>
+    </div>
+
+    <!-- 加载动画 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在连接神秘力量</div>
+        <div class="loading-subtext">请稍候，塔罗牌正在读取您的能量</div>
+        <div class="loading-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progressBar"></div>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.tarot-card');
             const resetBtn = document.querySelector('.reset-btn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const progressBar = document.getElementById('progressBar');
             let selectedCard = null;
             
             // 运势类型
@@ -1056,14 +1260,50 @@
                 });
             }
             
+            // 显示加载动画
+            function showLoading() {
+                loadingOverlay.classList.add('active');
+                progressBar.style.width = '0%';
+                
+                // 模拟进度条
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    progressBar.style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                    }
+                }, 50); // 5秒完成，每50毫秒增加5%
+                
+                return interval;
+            }
+            
+            // 隐藏加载动画
+            function hideLoading() {
+                loadingOverlay.classList.remove('active');
+            }
+            
             // 初始化随机内容
             assignRandomContents();
             
             // 卡片点击事件
             cards.forEach(card => {
-                card.addEventListener('click', () => {
+                card.addEventListener('click', async () => {
                     // 如果已经有选中的卡片，则不再处理点击
                     if (selectedCard) return;
+                    
+                    // 显示加载动画
+                    const progressInterval = showLoading();
+                    
+                    // 等待5秒
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                    
+                    // 清除进度条动画
+                    clearInterval(progressInterval);
+                    
+                    // 隐藏加载动画
+                    hideLoading();
                     
                     // 标记当前选中的卡片
                     selectedCard = card;
